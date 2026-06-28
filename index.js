@@ -25,7 +25,7 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
-  if (msg.text === '🤖 Поговорить с ИИ') {
+  if (msg.text === '🤖 Поговорить с ИИ') { 
     aiUsers[msg.chat.id] = true;
 
     bot.sendMessage(
@@ -35,7 +35,23 @@ bot.on('message', async (msg) => {
     return;
   }
 
-  if (msg.text === '👥 Найти собеседника') {
+  if (msg.text === '👤 Профиль') {
+  const firstName = msg.from.first_name || 'Не указано';
+
+  bot.sendMessage(
+    msg.chat.id,
+    `👤 Ваш профиль
+
+🆔 ID: ${msg.from.id}
+👤 Имя: ${firstName}
+✅ Статус: Не верифицирован
+📅 Регистрация: ${new Date().toLocaleDateString('ru-RU`)}`
+  );
+
+  return;
+}
+
+if (msg.text === '👥 Найти собеседника') {
     bot.sendMessage(
       msg.chat.id,
       'Поиск собеседника скоро появится 👥'
