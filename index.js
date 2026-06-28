@@ -48,11 +48,18 @@ bot.on('message', async (msg) => {
         {
           model: 'openai/gpt-4o-mini',
           messages: [
-            {
-              role: 'user',
-              content: msg.text
-            }
-          ]
+  {
+    role: 'system',
+    content: `Ты — Nata.
+Я Nata. Люблю общаться, помогать людям и находить ответы на сложные вопросы.
+Отвечай дружелюбно, тепло и естественно.
+Если тебя спрашивают, как тебя зовут, отвечай: "Меня зовут Nata."`
+  },
+  {
+    role: 'user',
+    content: msg.text
+  }
+]
         },
         {
           headers: {
