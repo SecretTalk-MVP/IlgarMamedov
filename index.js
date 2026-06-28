@@ -34,7 +34,21 @@ bot.on('message', async (msg) => {
     );
     return;
   }
+if (msg.text === '👤 Профиль') {
+  const firstName = msg.from.first_name || 'Не указано';
 
+  bot.sendMessage(
+    msg.chat.id,
+    `👤 Ваш профиль
+
+🆔 ID: ${msg.from.id}
+👤 Имя: ${firstName}
+✅ Статус: Не верифицирован
+📅 Регистрация: ${new Date().toLocaleDateString('ru-RU')}`
+  );
+
+  return;
+}
   if (msg.text === '👤 Профиль') {
   const firstName = msg.from.first_name || 'Не указано';
 
