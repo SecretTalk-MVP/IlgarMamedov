@@ -33,7 +33,19 @@ bot.on('message', async (msg) => {
   delete aiUsers[msg.chat.id];
   }
   if (msg.text === '🤖 Поговорить с ИИ') {
-    if (msg.text === '👨 Мой пол') {
+  aiUsers[msg.chat.id] = true;
+
+  bot.sendMessage(
+    msg.chat.id,
+    '🤖 Режим ИИ включён.\nНапишите любое сообщение.'
+  );
+
+  return;
+}
+
+if (msg.text === '👨 Мой пол') {
+  ...
+}
   bot.sendMessage(
     msg.chat.id,
     'Выберите ваш пол:',
