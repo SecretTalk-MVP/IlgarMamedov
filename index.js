@@ -86,7 +86,6 @@ if (
   msg.text.includes('Найти собеседника') ||
   msg.text.includes('Найти нового собеседника')
 ) {
-   ...
 }
 ) {
   const userId = msg.chat.id;
