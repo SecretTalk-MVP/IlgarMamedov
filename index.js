@@ -16,8 +16,9 @@ bot.onText(/\/start/, (msg) => {
         keyboard: [
   ['🤖 Поговорить с ИИ'],
   ['👥 Найти собеседника'],
+  ['⏭ Найти нового собеседника'],
   ['❌ Завершить диалог'],
-  ['👤 Профиль', '❤️ Избранное'],
+  ['👤 Профиль', '💗 Избранное'],
   ['⚙️ Настройки', '📞 Поддержка']
 ],
         resize_keyboard: true
@@ -38,7 +39,51 @@ bot.on('message', async (msg) => {
   return;
   }
 
-if (msg.text === '👥 Найти собеседника') {
+if (msg.text === '👥 Найти собеседника') {if (msg.text === '⏭ Найти нового собеседника') {
+  const userId = msg.chat.id;
+
+  if (dialogs[userId]) {
+    const partnerId = dialogs[userId];
+
+    delete dialogs[userId];
+    delete dialogs[partnerId];
+
+    bot.sendMessage(
+      partnerId,
+      '❌ Собеседник начал поиск нового собеседника.'
+    );
+  }
+
+  if (waitingUsers.includes(userId)) {
+    return;
+  }
+
+  if (waitingUsers.length > 0) {
+    const partnerId = waitingUsers.shift();
+
+    dialogs[userId] = partnerId;
+    dialogs[partnerId] = userId;
+
+    bot.sendMessage(
+      userId,
+      '✅ Новый собеседник найден!'
+    );
+
+    bot.sendMessage(
+      partnerId,
+      '✅ Новый собеседник найден!'
+    );
+  } else {
+    waitingUsers.push(userId);
+
+    bot.sendMessage(
+      userId,
+      '🔍 Ищем нового собеседника...'
+    );
+  }
+
+  return;
+}
   const userId = msg.chat.id;
 
   if (waitingUsers.includes(userId)) {
