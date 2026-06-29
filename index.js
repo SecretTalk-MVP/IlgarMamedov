@@ -26,30 +26,16 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
-  if (msg.text === '🤖 Поговорить с ИИ') { 
-    aiUsers[msg.chat.id] = true;
-
-    bot.sendMessage(
-      msg.chat.id,
-      '🤖 Режим ИИ включён.\nНапишите любое сообщение.'
-    );
-    return;
-  }
-if (msg.text === '👤 Профиль') {
-  const firstName = msg.from.first_name || 'Не указано';
+  if (msg.text === '🤖 Поговорить с ИИ') {
+  aiUsers[msg.chat.id] = true;
 
   bot.sendMessage(
     msg.chat.id,
-    `👤 Ваш профиль
-
-🆔 ID: ${msg.from.id}
-`👤 Имя: ${firstName}
-✅ Статус: Не верифицирован
-📅 Регистрация: ${new Date().toLocaleDateString('ru-RU')}`
+    '🤖 Режим ИИ включён.\nНапишите любое сообщение.'
   );
 
   return;
-}
+  }
 
 if (msg.text === '👥 Найти собеседника') {
   const userId = msg.chat.id;
@@ -79,9 +65,9 @@ if (dialogs[msg.chat.id]) {
   const partnerId = dialogs[msg.chat.id];
 
   bot.sendMessage(
-    partnerId,
-    `💬 ${msg.text}`
-  );
+  partnerId,
+  `💬 ${msg.text}`
+);
 
   return;
 }
