@@ -44,8 +44,6 @@ bot.on('message', async (msg) => {
 }
 
 if (msg.text === '👨 Мой пол') {
-  ...
-}
   bot.sendMessage(
     msg.chat.id,
     'Выберите ваш пол:',
@@ -62,8 +60,8 @@ if (msg.text === '👨 Мой пол') {
   );
 
   return;
-    }
-    if (msg.text === '👨 Мужчина' || msg.text === '👩 Женщина') {
+}
+  if (msg.text === '👨 Мужчина' || msg.text === '👩 Женщина') {
   if (!users[msg.chat.id]) {
     users[msg.chat.id] = {};
   }
@@ -76,12 +74,26 @@ if (msg.text === '👨 Мой пол') {
   );
 
   return;
+  }
+}
+
+if (msg.text === '🎯 Цель знакомства') {
+
+  return;
     }
-  aiUsers[msg.chat.id] = true;
+    if (
+  msg.text === '👨 Мужчина' ||
+  msg.text === '👩 Женщина'
+) {
+  if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+  }
+
+  users[msg.chat.id].gender = msg.text;
 
   bot.sendMessage(
     msg.chat.id,
-    '🤖 Режим ИИ включён.\nНапишите любое сообщение.'
+    `✅ Пол сохранён: ${msg.text}`
   );
 
   return;
@@ -108,7 +120,6 @@ if (msg.text === '👨 Мой пол') {
   return;
   }
 
-if (msg.text === '🎯 Цель знакомства') {
 if (msg.text === '🎯 Цель знакомства') {
   bot.sendMessage(
     msg.chat.id,
