@@ -40,10 +40,11 @@ bot.on('message', async (msg) => {
   }
   
 if (
-  msg.text === '👥 Найти собеседника' ||
-  msg.text === '⏭ Найти нового собеседника'
+  msg.text.includes('Найти собеседника') ||
+  msg.text.includes('Найти нового собеседника')
 ) {
   const userId = msg.chat.id;
+  bot.sendMessage(userId, 'Кнопка нажата');
 
   if (dialogs[userId]) {
     const partnerId = dialogs[userId];
