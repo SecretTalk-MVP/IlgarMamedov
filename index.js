@@ -61,7 +61,24 @@ if (msg.text === '👥 Найти собеседника') {
   return;
 }
 
-if (dialogs[msg.chat.id]) {
+if (msg.text === '❌ Завершить диалог') {
+  const userId = msg.chat.id;
+  const partnerId = dialogs[userId];
+
+  if (!partnerId) {
+    bot.sendMessage(userId, 'У вас нет активного диалога.');
+    return;
+  }
+
+  delete dialogs[userId];
+  delete dialogs[partnerId];
+
+  bot.sendMessage(userId, '❌ Диалог завершён.');
+  bot.sendMessage(partnerId, '❌ Собеседник покинул чат.');
+
+  return;
+}
+  if (dialogs[msg.chat.id]) {
   const partnerId = dialogs[msg.chat.id];
 
   bot.sendMessage(
