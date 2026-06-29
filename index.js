@@ -38,7 +38,7 @@ bot.on('message', async (msg) => {
 
   return;
   }
-
+  
 if (
   msg.text === '👥 Найти собеседника' ||
   msg.text === '⏭ Найти нового собеседника'
