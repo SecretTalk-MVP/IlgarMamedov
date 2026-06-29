@@ -56,6 +56,30 @@ bot.on('message', async (msg) => {
   }
 
 if (msg.text === '🎯 Цель знакомства') {
+if (msg.text === '🎯 Цель знакомства') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Выберите цель знакомства:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['💬 Общение'],
+          ['🤝 Дружба'],
+          ['❤️ Отношения'],
+          ['💍 Создать семью'],
+          ['😘 Флирт'],
+          ['🔥 Одноразовая встреча'],
+          ['✈️ Попутчик'],
+          ['🎲 Не важно'],
+          ['🔙 Назад']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+}
   const goals = [
   '💬 Общение',
   '🤝 Дружба',
@@ -68,6 +92,10 @@ if (msg.text === '🎯 Цель знакомства') {
 ];
 
 if (goals.includes(msg.text)) {
+  if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+  }
+
   users[msg.chat.id].goal = msg.text;
 
   bot.sendMessage(
@@ -76,9 +104,6 @@ if (goals.includes(msg.text)) {
   );
 
   return;
-}
-   // код целей
-   return;
 }
 
 if (
