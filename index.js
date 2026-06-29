@@ -85,29 +85,6 @@ if (
       '🔍 Ищем нового собеседника...'
     );
   }
-
-  return;
-}
-  const userId = msg.chat.id;
-
-  if (waitingUsers.includes(userId)) {
-    bot.sendMessage(userId, '⏳ Вы уже ожидаете собеседника.');
-    return;
-  }
-
-  if (waitingUsers.length > 0) {
-    const partnerId = waitingUsers.shift();
-
-    dialogs[userId] = partnerId;
-    dialogs[partnerId] = userId;
-
-    bot.sendMessage(userId, '✅ Собеседник найден! Напишите сообщение.');
-    bot.sendMessage(partnerId, '✅ Собеседник найден! Напишите сообщение.');
-  } else {
-    waitingUsers.push(userId);
-    bot.sendMessage(userId, '🔍 Ищем собеседника...');
-  }
-
   return;
 }
 
