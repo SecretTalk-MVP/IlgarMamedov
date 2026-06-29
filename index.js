@@ -86,21 +86,20 @@ if (
   msg.text.includes('Найти собеседника') ||
   msg.text.includes('Найти нового собеседника')
 ) {
-}
-) {
   const userId = msg.chat.id;
-  if (!users[userId]) {
-  users[userId] = {
-    goal: '🎲 Не важно',
-    city: null,
-    radius: null,
-    gender: null,
-    searchGender: 'all',
-    violations: 0,
-    blockedUntil: null
-  };
-  }
 
+  if (!users[userId]) {
+    users[userId] = {
+      goal: '🎲 Не важно',
+      city: null,
+      radius: null,
+      gender: null,
+      searchGender: 'all',
+      violations: 0,
+      blockedUntil: null
+    };
+  }
+}
   if (dialogs[userId]) {
     const partnerId = dialogs[userId];
 
