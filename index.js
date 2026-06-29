@@ -39,10 +39,58 @@ bot.on('message', async (msg) => {
 
   return;
   }
-  
+  if (msg.text === '⚙️ Настройки') {
+  bot.sendMessage(
+    msg.chat.id,
+    '⚙️ Настройки\n\nВыберите параметр:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['🎯 Цель знакомства'],
+          ['🌍 Мой город'],
+          ['📍 Радиус поиска'],
+          ['🔙 Назад']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+  }
+
+if (msg.text === '🎯 Цель знакомства') {
+  const goals = [
+  '💬 Общение',
+  '🤝 Дружба',
+  '❤️ Отношения',
+  '💍 Создать семью',
+  '😘 Флирт',
+  '🔥 Одноразовая встреча',
+  '✈️ Попутчик',
+  '🎲 Не важно'
+];
+
+if (goals.includes(msg.text)) {
+  users[msg.chat.id].goal = msg.text;
+
+  bot.sendMessage(
+    msg.chat.id,
+    `✅ Цель установлена: ${msg.text}`
+  );
+
+  return;
+}
+   // код целей
+   return;
+}
+
 if (
   msg.text.includes('Найти собеседника') ||
   msg.text.includes('Найти нового собеседника')
+) {
+   ...
+}
 ) {
   const userId = msg.chat.id;
   if (!users[userId]) {
