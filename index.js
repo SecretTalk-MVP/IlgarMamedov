@@ -111,6 +111,7 @@ if (
   msg.text.includes('Найти нового собеседника')
 ) {
   const userId = msg.chat.id;
+  delete aiUsers[userId];
 
   if (!users[userId]) {
     users[userId] = {
