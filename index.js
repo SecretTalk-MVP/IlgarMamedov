@@ -14,8 +14,7 @@ bot.onText(/\/start/, (msg) => {
     'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
     {
       reply_markup: {
-  reply_markup: {
-  keyboard: [,
+  keyboard: [
     ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
     ['⚙️ Фильтр поиска']
   ],: true
