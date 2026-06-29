@@ -5,7 +5,8 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiUsers = {};
-
+const waitingUsers = [];
+const dialogs = {};
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
@@ -51,14 +52,41 @@ if (msg.text === '👤 Профиль') {
 }
 
 if (msg.text === '👥 Найти собеседника') {
-    bot.sendMessage(
-      msg.chat.id,
-      'Поиск собеседника скоро появится 👥'
-    );
+  const userId = msg.chat.id;
+
+  if (waitingUsers.includes(userId)) {
+    bot.sendMessage(userId, '⏳ Вы уже ожидаете собеседника.');
     return;
   }
 
-  if (aiUsers[msg.chat.id]) {
+  if (waitingUsers.length > 0) {
+    const partnerId = waitingUsers.shift();
+
+    dialogs[userId] = partnerId;
+    dialogs[partnerId] = userId;
+
+    bot.sendMessage(userId, '✅ Собеседник найден! Напишите сообщение.');
+    bot.sendMessage(partnerId, '✅ Собеседник найден! Напишите сообщение.');
+  } else {
+    waitingUsers.push(userId);
+    bot.sendMessage(userId, '🔍 Ищем собеседника...');
+  }
+
+  return;
+}
+
+if (dialogs[msg.chat.id]) {
+  const partnerId = dialogs[msg.chat.id];
+
+  bot.sendMessage(
+    partnerId,
+    `💬 ${msg.text}`
+  );
+
+  return;
+}
+
+if (aiUsers[msg.chat.id]) {
     try {
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
