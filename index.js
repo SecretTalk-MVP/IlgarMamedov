@@ -14,12 +14,12 @@ bot.onText(/\/start/, (msg) => {
     'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
     {
       reply_markup: {
-  keyboard: ],
+  reply_markup: {
+  keyboard: [,
     ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
     ['⚙️ Фильтр поиска']
-  ],
-  resize_keyboard: true
-      }
+  ],: true
+  }
     }
   );
 });
