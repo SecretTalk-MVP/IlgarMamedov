@@ -44,7 +44,6 @@ if (
   msg.text.includes('Найти нового собеседника')
 ) {
   const userId = msg.chat.id;
-  bot.sendMessage(userId, 'Кнопка нажата');
 
   if (dialogs[userId]) {
     const partnerId = dialogs[userId];
