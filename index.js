@@ -9,16 +9,17 @@ const waitingUsers = [];
 const dialogs = {};
 const users = {};
 bot.onText(/\/start/, (msg) => {
+  bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
     'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
     {
       reply_markup: {
-  keyboard: [
-  ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
-  ['⚙️ Фильтр поиска'],
-],
-  resize_keyboard: true
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['⚙️ Фильтр поиска']
+        ],
+        resize_keyboard: true
       }
     }
   );
