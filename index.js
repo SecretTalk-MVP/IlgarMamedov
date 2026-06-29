@@ -33,6 +33,38 @@ bot.on('message', async (msg) => {
   delete aiUsers[msg.chat.id];
   }
   if (msg.text === '🤖 Поговорить с ИИ') {
+    if (msg.text === '👨 Мой пол') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Выберите ваш пол:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['👨 Мужчина'],
+          ['👩 Женщина'],
+          ['🔙 Назад']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+    }
+    if (msg.text === '👨 Мужчина' || msg.text === '👩 Женщина') {
+  if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+  }
+
+  users[msg.chat.id].gender = msg.text;
+
+  bot.sendMessage(
+    msg.chat.id,
+    `✅ Пол сохранён: ${msg.text}`
+  );
+
+  return;
+    }
   aiUsers[msg.chat.id] = true;
 
   bot.sendMessage(
