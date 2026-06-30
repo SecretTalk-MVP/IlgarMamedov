@@ -165,7 +165,6 @@ if (
       blockedUntil: null
     };
   }
-}
   if (dialogs[userId]) {
     const partnerId = dialogs[userId];
 
