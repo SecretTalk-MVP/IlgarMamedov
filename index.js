@@ -75,7 +75,6 @@ if (msg.text === '👨 Мой пол') {
 
   return;
   }
-
   if (msg.text === '⚙️ Фильтр поиска') {
   bot.sendMessage(
     msg.chat.id,
