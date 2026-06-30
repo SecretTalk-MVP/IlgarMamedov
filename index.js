@@ -75,21 +75,6 @@ if (msg.text === '👨 Мой пол') {
 
   return;
   }
-}
-
-if (msg.text === '🎯 Цель знакомства') {
-
-  return;
-    }
-    if (
-  msg.text === '👨 Мужчина' ||
-  msg.text === '👩 Женщина'
-) {
-  if (!users[msg.chat.id]) {
-    users[msg.chat.id] = {};
-  }
-
-  users[msg.chat.id].gender = msg.text;
 
   bot.sendMessage(
     msg.chat.id,
