@@ -76,13 +76,6 @@ if (msg.text === '👨 Мой пол') {
   return;
   }
 
-  bot.sendMessage(
-    msg.chat.id,
-    `✅ Пол сохранён: ${msg.text}`
-  );
-
-  return;
-  }
   if (msg.text === '⚙️ Фильтр поиска') {
   bot.sendMessage(
     msg.chat.id,
