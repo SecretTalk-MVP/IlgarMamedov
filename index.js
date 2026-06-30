@@ -8,6 +8,7 @@ const aiUsers = {};
 const waitingUsers = [];
 const dialogs = {};
 const users = {};
+const waitingTimers = {};
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
