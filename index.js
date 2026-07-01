@@ -199,6 +199,20 @@ if (
     );
   } else {
     waitingUsers.push(userId);
+    waitingTimers[userId] = setTimeout(() => {
+  const index = waitingUsers.indexOf(userId);
+
+  if (index !== -1) {
+    waitingUsers.splice(index, 1);
+
+    bot.sendMessage(
+      userId,
+      '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
+    );
+  }
+
+  delete waitingTimers[userId];
+}, 120000);
 
     bot.sendMessage(
       userId,
