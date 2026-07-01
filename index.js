@@ -212,7 +212,7 @@ if (
   }
 
   delete waitingTimers[userId];
-}, 120000);
+}, 10000);
 
     bot.sendMessage(
       userId,
