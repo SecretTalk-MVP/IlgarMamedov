@@ -284,15 +284,19 @@ if (msg.text === '❌ Завершить диалог') {
 
   return;
 }
-  if (dialogs[msg.chat.id]) {
+  if (dialogs[msg.chat.id] && !aiUsers[msg.chat.id]) {
   const partnerId = dialogs[msg.chat.id];
 
   bot.sendMessage(
-  partnerId,
-  `💬 ${msg.text}`
-);
+    partnerId,
+    `💬 ${msg.text}`
+  );
 
   return;
+}
+
+if (aiUsers[msg.chat.id]) {
+   ...
 }
 
 if (aiUsers[msg.chat.id]) {
