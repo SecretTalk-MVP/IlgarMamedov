@@ -9,6 +9,37 @@ const waitingUsers = [];
 const dialogs = {};
 const users = {};
 const waitingTimers = {};
+const aiUsers = {};
+const waitingUsers = [];
+const dialogs = {};
+const users = {};
+const waitingTimers = {};
+
+function clearUserState(userId) {
+    delete aiUsers[userId];
+
+    const index = waitingUsers.indexOf(userId);
+    if (index !== -1) {
+        waitingUsers.splice(index, 1);
+    }
+
+    if (waitingTimers[userId]) {
+        clearTimeout(waitingTimers[userId]);
+        delete waitingTimers[userId];
+    }
+
+    if (dialogs[userId]) {
+        const partnerId = dialogs[userId];
+
+        delete dialogs[userId];
+        delete dialogs[partnerId];
+
+        bot.sendMessage(
+            partnerId,
+            '❌ Ваш собеседник покинул чат.'
+        );
+    }
+}
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
