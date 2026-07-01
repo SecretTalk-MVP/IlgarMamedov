@@ -211,23 +211,39 @@ if (
     return;
   }
 
-  if (waitingUsers.length > 0) {
-    const partnerId = waitingUsers.shift();
+  let partnerId = null;
 
+while (waitingUsers.length > 0) {
+    const candidate = waitingUsers.shift();
+
+    if (candidate === userId) {
+        continue;
+    }
+
+    if (aiUsers[candidate]) {
+        continue;
+    }
+
+    partnerId = candidate;
+    break;
+}
+
+if (partnerId) {
     dialogs[userId] = partnerId;
     dialogs[partnerId] = userId;
 
     bot.sendMessage(
-      userId,
-      '✅ Новый собеседник найден!'
+        userId,
+        '✅ Новый собеседник найден!'
     );
 
     bot.sendMessage(
-      partnerId,
-      '✅ Новый собеседник найден!'
+        partnerId,
+        '✅ Новый собеседник найден!'
     );
-  } else {
+} else {
     waitingUsers.push(userId);
+
     waitingTimers[userId] = setTimeout(() => {
   const index = waitingUsers.indexOf(userId);
 
@@ -241,7 +257,7 @@ if (
   }
 
   delete waitingTimers[userId];
-}, 10000);
+}, 30000);
 
     bot.sendMessage(
       userId,
