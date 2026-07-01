@@ -9,11 +9,6 @@ const waitingUsers = [];
 const dialogs = {};
 const users = {};
 const waitingTimers = {};
-const aiUsers = {};
-const waitingUsers = [];
-const dialogs = {};
-const users = {};
-const waitingTimers = {};
 
 function clearUserState(userId) {
     delete aiUsers[userId];
