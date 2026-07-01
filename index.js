@@ -53,19 +53,22 @@ bot.onText(/\/start/, (msg) => {
 
 bot.on('message', async (msg) => {
   if (
-  msg.text === '👥 Найти собеседника' ||
-  msg.text === '⚙️ Фильтр поиска' ||
-  msg.text === '🎯 Цель знакомства'
+    msg.text === '👥 Найти собеседника' ||
+    msg.text === '⚙️ Фильтр поиска' ||
+    msg.text === '🎯 Цель знакомства'
 ) {
-  delete aiUsers[msg.chat.id];
+    clearUserState(msg.chat.id);
   }
   if (msg.text === '🤖 Поговорить с ИИ') {
-  aiUsers[msg.chat.id] = true;
+  const userId = msg.chat.id;
+clearUserState(userId);
+
+aiUsers[userId] = true;
 
   bot.sendMessage(
-    msg.chat.id,
+    userId,
     '🤖 Режим ИИ включён.\nНапишите любое сообщение.'
-  );
+);
 
   return;
 }
