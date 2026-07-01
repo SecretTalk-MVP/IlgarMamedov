@@ -181,6 +181,11 @@ if (
   msg.text.includes('Найти собеседника') ||
   msg.text.includes('Найти нового собеседника')
 ) {
+    bot.sendMessage(
+  msg.chat.id,
+  '🚧 Идёт разработка функции поиска собеседника.'
+);
+return;
   const userId = msg.chat.id;
   delete aiUsers[userId];
 
