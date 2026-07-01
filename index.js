@@ -216,7 +216,7 @@ if (
 
     bot.sendMessage(
       userId,
-      '🔍 Ищем нового собеседника...'
+      '🧪 DEV TEST'
     );
   }
   return;
