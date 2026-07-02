@@ -8,6 +8,7 @@ const aiUsers = {};
 const waitingUsers = [];
 const dialogs = {};
 const users = {};
+const chatHistory = {};
 const waitingTimers = {};
 
 function clearUserState(userId) {
@@ -327,9 +328,19 @@ if (msg.text === '❌ Завершить диалог') {
 }
 
 if (aiUsers[msg.chat.id]) {
-    try {
-      const response = await axios.post(
-        'https://openrouter.ai/api/v1/chat/completions',
+  try {
+
+    if (!chatHistory[msg.chat.id]) {
+      chatHistory[msg.chat.id] = [];
+    }
+
+    chatHistory[msg.chat.id].push({
+      role: 'user',
+      content: msg.text
+    });
+
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
         {
           model: 'openai/gpt-4o-mini',
           messages: [
