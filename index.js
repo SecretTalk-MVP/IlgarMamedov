@@ -301,10 +301,6 @@ if (msg.text === '❌ Завершить диалог') {
 }
 
 if (aiUsers[msg.chat.id]) {
-   ...
-}
-
-if (aiUsers[msg.chat.id]) {
     try {
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
