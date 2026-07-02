@@ -59,6 +59,23 @@ bot.on('message', async (msg) => {
 ) {
     clearUserState(msg.chat.id);
   }
+if (msg.text === '🔙 Назад') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Главное меню:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['⚙️ Фильтр поиска']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+}
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
 clearUserState(userId);
