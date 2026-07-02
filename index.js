@@ -115,12 +115,21 @@ if (msg.text === '👨 Мой пол') {
 
   users[msg.chat.id].gender = msg.text;
 
-  bot.sendMessage(
-    msg.chat.id,
-    `✅ Пол сохранён: ${msg.text}`
-  );
+ bot.sendMessage(
+  msg.chat.id,
+  `✅ Пол сохранён: ${msg.text}`,
+  {
+    reply_markup: {
+      keyboard: [
+        ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+        ['⚙️ Фильтр поиска']
+      ],
+      resize_keyboard: true
+    }
+  }
+);
 
-  return;
+return;
   }
   if (msg.text === '⚙️ Фильтр поиска') {
   bot.sendMessage(
