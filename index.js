@@ -400,10 +400,7 @@ if (aiUsers[msg.chat.id]) {
 быть живой виртуальной собеседницей, с которой человеку приятно проводить время и к которой хочется возвращаться.
 `
   },
-  {
-    role: 'user',
-    content: msg.text
-  }
+  ...chatHistory[msg.chat.id]
 ]
         },
         {
@@ -416,6 +413,15 @@ if (aiUsers[msg.chat.id]) {
 
       const answer =
         response.data.choices[0].message.content;
+        chatHistory[msg.chat.id].push({
+  role: 'assistant',
+  content: answer
+});
+
+if (chatHistory[msg.chat.id].length > 20) {
+  chatHistory[msg.chat.id] =
+    chatHistory[msg.chat.id].slice(-20);
+}
 
       bot.sendMessage(msg.chat.id, answer);
     } catch (error) {
