@@ -453,9 +453,9 @@ if (aiUsers[msg.chat.id]) {
   content: answer
 });
 
-if (chatHistory[msg.chat.id].length > 20) {
+if (chatHistory[msg.chat.id].length > 60) {
   chatHistory[msg.chat.id] =
-    chatHistory[msg.chat.id].slice(-20);
+    chatHistory[msg.chat.id].slice(-60);
 }
 
       bot.sendMessage(msg.chat.id, answer);
