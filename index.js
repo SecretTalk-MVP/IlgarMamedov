@@ -210,8 +210,7 @@ if (
 ) {
     bot.sendMessage(
   msg.chat.id,
-  '🚧 Идёт разработка функции поиска собеседника.'
-);
+  '🔍 Ищем собеседника...'
 return;
   const userId = msg.chat.id;
   delete aiUsers[userId];
