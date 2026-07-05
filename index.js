@@ -25,12 +25,6 @@ function saveMemory(userId, key, value) {
 
     memories[userId][key] = value;
 }
-    delete aiUsers[userId];
-
-    const index = waitingUsers.indexOf(userId);
-    if (index !== -1) {
-        waitingUsers.splice(index, 1);
-    }
 
     if (waitingTimers[userId]) {
         clearTimeout(waitingTimers[userId]);
