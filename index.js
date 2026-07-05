@@ -15,16 +15,9 @@ function clearUserState(userId) {
     delete aiUsers[userId];
 
     const index = waitingUsers.indexOf(userId);
-    ...
-}
-
-function saveMemory(userId, key, value) {
-    if (!memories[userId]) {
-        memories[userId] = {};
+    if (index !== -1) {
+        waitingUsers.splice(index, 1);
     }
-
-    memories[userId][key] = value;
-}
 
     if (waitingTimers[userId]) {
         clearTimeout(waitingTimers[userId]);
