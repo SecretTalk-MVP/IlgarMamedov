@@ -205,13 +205,17 @@ if (goals.includes(msg.text)) {
 }
 
 if (
-  msg.text.includes('Найти собеседника') ||
-  msg.text.includes('Найти нового собеседника')
+  msg.text &&
+  (
+    msg.text.includes('Найти собеседника') ||
+    msg.text.includes('Найти нового собеседника')
+  )
 ) {
     bot.sendMessage(
   msg.chat.id,
   '🔍 Ищем собеседника...'
-return;
+);
+
   const userId = msg.chat.id;
   delete aiUsers[userId];
 
