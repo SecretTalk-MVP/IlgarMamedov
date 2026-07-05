@@ -5,13 +5,20 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiUsers = {};
+const memories = {};
 const waitingUsers = [];
 const dialogs = {};
 const users = {};
-const chatHistory = {};
 const waitingTimers = {};
 
 function clearUserState(userId) {
+    function saveMemory(userId, key, value) {
+    if (!memories[userId]) {
+        memories[userId] = {};
+    }
+
+    memories[userId][key] = value;
+    }
     delete aiUsers[userId];
 
     const index = waitingUsers.indexOf(userId);
