@@ -12,13 +12,19 @@ const users = {};
 const waitingTimers = {};
 
 function clearUserState(userId) {
-    function saveMemory(userId, key, value) {
+    delete aiUsers[userId];
+
+    const index = waitingUsers.indexOf(userId);
+    ...
+}
+
+function saveMemory(userId, key, value) {
     if (!memories[userId]) {
         memories[userId] = {};
     }
 
     memories[userId][key] = value;
-    }
+}
     delete aiUsers[userId];
 
     const index = waitingUsers.indexOf(userId);
