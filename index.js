@@ -6,6 +6,7 @@ const bot = new TelegramBot(token, { polling: true });
 
 const aiUsers = {};
 const memories = {};
+const chatHistory = {};
 const waitingUsers = [];
 const dialogs = {};
 const users = {};
