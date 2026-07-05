@@ -266,6 +266,11 @@ while (waitingUsers.length > 0) {
 if (partnerId) {
     dialogs[userId] = partnerId;
     dialogs[partnerId] = userId;
+    clearTimeout(waitingTimers[userId]);
+clearTimeout(waitingTimers[partnerId]);
+
+delete waitingTimers[userId];
+delete waitingTimers[partnerId];
 
     bot.sendMessage(
         userId,
