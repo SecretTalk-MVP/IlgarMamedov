@@ -201,7 +201,7 @@ if (goals.includes(msg.text)) {
     `✅ Цель установлена: ${msg.text}`
   );
 
-  return;
+  // return;
 }
 
 if (
