@@ -12,6 +12,34 @@ const dialogs = {};
 const users = {};
 const waitingTimers = {};
 let chatHistory = {};
+function saveChat(user1, user2, message) {
+    const chatId = [user1, user2].sort().join('_');
+
+    if (!chatHistory[chatId]) {
+        chatHistory[chatId] = [];
+    }
+
+    chatHistory[chatId].push({
+        from: user1,
+        to: user2,
+        text: message.text || '',
+        date: new Date().toISOString(),
+        type:
+            message.text ? 'text' :
+            message.photo ? 'photo' :
+            message.video ? 'video' :
+            message.voice ? 'voice' :
+            message.video_note ? 'video_note' :
+            message.document ? 'document' :
+            message.location ? 'location' :
+            'other'
+    });
+
+    fs.writeFileSync(
+        'chats.json',
+        JSON.stringify(chatHistory, null, 2)
+    );
+}
 
 if (fs.existsSync('chats.json')) {
     chatHistory = JSON.parse(
