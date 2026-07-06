@@ -328,11 +328,15 @@ if (msg.text === '❌ Завершить диалог') {
   if (dialogs[msg.chat.id] && !aiUsers[msg.chat.id]) {
   const partnerId = dialogs[msg.chat.id];
 
-  await bot.copyMessage(
-    partnerId,
-    msg.chat.id,
-    msg.message_id
-  );
+  try {
+    await bot.copyMessage(
+      partnerId,
+      msg.chat.id,
+      msg.message_id
+    );
+  } catch (err) {
+    console.log(err);
+  }
 
   return;
 }
