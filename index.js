@@ -1,16 +1,23 @@
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
+const fs = require('fs');
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiUsers = {};
 const memories = {};
-const chatHistory = {};
 const waitingUsers = [];
 const dialogs = {};
 const users = {};
 const waitingTimers = {};
+let chatHistory = {};
+
+if (fs.existsSync('chats.json')) {
+    chatHistory = JSON.parse(
+        fs.readFileSync('chats.json', 'utf8')
+    );
+}
 
 function clearUserState(userId) {
     delete aiUsers[userId];
