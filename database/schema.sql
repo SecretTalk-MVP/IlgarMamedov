@@ -1,0 +1,1 @@
+-- SecretTalk Database Schema
