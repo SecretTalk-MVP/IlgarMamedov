@@ -110,6 +110,7 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
+  console.log("MESSAGE:", msg.from.id);
   await saveUser(msg);
   if (
     msg.text === '👥 Найти собеседника' ||
