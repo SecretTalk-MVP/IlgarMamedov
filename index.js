@@ -30,7 +30,7 @@ async function saveUser(msg) {
       ]
     );
   } catch (err) {
-    console.error('DB User Error:', err.message);
+    console.error(err);
   }
 }
 function saveChat(user1, user2, message) {
