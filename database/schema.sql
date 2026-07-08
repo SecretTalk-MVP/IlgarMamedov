@@ -24,3 +24,11 @@ CREATE TABLE dialogs (
     ended_at TIMESTAMP,
     active BOOLEAN DEFAULT TRUE
 );
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    dialog_id INTEGER,
+    sender BIGINT NOT NULL,
+    message_type TEXT DEFAULT 'text',
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
