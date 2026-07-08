@@ -13,6 +13,26 @@ const dialogs = {};
 const users = {};
 const waitingTimers = {};
 let chatHistory = {};
+async function saveUser(msg) {
+  try {
+    await db.query(
+      `INSERT INTO users (telegram_id, username, first_name)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (telegram_id)
+       DO UPDATE SET
+         username = EXCLUDED.username,
+         first_name = EXCLUDED.first_name,
+         last_seen = CURRENT_TIMESTAMP`,
+      [
+        msg.from.id,
+        msg.from.username || null,
+        msg.from.first_name || null
+      ]
+    );
+  } catch (err) {
+    console.error('DB User Error:', err.message);
+  }
+}
 function saveChat(user1, user2, message) {
     const chatId = [user1, user2].sort().join('_');
 
