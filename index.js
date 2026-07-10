@@ -168,6 +168,20 @@ if (msg.text === '👨 Мой пол') {
 
   return;
 }
+  if (msg.text === '🎂 Мой возраст') {
+    if (!users[msg.chat.id]) {
+        users[msg.chat.id] = {};
+    }
+
+    users[msg.chat.id].waitingFor = 'age';
+
+    bot.sendMessage(
+        msg.chat.id,
+        '🎂 Введите ваш возраст (например: 25).\n\nТолько число.'
+    );
+
+    return;
+  }
   if (msg.text === '👨 Мужчина' || msg.text === '👩 Женщина') {
   if (!users[msg.chat.id]) {
     users[msg.chat.id] = {};
