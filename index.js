@@ -259,7 +259,21 @@ return;
 
   return;
   }
+  
+if (msg.text === '🌍 Мой город') {
+    if (!users[msg.chat.id]) {
+        users[msg.chat.id] = {};
+    }
 
+    users[msg.chat.id].waitingFor = 'city';
+
+    bot.sendMessage(
+        msg.chat.id,
+        '🌍 Введите название вашего города.\n\nНапример: Москва'
+    );
+
+    return;
+}
 if (msg.text === '🎯 Цель знакомства') {
   bot.sendMessage(
     msg.chat.id,
