@@ -110,6 +110,39 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
+  if (
+    users[msg.chat.id] &&
+    users[msg.chat.id].waitingFor === 'age'
+) {
+    const age = parseInt(msg.text);
+
+    if (isNaN(age) || age < 18 || age > 99) {
+        bot.sendMessage(
+            msg.chat.id,
+            '❌ Введите возраст числом от 18 до 99.'
+        );
+        return;
+    }
+
+    users[msg.chat.id].age = age;
+    delete users[msg.chat.id].waitingFor;
+
+    bot.sendMessage(
+        msg.chat.id,
+        `✅ Возраст сохранён: ${age}`,
+        {
+            reply_markup: {
+                keyboard: [
+                    ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+                    ['⚙️ Фильтр поиска']
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
+
+    return;
+  }
   console.log("MESSAGE:", msg.from.id);
   await saveUser(msg);
   if (
