@@ -274,6 +274,29 @@ if (msg.text === '🌍 Мой город') {
 
     return;
 }
+
+  if (msg.text === '📍 Радиус поиска') {
+
+    bot.sendMessage(
+        msg.chat.id,
+        '📍 Выберите радиус поиска:',
+        {
+            reply_markup: {
+                keyboard: [
+                    ['📍 5 км'],
+                    ['📍 10 км'],
+                    ['📍 25 км'],
+                    ['📍 50 км'],
+                    ['🌍 Без ограничений'],
+                    ['⬅️ Назад']
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
+
+    return;
+  }
 if (msg.text === '🎯 Цель знакомства') {
   bot.sendMessage(
     msg.chat.id,
