@@ -316,8 +316,6 @@ users[msg.chat.id].waitingFor = 'radius';
                     ['📍 300 км'],
                     ['📍 500 км'],
                     ['🌍 Без ограничений'],
-                    ['⬅️ Назад']
-                ],
                 resize_keyboard: true
             }
         }
