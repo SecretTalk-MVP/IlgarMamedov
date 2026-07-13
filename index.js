@@ -140,6 +140,27 @@ bot.on('message', async (msg) => {
             }
         }
     );
+    if (
+    users[msg.chat.id] &&
+    users[msg.chat.id].waitingFor === 'radius'
+) {
+    users[msg.chat.id].radius = msg.text;
+
+    delete users[msg.chat.id].waitingFor;
+
+    bot.sendMessage(
+        msg.chat.id,
+        `✅ Радиус поиска сохранён: ${msg.text}`,
+        {
+            reply_markup: {
+                keyboard: [
+                    ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+                    ['⚙️ Фильтр поиска']
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
 
     return;
   }
@@ -276,11 +297,16 @@ if (msg.text === '🌍 Мой город') {
 }
 
   if (msg.text === '📍 Радиус поиска') {
+if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+}
 
+users[msg.chat.id].waitingFor = 'radius';
     bot.sendMessage(
         msg.chat.id,
         '📍 Выберите радиус поиска:',
         {
+          
             reply_markup: {
                 keyboard: [
                     ['📍 5 км'],
