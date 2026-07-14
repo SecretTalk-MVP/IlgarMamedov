@@ -268,33 +268,6 @@ if (msg.text === '🌍 Мой город') {
     bot.sendMessage(
         msg.chat.id,
         '🌍 Введите название вашего города.\n\nНапример: Москва'
-    );
-
-    return;
-}
-
-  if (msg.text === '📍 Радиус поиска') {
-if (!users[msg.chat.id]) {
-    users[msg.chat.id] = {};
-}
-
-users[msg.chat.id].waitingFor = 'radius';
-    bot.sendMessage(
-        msg.chat.id,
-        '📍 Выберите радиус поиска:',
-        {
-          
-            reply_markup: {
-                keyboard: [
-                    ['📍 5 км'],
-                    ['📍 10 км'],
-                    ['📍 25 км'],
-                    ['📍 50 км'],
-                    ['📍 300 км'],
-                    ['📍 500 км'],
-                    ['🌍 Без ограничений'],
-                resize_keyboard: true
-            }
         }
     );
 
