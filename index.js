@@ -190,7 +190,6 @@ if (msg.text === '👨 Мой пол') {
         keyboard: [
           ['👨 Мужчина'],
           ['👩 Женщина'],
-          ['⬅️ Назад']
         ],
         resize_keyboard: true
       }
