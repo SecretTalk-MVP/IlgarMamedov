@@ -579,5 +579,5 @@ if (chatHistory[msg.chat.id].length > 60) {
       );
     }
   }
-
+});
 console.log('SecretTalk started...');
