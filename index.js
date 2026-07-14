@@ -146,6 +146,23 @@ bot.on('message', async (msg) => {
 
 console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
+  if (msg.text === '/admin') {
+
+  if (msg.from.id !== 1496574112) {
+    bot.sendMessage(
+      msg.chat.id,
+      '⛔ Доступ запрещён.'
+    );
+    return;
+  }
+
+  bot.sendMessage(
+    msg.chat.id,
+    '👑 Панель администратора\n\nДобро пожаловать!'
+  );
+
+  return;
+  }
 
 if (
   msg.text === '👥 Найти собеседника' ||
