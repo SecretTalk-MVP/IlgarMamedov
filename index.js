@@ -13,6 +13,7 @@ const dialogs = {};
 const users = {};
 const waitingTimers = {};
 let chatHistory = {};
+const onlineUsers = new Set();
 async function saveUser(msg) {
   try {
     await db.query(
@@ -146,6 +147,7 @@ bot.on('message', async (msg) => {
 
 console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
+  onlineUsers.add(msg.from.id);
   if (msg.text === '/admin') {
 
   if (msg.from.id !== 1496574112) {
