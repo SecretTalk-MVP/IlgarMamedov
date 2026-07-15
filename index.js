@@ -135,7 +135,7 @@ bot.on('message', async (msg) => {
     {
       reply_markup: {
         keyboard: [
-          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['🤖 Поговорить с ИИ', '👥 Find People'],
           ['⚙️ Фильтр поиска']
         ],
         resize_keyboard: true
@@ -168,7 +168,7 @@ await saveUser(msg);
         keyboard: [
           ['👥 Онлайн', '📊 Статистика'],
           ['📢 Рассылка', '💬 Активные чаты'],
-          ['⚙️ Настройки'],
+          ['⚙️ Settings'],
           ['🔙 Главное меню']
         ],
         resize_keyboard: true
@@ -283,7 +283,7 @@ return;
   if (msg.text === '⚙️ Фильтр поиска') {
   bot.sendMessage(
     msg.chat.id,
-    '⚙️ Настройки\n\nВыберите параметр:',
+    '⚙️ Settings\n\nВыберите параметр:',
     {
       reply_markup: {
         keyboard: [
