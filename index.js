@@ -203,6 +203,13 @@ if (msg.text === '🔙 Назад') {
 
   return;
 }
+  if (msg.text === '👥 Онлайн') {
+    bot.sendMessage(
+        msg.chat.id,
+        `👥 Сейчас онлайн: ${onlineUsers.size} пользователей`
+    );
+    return;
+  }
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
 clearUserState(userId);
