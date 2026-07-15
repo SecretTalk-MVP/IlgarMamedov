@@ -35,6 +35,15 @@ async function saveUser(msg) {
     console.error(err);
   }
 }
+    
+function pushHistory(userId, screen) {
+    if (!userHistory[userId]) {
+        userHistory[userId] = [];
+    }
+
+    userHistory[userId].push(screen);
+}
+
 function saveChat(user1, user2, message) {
     const chatId = [user1, user2].sort().join('_');
 
