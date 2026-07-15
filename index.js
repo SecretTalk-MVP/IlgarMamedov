@@ -167,6 +167,14 @@ console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
   onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
+  if (msg.text === '⬅️ Back') {
+
+    const previousScreen = goBack(msg.chat.id);
+
+    console.log('BACK TO:', previousScreen);
+
+    return;
+  }
   if (msg.text === '/admin') {
 
   if (msg.from.id !== 1496574112) {
