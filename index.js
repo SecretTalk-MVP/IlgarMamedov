@@ -14,6 +14,7 @@ const users = {};
 const waitingTimers = {};
 let chatHistory = {};
 const onlineUsers = new Set();
+const userHistory = {};
 async function saveUser(msg) {
   try {
     await db.query(
