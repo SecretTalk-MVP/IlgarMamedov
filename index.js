@@ -173,6 +173,12 @@ await saveUser(msg);
     const previousScreen = goBack(msg.chat.id);
 
     console.log('BACK TO:', previousScreen);
+    if (previousScreen === 'main') {
+    bot.emit('text', {
+        ...msg,
+        text: '/start'
+    });
+    }
 
     return;
   }
