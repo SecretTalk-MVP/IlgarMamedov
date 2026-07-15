@@ -113,6 +113,7 @@ function clearUserState(userId) {
     }
 }
 bot.onText(/\/start/, (msg) => {
+  pushHistory(msg.chat.id, 'main');
   bot.sendMessage(
     msg.chat.id,
     'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
