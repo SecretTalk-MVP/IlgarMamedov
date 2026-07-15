@@ -43,6 +43,14 @@ function pushHistory(userId, screen) {
 
     userHistory[userId].push(screen);
 }
+function goBack(userId) {
+    if (!userHistory[userId] || userHistory[userId].length < 2) {
+        return null;
+    }
+
+    userHistory[userId].pop();
+    return userHistory[userId][userHistory[userId].length - 1];
+}
 
 function saveChat(user1, user2, message) {
     const chatId = [user1, user2].sort().join('_');
