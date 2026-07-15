@@ -176,6 +176,7 @@ await saveUser(msg);
     );
     return;
   }
+    pushHistory(msg.chat.id, 'admin');
 
   bot.sendMessage(
     msg.chat.id,
