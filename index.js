@@ -204,6 +204,15 @@ if (msg.text === '🔙 Назад') {
   return;
 }
   if (msg.text === '👥 Онлайн') {
+    if (msg.text === '💬 Активные чаты') {
+
+    bot.sendMessage(
+        msg.chat.id,
+        '💬 Активные чаты\n\n🚧 Эта функция находится в разработке.'
+    );
+
+    return;
+    }
     bot.sendMessage(
         msg.chat.id,
         `👥 Сейчас онлайн: ${onlineUsers.size} пользователей`
