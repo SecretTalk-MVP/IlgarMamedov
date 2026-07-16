@@ -202,7 +202,7 @@ await saveUser(msg);
           ['👥 Онлайн', '📊 Статистика'],
           ['📢 Рассылка', '💬 Активные чаты'],
           ['⚙️ Settings'],
-          ['🔙 Главное меню']
+          ['⬅️ Back']
         ],
         resize_keyboard: true
       }
@@ -220,7 +220,7 @@ if (
   clearUserState(msg.chat.id);
 }
  
-if (msg.text === '🔙 Назад') {
+if (msg.text === '⬅️ Back') {
   bot.sendMessage(
     msg.chat.id,
     'Главное меню:',
@@ -314,6 +314,7 @@ if (msg.text === '👨 Мой пол') {
 return;
   }
   if (msg.text === '⚙️ Фильтр поиска') {
+    pushHistory(msg.chat.id, 'settings');
   bot.sendMessage(
     msg.chat.id,
     '⚙️ Settings\n\nВыберите параметр:',
@@ -323,7 +324,7 @@ return;
   ['👨 Мой пол'],
   ['🎂 Мой возраст'],
   ['🎯 Цель знакомства'],
-  ['🔙 Назад']
+  ['⬅️ Back']
 ],
         resize_keyboard: true
       }
@@ -348,7 +349,7 @@ if (msg.text === '🎯 Цель знакомства') {
           ['🔥 Одноразовая встреча'],
           ['✈️ Попутчик'],
           ['🎲 Не важно'],
-          ['🔙 Назад']
+          ['⬅️ Back']
         ],
         resize_keyboard: true
       }
