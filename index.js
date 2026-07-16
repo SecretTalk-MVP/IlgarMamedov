@@ -175,9 +175,10 @@ await saveUser(msg);
     console.log('BACK TO:', previousScreen);
     if (previousScreen === 'main') {
     bot.sendMessage(
-      msg.chat.id,
-      'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
-    }
+        msg.chat.id,
+        'Добро пожаловать...'
+    );
+}
 
     return;
   }
