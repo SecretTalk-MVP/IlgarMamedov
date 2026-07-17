@@ -198,7 +198,27 @@ await saveUser(msg);
   return;
 }
 
-  if (msg.text === '👥 Онлайн') {
+  if (msg.text === '📊 Статистика') {
+
+    const totalUsers = Object.keys(users).length;
+    const online = onlineUsers.size;
+    const dialogsCount = Object.keys(dialogs).length / 2;
+    const waiting = waitingUsers.length;
+    const aiCount = Object.keys(aiUsers).length;
+
+    bot.sendMessage(
+        msg.chat.id,
+`📊 Статистика
+
+👤 Пользователей: ${totalUsers}
+🟢 Онлайн: ${online}
+💬 Диалогов: ${dialogsCount}
+⏳ В поиске: ${waiting}
+🤖 Общаются с ИИ: ${aiCount}`
+    );
+
+    return;
+    }
 
     let text = `🟢 Онлайн сейчас: ${onlineUsers.size}\n\n`;
 
