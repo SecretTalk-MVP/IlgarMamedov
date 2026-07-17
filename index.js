@@ -222,7 +222,6 @@ if (
   );
 
   return;
-}
   if (msg.text === '👥 Онлайн') {
   
     bot.sendMessage(
