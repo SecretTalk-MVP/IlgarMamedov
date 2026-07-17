@@ -229,6 +229,7 @@ await saveUser(msg);
         text += 'Нет активных диалогов.';
     } else {
         text += `\nВсего диалогов: ${shown.size / 2}`;
+      text += `\nПользователей в чатах: ${shown.size}`;
     }
 
     bot.sendMessage(msg.chat.id, text);
