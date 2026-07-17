@@ -309,7 +309,7 @@ if (msg.text === '🎯 Цель знакомства') {
           ['🔥 Одноразовая встреча'],
           ['✈️ Попутчик'],
           ['🎲 Не важно'],
-          ['⬅️ Back']
+          '⬅️ Back'
         ],
         resize_keyboard: true
       }
@@ -327,8 +327,26 @@ if (msg.text === '🎯 Цель знакомства') {
   '🔥 Одноразовая встреча',
   '✈️ Попутчик',
   '🎲 Не важно'
-    ['⬅️ Back']
+  '⬅️ Back'
 ];
+  
+  if (msg.text === '⬅️ Back') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Главное меню:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['⚙️ Фильтр поиска']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+  }
 
 if (goals.includes(msg.text)) {
   if (!users[msg.chat.id]) {
