@@ -318,6 +318,13 @@ if (msg.text === '🎯 Цель знакомства') {
 
   return;
 }
+  if (msg.text === '⬅️ Back') {
+    bot.emit('text', {
+        ...msg,
+        text: '/start'
+    });
+    return;
+  }
   const goals = [
   '💬 Общение',
   '🤝 Дружба',
