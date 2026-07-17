@@ -199,11 +199,18 @@ await saveUser(msg);
 }
 
   if (msg.text === '👥 Онлайн') {
-  
-    bot.sendMessage(
-        msg.chat.id,
-        `👥 Сейчас онлайн: ${onlineUsers.size} пользователей`
-    );
+
+    let text = `🟢 Онлайн сейчас: ${onlineUsers.size}\n\n`;
+
+    let i = 1;
+
+    for (const id of onlineUsers) {
+        text += `${i}. ${id}\n`;
+        i++;
+    }
+
+    bot.sendMessage(msg.chat.id, text);
+
     return;
   }
   if (msg.text === '💬 Активные чаты') {
