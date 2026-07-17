@@ -206,6 +206,35 @@ await saveUser(msg);
     );
     return;
   }
+  if (msg.text === '💬 Активные чаты') {
+
+    const shown = new Set();
+    let text = '💬 Активные чаты\n\n';
+
+    for (const userId in dialogs) {
+
+        const partnerId = dialogs[userId];
+
+        if (shown.has(String(userId)) || shown.has(String(partnerId))) {
+            continue;
+        }
+
+        shown.add(String(userId));
+        shown.add(String(partnerId));
+
+        text += `👤 ${userId} ↔ ${partnerId}\n`;
+    }
+
+    if (shown.size === 0) {
+        text += 'Нет активных диалогов.';
+    } else {
+        text += `\nВсего диалогов: ${shown.size / 2}`;
+    }
+
+    bot.sendMessage(msg.chat.id, text);
+
+    return;
+  }
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
 clearUserState(userId);
