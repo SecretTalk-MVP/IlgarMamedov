@@ -198,29 +198,6 @@ await saveUser(msg);
   return;
 }
 
-if (
-  msg.text === '👥 Найти собеседника' ||
-  msg.text === '⚙️ Фильтр поиска' ||
-  msg.text === '🎯 Цель знакомства'
-) {
-  clearUserState(msg.chat.id);
-}
- 
-  bot.sendMessage(
-    msg.chat.id,
-    'Главное меню:',
-    {
-      reply_markup: {
-        keyboard: [
-          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
-          ['⚙️ Фильтр поиска']
-        ],
-        resize_keyboard: true
-      }
-    }
-  );
-
-  return;
   if (msg.text === '👥 Онлайн') {
   
     bot.sendMessage(
