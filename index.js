@@ -189,7 +189,6 @@ await saveUser(msg);
           ['👥 Онлайн', '📊 Статистика'],
           ['📢 Рассылка', '💬 Активные чаты'],
           ['⚙️ Settings'],
-          ['⬅️ Back']
         ],
         resize_keyboard: true
       }
