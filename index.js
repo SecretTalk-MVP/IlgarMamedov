@@ -198,7 +198,7 @@ await saveUser(msg);
   return;
 }
 
-  if (msg.text === '📊 Статистика') {
+  if (msg.text === '👥 Онлайн') {
 
     const totalUsers = Object.keys(users).length;
     const online = onlineUsers.size;
