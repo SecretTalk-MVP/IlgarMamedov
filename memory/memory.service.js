@@ -37,6 +37,19 @@ class MemoryService {
       }
     };
   }
+  async saveMemory(userId, memory) {
+
+    console.log("Saving memory for:", userId);
+
+    await db.query(
+        `INSERT INTO user_memory (telegram_id, memory)
+         VALUES ($1, $2)
+         ON CONFLICT (telegram_id)
+         DO UPDATE SET memory = EXCLUDED.memory`,
+        [userId, memory]
+    );
+
+  }
 
 }
 
