@@ -2,6 +2,8 @@ class MemoryService {
 
     async loadMemory(userId) {
 
+        console.log("Loading memory for:", userId);
+
         return {
             profile: {
                 name: null,
