@@ -19,8 +19,18 @@ class MemoryEngine {
 
 
     analyzeProfile(memory, userMessage) {
+        const text = userMessage.toLowerCase();
+        if (!memory.profile) {
+    memory.profile = {};
+        }
 
-        return memory;
+if (text.includes("меня зовут ")) {
+
+    memory.profile.name = userMessage
+        .substring(text.indexOf("меня зовут ") + 11)
+        .trim();
+
+}
 
     }
 
