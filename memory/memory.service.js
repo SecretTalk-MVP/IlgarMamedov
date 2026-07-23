@@ -45,7 +45,9 @@ class MemoryService {
         `INSERT INTO user_memory (telegram_id, memory)
          VALUES ($1, $2)
          ON CONFLICT (telegram_id)
-         DO UPDATE SET memory = EXCLUDED.memory`,
+         DO UPDATE SET
+    memory = EXCLUDED.memory,
+    updated_at = CURRENT_TIMESTAMP
         [userId, memory]
     );
 
