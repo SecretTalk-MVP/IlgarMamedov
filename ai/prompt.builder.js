@@ -7,6 +7,7 @@ class PromptBuilder {
     }
 
     build(messages) {
+            console.log("🧠 Building prompt...");
 
         return messages;
 
