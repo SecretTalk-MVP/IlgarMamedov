@@ -1,8 +1,12 @@
+const AI_CONFIG = require("./ai.config");
+
 class OpenRouterClient {
 
     constructor() {
 
-        console.log("✅ OpenRouterClient initialized");
+    this.config = AI_CONFIG;
+
+    console.log("✅ OpenRouterClient initialized");
 
     }
 
