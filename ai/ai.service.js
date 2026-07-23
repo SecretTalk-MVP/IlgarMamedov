@@ -1,6 +1,13 @@
 class AIService {
 
     constructor() {
+                this.stats = {
+
+            requests: 0,
+
+            errors: 0
+
+        };
 
         this.openRouterClient = null;
 
@@ -24,7 +31,12 @@ class AIService {
 
         }
 
-        return await this.openRouterClient.sendMessage(messages);
+        const response = await this.openRouterClient.sendMessage(messages);
+        this.stats.requests++;
+
+console.log("AI response received");
+
+return response;
 
     }
 
