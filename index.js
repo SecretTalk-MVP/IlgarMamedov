@@ -4,8 +4,10 @@ const fs = require('fs');
 const db = require('./database/db');
 const esko = require('./ai_characters/esko');
 const MemoryService = require('./memory/memory.service');
+const MemoryEngine = require('./memory/memory.engine');
 
 const memoryService = new MemoryService();
+const memoryEngine = new MemoryEngine();
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
