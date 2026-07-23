@@ -32,3 +32,9 @@ CREATE TABLE messages (
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE user_memory (
+    telegram_id BIGINT PRIMARY KEY,
+    memory JSONB NOT NULL DEFAULT '{}'::jsonb,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
