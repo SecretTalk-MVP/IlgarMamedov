@@ -1,5 +1,11 @@
 class MemoryEngine {
 
+    constructor() {
+
+    console.log("✅ MemoryEngine initialized");
+
+    }
+
     analyze(memory, userMessage, aiAnswer) {
 
         memory = this.analyzeProfile(memory, userMessage);
