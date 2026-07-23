@@ -29,8 +29,8 @@ if (text.includes("меня зовут ")) {
     memory.profile.name = userMessage
         .substring(text.indexOf("меня зовут ") + 11)
         .trim();
-
 }
+        return memory;
 
     }
 
