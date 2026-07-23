@@ -9,6 +9,19 @@ class OpenRouterClient {
     console.log("✅ OpenRouterClient initialized");
 
     }
+    async sendMessage(messages) {
+
+    console.log("📨 Sending request to OpenRouter...");
+
+    console.log("Model:", this.config.MODEL);
+
+    console.log("Messages:", messages.length);
+
+    return {
+        success: false,
+        data: null,
+        error: null
+    };
 
 }
 
