@@ -1,4 +1,5 @@
 const AI_CONFIG = require("./ai.config");
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 class OpenRouterClient {
 
@@ -21,32 +22,51 @@ class OpenRouterClient {
     const body = await this.createRequestBody(messages);
 
     console.log("Request body created");
+            const response = await fetch(OPENROUTER_URL, {
+
+    method: "POST",
+
+    headers: {
+
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+
+        "Content-Type": "application/json"
+
+    },
+
+    body: JSON.stringify(body)
+
+});
+
+const result = await response.json();
 
     return {
 
         success: true,
 
-        data: body,
+        data: result,
 
         error: null
 
     };
 
-} catch (error) {
+    } catch (error) {
 
-    console.error(error);
+        console.error(error);
 
-    return {
+        return {
 
-        success: false,
+            success: false,
 
-        data: null,
+            data: null,
 
-        error: error.message
+            error: error.message
 
-    };
+        };
 
-        }
+    }
+
+}
 
     async createRequestBody(messages) {
 
