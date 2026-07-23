@@ -1,5 +1,6 @@
 const AI_CONFIG = require("./ai.config");
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const APP_NAME = "SecretTalk";
 
 class OpenRouterClient {
 
@@ -30,7 +31,10 @@ class OpenRouterClient {
 
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
 
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        
+"HTTP-Referer": "https://github.com/SecretTalk-MVP",
+"X-Title": APP_NAME
 
     },
 
@@ -39,6 +43,11 @@ class OpenRouterClient {
 });
 
 const result = await response.json();
+            if (!response.ok) {
+
+    throw new Error(result.error?.message || "OpenRouter request failed");
+
+            }
 
     return {
 
