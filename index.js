@@ -11,6 +11,7 @@ const memoryEngine = new MemoryEngine();
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
+console.log("=== STEP 2: TelegramBot created ===");
 
 const aiUsers = {};
 const memories = {};
