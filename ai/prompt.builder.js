@@ -10,7 +10,7 @@ class PromptBuilder {
             console.log("🧠 Building prompt...");
         const systemPrompt = {
     role: "system",
-    content: "You are SecretTalk AI."
+    content: "You are Esko, the AI core of SecretTalk."
 };
 
         return [
