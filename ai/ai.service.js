@@ -26,6 +26,7 @@ class AIService {
     }
 
     async ask(messages) {
+        const prompt = this.promptBuilder.build(messages);
 
         if (!this.isInitialized) {
 
@@ -33,8 +34,8 @@ class AIService {
 
         }
 
-        const response = await this.openRouterClient.sendMessage(messages);
-        this.stats.requests++;
+        const response = await this.openRouterClient.sendMessage(prompt);
+this.stats.requests++;
 
 console.log("AI response received");
 
