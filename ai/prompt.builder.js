@@ -8,8 +8,15 @@ class PromptBuilder {
 
     build(messages) {
             console.log("🧠 Building prompt...");
+        const systemPrompt = {
+    role: "system",
+    content: "You are SecretTalk AI."
+};
 
-        return messages;
+        return [
+    systemPrompt,
+    ...messages
+];
 
     }
 
