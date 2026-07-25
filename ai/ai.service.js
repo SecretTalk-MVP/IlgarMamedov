@@ -17,9 +17,11 @@ class AIService {
 
         const OpenRouterClient = require("./openrouter.client");
         const PromptBuilder = require("./prompt.builder");
+        const ContextBuilder = require("./context.builder");
 
         this.openRouterClient = new OpenRouterClient();
         this.promptBuilder = new PromptBuilder();
+        this.contextBuilder = new ContextBuilder();
 
         this.isInitialized = true;
 
