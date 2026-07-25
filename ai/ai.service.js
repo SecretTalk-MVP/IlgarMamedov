@@ -28,7 +28,9 @@ class AIService {
     }
 
     async ask(messages) {
-        const prompt = this.promptBuilder.build(messages);
+        const context = this.contextBuilder.build(messages);
+
+const prompt = this.promptBuilder.build(context);
 
         if (!this.isInitialized) {
 
