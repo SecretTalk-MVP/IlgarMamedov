@@ -10,9 +10,13 @@ class ContextBuilder {
 
     }
 
-    build(messages) {
+    async build(userId, messages) {
 
         console.log("🧠 Building context...");
+
+        const memory = await this.memoryService.loadMemory(userId);
+
+        console.log("Memory loaded:", memory.profile?.name);
 
         return messages;
 
