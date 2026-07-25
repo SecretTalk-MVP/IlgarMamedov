@@ -1,16 +1,13 @@
 class AIService {
 
     constructor() {
-                this.stats = {
 
+        this.stats = {
             requests: 0,
-
             errors: 0
-
         };
 
         this.openRouterClient = null;
-
         this.isInitialized = false;
 
         console.log("✅ AIService initialized");
@@ -27,34 +24,33 @@ class AIService {
 
     }
 
-    async ask(messages) {
-        const context = this.contextBuilder.build(messages);
+    async ask(userId, messages) {
 
-const prompt = this.promptBuilder.build(context);
+        const context = await this.contextBuilder.build(userId, messages);
+
+        const prompt = this.promptBuilder.build(context);
 
         if (!this.isInitialized) {
-
             throw new Error("AIService is not initialized");
-
         }
 
         const response = await this.openRouterClient.sendMessage(prompt);
 
-this.stats.requests++;
+        this.stats.requests++;
 
-console.log("AI response received");
+        console.log("AI response received");
 
-if (!response.success) {
-    throw new Error(response.error);
-}
+        if (!response.success) {
+            throw new Error(response.error);
+        }
 
-return response.data.choices[0].message.content;
+        return response.data.choices[0].message.content;
 
     }
 
-    async chat(messages) {
+    async chat(userId, messages) {
 
-        return await this.ask(messages);
+        return await this.ask(userId, messages);
 
     }
 
