@@ -1,24 +1,38 @@
-async build(userId, messages) {
+const MemoryService = require("../memory/memory.service");
 
-    console.log("🧠 Building context...");
+class ContextBuilder {
 
-    const memory = await this.memoryService.loadMemory(userId);
+    constructor() {
 
-    console.log("Memory loaded:", memory.profile?.name);
+        console.log("✅ ContextBuilder initialized");
 
-    const context = [];
-
-    if (memory.profile?.name) {
-
-        context.push({
-            role: "system",
-            content: `User name: ${memory.profile.name}`
-        });
+        this.memoryService = new MemoryService();
 
     }
 
-    context.push(...messages);
+    async build(userId, messages) {
 
-    return context;
+        console.log("🧠 Building context...");
+
+        const memory = await this.memoryService.loadMemory(userId);
+
+        console.log("Memory loaded:", memory.profile?.name);
+
+        const context = [];
+
+        if (memory.profile?.name) {
+            context.push({
+                role: "system",
+                content: `User name: ${memory.profile.name}`
+            });
+        }
+
+        context.push(...messages);
+
+        return context;
+
+    }
 
 }
+
+module.exports = ContextBuilder;
