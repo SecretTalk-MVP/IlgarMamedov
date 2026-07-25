@@ -581,31 +581,14 @@ if (aiUsers[msg.chat.id]) {
       content: msg.text
     });
 
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-        {
-          model: 'openai/gpt-4o-mini',
-          messages: [
-  {
-    role: 'system',
-    content: esko.systemPrompt
-  },
-  ...chatHistory[msg.chat.id]
-] 
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+    const answer = await aiService.ask(
+    msg.chat.id,
+    chatHistory[msg.chat.id]
+);
 
-      const answer =
-        response.data.choices[0].message.content;
-        chatHistory[msg.chat.id].push({
-  role: 'assistant',
-  content: answer
+chatHistory[msg.chat.id].push({
+    role: 'assistant',
+    content: answer
 });
 
 if (chatHistory[msg.chat.id].length > 60) {
