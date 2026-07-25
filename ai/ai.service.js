@@ -39,11 +39,16 @@ const prompt = this.promptBuilder.build(context);
         }
 
         const response = await this.openRouterClient.sendMessage(prompt);
+
 this.stats.requests++;
 
 console.log("AI response received");
 
-return response;
+if (!response.success) {
+    throw new Error(response.error);
+}
+
+return response.data.choices[0].message.content;
 
     }
 
