@@ -1,8 +1,10 @@
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
+const AIService = require('./ai/ai.service');
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
+const aiService = new AIService();
 
 const aiUsers = {};
 const waitingUsers = [];
