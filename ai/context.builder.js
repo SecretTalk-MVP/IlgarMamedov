@@ -1,7 +1,13 @@
+const MemoryService = require("../memory/memory.service");
+
 class ContextBuilder {
 
     constructor() {
+
         console.log("✅ ContextBuilder initialized");
+
+        this.memoryService = new MemoryService();
+
     }
 
     build(messages) {
