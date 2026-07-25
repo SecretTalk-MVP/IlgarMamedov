@@ -4,8 +4,12 @@ class ContextBuilder {
         console.log("✅ ContextBuilder initialized");
     }
 
-    build() {
-        return [];
+    build(messages) {
+
+        console.log("🧠 Building context...");
+
+        return messages;
+
     }
 
 }
