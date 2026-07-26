@@ -15,10 +15,14 @@ class AIService {
         const OpenRouterClient = require("./openrouter.client");
         const PromptBuilder = require("./prompt.builder");
         const ContextBuilder = require("./context.builder");
+        const MemoryService = require("../memory/memory.service");
+        const MemoryEngine = require("../memory/memory.engine");
 
         this.openRouterClient = new OpenRouterClient();
         this.promptBuilder = new PromptBuilder();
         this.contextBuilder = new ContextBuilder();
+        this.memoryService = new MemoryService();
+        this.memoryEngine = new MemoryEngine();
 
         this.isInitialized = true;
 
@@ -35,6 +39,22 @@ class AIService {
         }
 
         const response = await this.openRouterClient.sendMessage(prompt);
+        const aiAnswer = response.data.choices[0].message.content;
+
+let memory = await this.memoryService.loadMemory(userId);
+
+const userMessage = messages[messages.length - 1].content;
+
+memory = this.memoryEngine.analyze(
+    memory,
+    userMessage,
+    aiAnswer
+);
+
+await this.memoryService.saveMemory(
+    userId,
+    memory
+);
 
         this.stats.requests++;
 
@@ -44,8 +64,7 @@ class AIService {
             throw new Error(response.error);
         }
 
-        return response.data.choices[0].message.content;
-
+        return aiAnswer;
     }
 
     async chat(userId, messages) {
