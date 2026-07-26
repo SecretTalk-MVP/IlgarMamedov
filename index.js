@@ -580,11 +580,12 @@ if (aiUsers[msg.chat.id]) {
       role: 'user',
       content: msg.text
     });
-
-    const answer = await aiService.ask(
+const answer = await aiService.ask(
     msg.chat.id,
     chatHistory[msg.chat.id]
 );
+
+console.log("AI ANSWER:", answer);
 
 chatHistory[msg.chat.id].push({
     role: 'assistant',
