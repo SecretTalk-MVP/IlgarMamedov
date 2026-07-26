@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE dialogs (
+CREATE TABLE IF NOT EXISTS dialogs (
     id SERIAL PRIMARY KEY,
     user1 BIGINT NOT NULL,
     user2 BIGINT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE dialogs (
     ended_at TIMESTAMP,
     active BOOLEAN DEFAULT TRUE
 );
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id SERIAL PRIMARY KEY,
     dialog_id INTEGER,
     sender BIGINT NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE user_memory (
+CREATE TABLE IF NOT EXISTS user_memory (
     telegram_id BIGINT PRIMARY KEY,
     memory JSONB NOT NULL DEFAULT '{}'::jsonb,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
