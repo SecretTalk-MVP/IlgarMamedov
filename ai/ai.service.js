@@ -39,6 +39,9 @@ class AIService {
         }
 
         const response = await this.openRouterClient.sendMessage(prompt);
+        if (!response.success) {
+            throw new Error(response.error);
+        }
         const aiAnswer = response.data.choices[0].message.content;
 
 let memory = await this.memoryService.loadMemory(userId);
@@ -59,10 +62,6 @@ await this.memoryService.saveMemory(
         this.stats.requests++;
 
         console.log("AI response received");
-
-        if (!response.success) {
-            throw new Error(response.error);
-        }
 
         return aiAnswer;
     }
