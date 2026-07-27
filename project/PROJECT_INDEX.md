@@ -1,22 +1,22 @@
-# Project Index
+# SecretTalk Project Index
 
-## Status
+## Project Status
 Foundation
 
-## Purpose
-This document is the central index of the SecretTalk project architecture.
+## Project Modules
 
-## Project Structure
+| Module | Status | Purpose |
+|---------|--------|---------|
+| ai | Foundation | AI integration |
+| config | Foundation | Central configuration |
+| core | Foundation | Application core |
+| database | Foundation | Database layer |
+| deployment | Foundation | Deployment and infrastructure |
+| docs | Foundation | Documentation |
+| memory | Foundation | AI memory system |
+| project | Foundation | Project documentation |
+| security | Foundation | Security architecture |
+| services | Foundation | Business logic |
 
-- ai/
-- config/
-- database/
-- deployment/
-- docs/
-- memory/
-- project/
-- security/
-- services/
-
-## Version
+## Architecture Version
 0.1
