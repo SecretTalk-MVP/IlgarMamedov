@@ -23,7 +23,14 @@ class ContextBuilder {
         if (memory.profile?.name) {
             context.push({
                 role: "system",
-                content: `User name: ${memory.profile.name}`
+                content: `
+Long-term memory.
+
+User name: ${memory.profile.name}
+
+Use this information in all future answers.
+Do not ask again if you already know it.
+`
             });
         }
 
