@@ -38,7 +38,16 @@ Responsible for long-term memory.
 Responsible for database access.
 
 ### services/
-Contains shared business services that are **not** part of the AI subsystem.
+
+Contains project-wide shared services that are used by multiple modules.
+
+Examples:
+- Logging
+- Notifications
+- Utilities
+- Common helpers
+
+This module must not duplicate functionality that already belongs to dedicated modules such as AI, Memory or Database.
 
 ---
 
