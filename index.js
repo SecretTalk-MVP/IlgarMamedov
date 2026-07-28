@@ -6,6 +6,7 @@ const esko = require('./ai_characters/esko');
 const MemoryService = require('./memory/memory.service');
 const MemoryEngine = require('./memory/memory.engine');
 const AIService = require('./ai/ai.service');
+const { saveUser } = require('./handlers/user.handler');
 
 const memoryService = new MemoryService();
 const memoryEngine = new MemoryEngine();
@@ -24,27 +25,6 @@ const waitingTimers = {};
 let chatHistory = {};
 const onlineUsers = new Set();
 const userHistory = {};
-async function saveUser(msg) {
-  try {
-    await db.query(
-      `INSERT INTO users (telegram_id, username, first_name)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (telegram_id)
-       DO UPDATE SET
-         username = EXCLUDED.username,
-         first_name = EXCLUDED.first_name,
-         last_seen = CURRENT_TIMESTAMP`,
-      [
-        msg.from.id,
-        msg.from.username || null,
-        msg.from.first_name || null
-      ]
-    );
-  } catch (err) {
-    console.error(err);
-  }
-}
-    
 function pushHistory(userId, screen) {
     if (!userHistory[userId]) {
         userHistory[userId] = [];
