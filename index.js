@@ -28,7 +28,6 @@ const users = {};
 const waitingTimers = {};
 let chatHistory = {};
 const onlineUsers = new Set();
-const userHistory = {};
 
 function saveChat(user1, user2, message) {
     const chatId = [user1, user2].sort().join('_');
