@@ -6,7 +6,7 @@ const esko = require('./ai_characters/esko');
 const MemoryService = require('./memory/memory.service');
 const MemoryEngine = require('./memory/memory.engine');
 const AIService = require('./ai/ai.service');
-const { saveUser } = require('./handlers/user.handler');
+const { saveUser } = require('./controllers/user.controller');
 
 const memoryService = new MemoryService();
 const memoryEngine = new MemoryEngine();
