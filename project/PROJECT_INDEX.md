@@ -57,6 +57,7 @@ This module must not duplicate functionality that already belongs to dedicated m
 2. New modules are created only after checking for duplicates.
 3. AI functionality belongs only to the `ai/` module.
 4. Project architecture is documented before implementation.
+5. Every module owns its own domain. Shared functionality belongs to services only if it is not owned by another module.
 
 ---
 
