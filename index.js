@@ -7,6 +7,10 @@ const MemoryService = require('./memory/memory.service');
 const MemoryEngine = require('./memory/memory.engine');
 const AIService = require('./ai/ai.service');
 const { saveUser } = require('./controllers/user.controller');
+const {
+    pushHistory,
+    goBack
+} = require('./controllers/navigation.controller');
 
 const memoryService = new MemoryService();
 const memoryEngine = new MemoryEngine();
