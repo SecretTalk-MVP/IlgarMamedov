@@ -14,9 +14,6 @@ const {
 const {
     registerStartController
 } = require('./controllers/start.controller');
-const {
-    registerAdminController
-} = require('./controllers/admin.controller');
 
 const memoryService = new MemoryService();
 const memoryEngine = new MemoryEngine();
@@ -27,7 +24,6 @@ const bot = new TelegramBot(token, { polling: true });
 console.log("=== STEP 2: TelegramBot created ===");
 
 registerStartController(bot);
-registerAdminController(bot);
 
 const aiUsers = {};
 const memories = {};
