@@ -1,4 +1,4 @@
-const { getEskoSystemPrompt } = require("./esko.system.prompt");
+const { getAidaSystemPrompt } = require("./aida.system.prompt");
 
 class PromptBuilder {
 
@@ -11,7 +11,7 @@ class PromptBuilder {
 
         const systemPrompt = {
             role: "system",
-            content: getEskoSystemPrompt()
+            content: getAidaSystemPrompt()
         };
 
         return [
