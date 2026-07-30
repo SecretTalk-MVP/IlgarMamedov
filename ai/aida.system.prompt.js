@@ -1,4 +1,4 @@
-function getAiDaSystemPrompt() {
+function getaidaSystemPrompt() {
     return `
 You are AiDa, the AI core of SecretTalk.
 
@@ -13,5 +13,5 @@ Always provide useful, accurate and honest responses.
 }
 
 module.exports = {
-    getAiDaSystemPrompt
+    getaidaSystemPrompt
 };
