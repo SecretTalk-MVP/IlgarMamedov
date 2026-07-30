@@ -2,11 +2,11 @@ const fs = require("fs");
 const path = require("path");
 
 const systemPrompt = fs.readFileSync(
-    path.join(__dirname, "esko.system.md"),
+    path.join(__dirname, "aida.system.md"),
     "utf8"
 );
 
 module.exports = {
-    name: "Esko",
+    name: "AiDa",
     systemPrompt
 };
