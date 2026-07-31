@@ -454,7 +454,7 @@ delete waitingTimers[partnerId];
   }
 
   delete waitingTimers[userId];
-}, 300000);
+}, 30000000);
 
     bot.sendMessage(
       userId,
