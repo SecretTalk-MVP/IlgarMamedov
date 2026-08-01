@@ -1,7 +1,11 @@
 /**
  * SecretTalk
  * Admin Module
- * Version: 1.0
+ * Version: 2.0
  */
 
-module.exports = {};
+const statistics = require("./statistics");
+
+module.exports = {
+    statistics
+};
