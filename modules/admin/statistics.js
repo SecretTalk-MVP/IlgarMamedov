@@ -1,19 +1,22 @@
 /**
  * SecretTalk
  * Admin Statistics
- * Version: 1.0
+ * Version: 1.1
  */
 
-function getStatistics(data) {
-    return {
-        totalUsers: data.totalUsers || 0,
-        onlineUsers: data.onlineUsers || 0,
-        dialogs: data.dialogs || 0,
-        waitingUsers: data.waitingUsers || 0,
-        aiChats: data.aiChats || 0
-    };
+class Statistics {
+
+    async get() {
+        return {
+            totalUsers: 0,
+            onlineUsers: 0,
+            activeChats: 0,
+            aiChats: 0,
+            waitingUsers: 0,
+            uptime: process.uptime()
+        };
+    }
+
 }
 
-module.exports = {
-    getStatistics
-};
+module.exports = new Statistics();
