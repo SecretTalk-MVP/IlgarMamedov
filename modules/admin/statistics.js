@@ -1,20 +1,24 @@
 /**
  * SecretTalk
  * Admin Statistics
- * Version: 1.1
+ * Version: 2.0
  */
 
 class Statistics {
 
-    async get() {
-        return {
-            totalUsers: 0,
-            onlineUsers: 0,
-            activeChats: 0,
-            aiChats: 0,
-            waitingUsers: 0,
-            uptime: process.uptime()
-        };
+    async show(bot, chatId, data) {
+
+        await bot.sendMessage(
+            chatId,
+`📊 Статистика
+
+👤 Пользователей: ${data.totalUsers}
+🟢 Онлайн: ${data.onlineUsers}
+💬 Диалогов: ${data.dialogs}
+⏳ В поиске: ${data.waitingUsers}
+🤖 Общаются с AiDa: ${data.aiUsers}`
+        );
+
     }
 
 }
