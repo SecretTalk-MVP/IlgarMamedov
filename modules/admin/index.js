@@ -11,8 +11,24 @@ class AdminModule {
         this.permissions = permissions;
     }
 
-    async handle(bot, msg) {
-        return await chatRoutes.handle(bot, msg);
+    async handle(
+    bot,
+    msg,
+    users,
+    onlineUsers,
+    dialogs,
+    waitingUsers,
+    aiUsers
+) {
+    return await chatRoutes.handle(
+        bot,
+        msg,
+        users,
+        onlineUsers,
+        dialogs,
+        waitingUsers,
+        aiUsers
+    );
     }
 
 }
