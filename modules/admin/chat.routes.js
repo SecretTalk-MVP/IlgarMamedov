@@ -4,7 +4,15 @@ const statistics = require("./statistics");
 
 class ChatRoutes {
 
-    async handle(bot, msg) {
+    async handle(
+    bot,
+    msg,
+    users,
+    onlineUsers,
+    dialogs,
+    waitingUsers,
+    aiUsers
+) {
 
         if (!msg || !msg.text) {
             return false;
@@ -25,7 +33,15 @@ class ChatRoutes {
         }
 
         if (msg.text === "📊 Статистика") {
-    return await statistics.show(bot, msg);
+    return await statistics.show(
+    bot,
+    msg,
+    users,
+    onlineUsers,
+    dialogs,
+    waitingUsers,
+    aiUsers
+);
 }
 
 await menu.show(bot, msg.chat.id);
