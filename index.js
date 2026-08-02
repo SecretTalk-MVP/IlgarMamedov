@@ -134,7 +134,12 @@ bot.on('message', async (msg) => {
 console.log("MESSAGE:", msg.from.id);
  // const memory = await memoryService.loadMemory(msg.from.id);
 await saveUser(msg);
-  onlineUsers.add(msg.from.id);
+
+if (await admin.handle(bot, msg)) {
+    return;
+}
+
+onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
 
   if (msg.text === '👥 Онлайн') {
