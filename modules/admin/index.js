@@ -9,7 +9,10 @@ class AdminModule {
         this.statistics = statistics;
         this.menu = menu;
         this.permissions = permissions;
-        this.chatRoutes = chatRoutes;
+    }
+
+    async handle(bot, msg) {
+        return await chatRoutes.handle(bot, msg);
     }
 
 }
