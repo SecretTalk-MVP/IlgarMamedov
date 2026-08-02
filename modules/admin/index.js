@@ -6,8 +6,10 @@
 
 const statistics = require("./statistics");
 const menu = require("./menu");
+const chatRoutes = require("./chat.routes");
 
 module.exports = {
     statistics,
-    menu
+    menu,
+    chatRoutes
 };
