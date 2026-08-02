@@ -119,10 +119,16 @@ bot.on('message', async (msg) => {
     `✅ Возраст сохранён: ${age}`,
     {
       reply_markup: {
-        keyboard: [
-          ['🤖 Поговорить с ИИ', '👥 Find People'],
-          ['⚙️ Фильтр поиска']
-        ],
+        keyboard: msg.from.id === 1496574112
+    ? [
+        ['🤖 Поговорить с ИИ', '👥 Find People'],
+        ['⚙️ Фильтр поиска'],
+        ['Админ']
+      ]
+    : [
+        ['🤖 Поговорить с ИИ', '👥 Find People'],
+        ['⚙️ Фильтр поиска']
+      ],
         resize_keyboard: true
       }
     }
