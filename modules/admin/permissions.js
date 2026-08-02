@@ -1,7 +1,7 @@
 class Permissions {
 
     constructor() {
-        this.adminId = Number(process.env.ADMIN_ID);
+    this.adminId = 1496574112;
     }
 
     isAdmin(userId) {
