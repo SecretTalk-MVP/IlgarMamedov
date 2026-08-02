@@ -140,6 +140,7 @@ bot.on('message', async (msg) => {
 console.log("MESSAGE:", msg.from.id);
  // const memory = await memoryService.loadMemory(msg.from.id);
 await saveUser(msg);
+    console.log("MY TELEGRAM ID:", msg.from.id);
 
 if (await admin.handle(bot, msg)) {
     return;
