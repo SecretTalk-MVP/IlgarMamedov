@@ -1,3 +1,5 @@
+const menu = require("./menu");
+
 class ChatRoutes {
 
     async handle(bot, msg) {
@@ -5,6 +7,8 @@ class ChatRoutes {
         if (msg.text !== "/admin") {
             return false;
         }
+
+        await menu.show(bot, msg.chat.id);
 
         return true;
     }
