@@ -1,22 +1,28 @@
 /**
  * SecretTalk
  * Admin Statistics
- * Version: 2.0
+ * Version: 3.0
  */
 
 class Statistics {
 
-    async show(bot, chatId, data) {
+    async show(bot, msg, users, onlineUsers, dialogs, waitingUsers, aiUsers) {
+
+        const totalUsers = Object.keys(users).length;
+        const online = onlineUsers.size;
+        const dialogsCount = Object.keys(dialogs).length / 2;
+        const waiting = waitingUsers.length;
+        const aiCount = Object.keys(aiUsers).length;
 
         await bot.sendMessage(
-            chatId,
+            msg.chat.id,
 `📊 Статистика
 
-👤 Пользователей: ${data.totalUsers}
-🟢 Онлайн: ${data.onlineUsers}
-💬 Диалогов: ${data.dialogs}
-⏳ В поиске: ${data.waitingUsers}
-🤖 Общаются с AiDa: ${data.aiUsers}`
+👤 Пользователей: ${totalUsers}
+🟢 Онлайн: ${online}
+💬 Диалогов: ${dialogsCount}
+⏳ В поиске: ${waiting}
+🤖 Общаются с AiDa: ${aiCount}`
         );
 
     }
