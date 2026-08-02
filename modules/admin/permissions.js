@@ -1,10 +1,35 @@
 class Permissions {
 
+    constructor() {
+        this.adminId = Number(process.env.ADMIN_ID);
+    }
+
     isAdmin(userId) {
+        return Number(userId) === this.adminId;
+    }
 
-        const adminId = Number(process.env.ADMIN_ID);
+    canViewStatistics(userId) {
+        return this.isAdmin(userId);
+    }
 
-        return Number(userId) === adminId;
+    canViewUsers(userId) {
+        return this.isAdmin(userId);
+    }
+
+    canViewChats(userId) {
+        return this.isAdmin(userId);
+    }
+
+    canBroadcast(userId) {
+        return this.isAdmin(userId);
+    }
+
+    canBanUsers(userId) {
+        return this.isAdmin(userId);
+    }
+
+    canOpenSettings(userId) {
+        return this.isAdmin(userId);
     }
 
 }
