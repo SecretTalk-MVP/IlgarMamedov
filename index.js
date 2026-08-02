@@ -142,7 +142,17 @@ console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
     console.log("MY TELEGRAM ID:", msg.from.id);
 
-if (await admin.handle(bot, msg)) {
+if (
+    await admin.handle(
+        bot,
+        msg,
+        users,
+        onlineUsers,
+        dialogs,
+        waitingUsers,
+        aiUsers
+    )
+) {
     return;
 }
 
