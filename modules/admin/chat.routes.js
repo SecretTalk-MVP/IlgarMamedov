@@ -1,7 +1,12 @@
 class ChatRoutes {
 
     async handle(bot, msg) {
-        return false;
+
+        if (msg.text !== "/admin") {
+            return false;
+        }
+
+        return true;
     }
 
 }
