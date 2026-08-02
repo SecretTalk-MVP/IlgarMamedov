@@ -5,11 +5,21 @@ class ChatRoutes {
 
     async handle(bot, msg) {
 
+        if (!msg || !msg.text) {
+            return false;
+        }
+
         if (msg.text !== "/admin") {
             return false;
         }
 
         if (!permissions.isAdmin(msg.from.id)) {
+
+            await bot.sendMessage(
+                msg.chat.id,
+                "⛔ У вас нет доступа."
+            );
+
             return true;
         }
 
