@@ -1,5 +1,6 @@
 const menu = require("./menu");
 const permissions = require("./permissions");
+const statistics = require("./statistics");
 
 class ChatRoutes {
 
@@ -23,9 +24,13 @@ class ChatRoutes {
             return true;
         }
 
-        await menu.show(bot, msg.chat.id);
+        if (msg.text === "📊 Статистика") {
+    return await statistics.show(bot, msg);
+}
 
-        return true;
+await menu.show(bot, msg.chat.id);
+
+return true;
     }
 
 }
