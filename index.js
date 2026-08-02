@@ -14,6 +14,7 @@ const {
 const {
     registerStartController
 } = require('./controllers/start.controller');
+const admin = require("./modules/admin");
 
 const memoryService = new MemoryService();
 const memoryEngine = new MemoryEngine();
