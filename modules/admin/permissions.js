@@ -1,22 +1,12 @@
-/**
- * SecretTalk
- * Admin Permissions
- * Version: 1.1
- */
+class Permissions {
 
-const ADMIN_IDS = [
-    process.env.ADMIN_ID
-];
+    isAdmin(userId) {
 
-/**
- * Проверка прав администратора
- * @param {number|string} userId
- * @returns {boolean}
- */
-function isAdmin(userId) {
-    return ADMIN_IDS.includes(String(userId));
+        const adminId = Number(process.env.ADMIN_ID);
+
+        return Number(userId) === adminId;
+    }
+
 }
 
-module.exports = {
-    isAdmin
-};
+module.exports = new Permissions();
