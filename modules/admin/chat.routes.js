@@ -9,9 +9,9 @@ class ChatRoutes {
             return false;
         }
 
-        if (msg.text !== "/admin") {
-            return false;
-        }
+        if (msg.text !== "/admin" && msg.text !== "Админ") {
+    return false;
+}
 
         if (!permissions.isAdmin(msg.from.id)) {
 
