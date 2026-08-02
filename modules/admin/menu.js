@@ -4,10 +4,28 @@
  * Version: 1.0
  */
 
-function showAdminMenu(ctx) {
+async function show(bot, chatId) {
+
+    await bot.sendMessage(
+        chatId,
+        "⚙️ Панель администратора",
+        {
+            reply_markup: {
+                keyboard: [
+                    ['📊 Статистика'],
+                    ['👥 Пользователи'],
+                    ['💬 Активные чаты'],
+                    ['📢 Рассылка'],
+                    ['🚫 Бан / Разбан'],
+                    ['⚙️ Настройки']
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
 
 }
 
 module.exports = {
-    showAdminMenu
+    show
 };
