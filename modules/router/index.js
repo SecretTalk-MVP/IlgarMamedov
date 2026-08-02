@@ -1,14 +1,9 @@
-const admin = require("../admin");
+const routes = require("./routes");
 
 class Router {
 
     async handle(bot, msg) {
-
-        if (await admin.handle(bot, msg)) {
-            return true;
-        }
-
-        return false;
+        return await routes.handle(bot, msg);
     }
 
 }
