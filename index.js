@@ -140,6 +140,17 @@ await saveUser(msg);
   if (msg.text === '👥 Онлайн') {
 
     if (msg.text === '📊 Статистика') {
+        await admin.statistics.show(
+    bot,
+    msg,
+    users,
+    onlineUsers,
+    dialogs,
+    waitingUsers,
+    aiUsers
+);
+
+return;
     const totalUsers = Object.keys(users).length;
     const online = onlineUsers.size;
     const dialogsCount = Object.keys(dialogs).length / 2;
