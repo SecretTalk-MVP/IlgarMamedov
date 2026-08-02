@@ -1,4 +1,5 @@
 const menu = require("./menu");
+const permissions = require("./permissions");
 
 class ChatRoutes {
 
@@ -6,6 +7,10 @@ class ChatRoutes {
 
         if (msg.text !== "/admin") {
             return false;
+        }
+
+        if (!permissions.isAdmin(msg.from.id)) {
+            return true;
         }
 
         await menu.show(bot, msg.chat.id);
