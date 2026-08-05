@@ -2,29 +2,9 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 const fs = require('fs');
 const db = require('./database/db');
-const aida = require('./ai_characters/aida');
-const MemoryService = require('./memory/memory.service');
-const MemoryEngine = require('./memory/memory.engine');
-const AIService = require('./ai/ai.service');
-const { saveUser } = require('./controllers/user.controller');
-const {
-    pushHistory,
-    goBack
-} = require('./controllers/navigation.controller');
-const {
-    registerStartController
-} = require('./controllers/start.controller');
-const admin = require("./modules/admin");
-
-const memoryService = new MemoryService();
-const memoryEngine = new MemoryEngine();
-const aiService = new AIService();
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
-console.log("=== STEP 2: TelegramBot created ===");
-
-registerStartController(bot);
 
 const aiUsers = {};
 const memories = {};
@@ -34,6 +14,43 @@ const users = {};
 const waitingTimers = {};
 let chatHistory = {};
 const onlineUsers = new Set();
+const userHistory = {};
+async function saveUser(msg) {
+  try {
+    await db.query(
+      `INSERT INTO users (telegram_id, username, first_name)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (telegram_id)
+       DO UPDATE SET
+         username = EXCLUDED.username,
+         first_name = EXCLUDED.first_name,
+         last_seen = CURRENT_TIMESTAMP`,
+      [
+        msg.from.id,
+        msg.from.username || null,
+        msg.from.first_name || null
+      ]
+    );
+  } catch (err) {
+    console.error(err);
+  }
+}
+    
+function pushHistory(userId, screen) {
+    if (!userHistory[userId]) {
+        userHistory[userId] = [];
+    }
+
+    userHistory[userId].push(screen);
+}
+function goBack(userId) {
+    if (!userHistory[userId] || userHistory[userId].length < 2) {
+        return null;
+    }
+
+    userHistory[userId].pop();
+    return userHistory[userId][userHistory[userId].length - 1];
+}
 
 function saveChat(user1, user2, message) {
     const chatId = [user1, user2].sort().join('_');
@@ -95,6 +112,22 @@ function clearUserState(userId) {
         );
     }
 }
+bot.onText(/\/start/, (msg) => {
+  pushHistory(msg.chat.id, 'main');
+  bot.sendMessage(
+    msg.chat.id,
+    'Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['⚙️ Фильтр поиска']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+});
 
 bot.on('message', async (msg) => {
   if (
@@ -119,16 +152,10 @@ bot.on('message', async (msg) => {
     `✅ Возраст сохранён: ${age}`,
     {
       reply_markup: {
-        keyboard: msg.from.id === 1496574112
-    ? [
-        ['🤖 Поговорить с ИИ', '👥 Find People'],
-        ['⚙️ Фильтр поиска'],
-        ['Админ']
-      ]
-    : [
-        ['🤖 Поговорить с ИИ', '👥 Find People'],
-        ['⚙️ Фильтр поиска']
-      ],
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Find People'],
+          ['⚙️ Фильтр поиска']
+        ],
         resize_keyboard: true
       }
     }
@@ -138,27 +165,61 @@ bot.on('message', async (msg) => {
 }
 
 console.log("MESSAGE:", msg.from.id);
- // const memory = await memoryService.loadMemory(msg.from.id);
 await saveUser(msg);
-    console.log("MY TELEGRAM ID:", msg.from.id);
-
-if (
-    await admin.handle(
-        bot,
-        msg,
-        users,
-        onlineUsers,
-        dialogs,
-        waitingUsers,
-        aiUsers
-    )
-) {
-    return;
-}
-    
-if (msg.text === '👥 Онлайн') {
-onlineUsers.add(msg.from.id);
+  onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
+  
+  if (msg.text === '/admin') {
+
+  if (msg.from.id !== 1496574112) {
+    bot.sendMessage(
+      msg.chat.id,
+      '⛔ Доступ запрещён.'
+    );
+    return;
+  }
+    pushHistory(msg.chat.id, 'admin');
+
+  bot.sendMessage(
+    msg.chat.id,
+    '👑 Панель администратора',
+    {
+      reply_markup: {
+        keyboard: [
+          ['👥 Онлайн', '📊 Статистика'],
+          ['📢 Рассылка', '💬 Активные чаты'],
+          ['⚙️ Settings'],
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+}
+
+  if (msg.text === '👥 Онлайн') {
+
+    if (msg.text === '📊 Статистика') {
+    const totalUsers = Object.keys(users).length;
+    const online = onlineUsers.size;
+    const dialogsCount = Object.keys(dialogs).length / 2;
+    const waiting = waitingUsers.length;
+    const aiCount = Object.keys(aiUsers).length;
+
+    bot.sendMessage(
+        msg.chat.id,
+`📊 Статистика
+
+👤 Пользователей: ${totalUsers}
+🟢 Онлайн: ${online}
+💬 Диалогов: ${dialogsCount}
+⏳ В поиске: ${waiting}
+🤖 Общаются с ИИ: ${aiCount}`
+    );
+
+    return;
+    }
 
     let text = `🟢 Онлайн сейчас: ${onlineUsers.size}\n\n`;
 
@@ -172,7 +233,37 @@ onlineUsers.add(msg.from.id);
     bot.sendMessage(msg.chat.id, text);
 
     return;
-  
+  }
+  if (msg.text === '💬 Активные чаты') {
+
+    const shown = new Set();
+    let text = '💬 Активные чаты\n\n';
+
+    for (const userId in dialogs) {
+
+        const partnerId = dialogs[userId];
+
+        if (shown.has(String(userId)) || shown.has(String(partnerId))) {
+            continue;
+        }
+
+        shown.add(String(userId));
+        shown.add(String(partnerId));
+
+        text += `👤 ${userId} ↔ ${partnerId}\n`;
+    }
+
+    if (shown.size === 0) {
+        text += 'Нет активных диалогов.';
+    } else {
+        text += `\nВсего диалогов: ${shown.size / 2}`;
+      text += `\nПользователей в чатах: ${shown.size}`;
+    }
+
+    bot.sendMessage(msg.chat.id, text);
+
+    return;
+  }
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
 clearUserState(userId);
@@ -185,6 +276,153 @@ aiUsers[userId] = true;
 );
 
   return;
+}
+
+if (msg.text === '👨 Мой пол') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Выберите ваш пол:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['👨 Мужчина'],
+          ['👩 Женщина'],
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+}
+  if (msg.text === '🎂 Мой возраст') {
+    if (!users[msg.chat.id]) {
+        users[msg.chat.id] = {};
+    }
+
+    users[msg.chat.id].waitingFor = 'age';
+
+    bot.sendMessage(
+        msg.chat.id,
+        '🎂 Введите ваш возраст (например: 25).\n\nТолько число.'
+    );
+
+    return;
+  }
+  if (msg.text === '👨 Мужчина' || msg.text === '👩 Женщина') {
+  if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+  }
+
+  users[msg.chat.id].gender = msg.text;
+
+ bot.sendMessage(
+  msg.chat.id,
+  `✅ Пол сохранён: ${msg.text}`,
+  {
+    reply_markup: {
+      keyboard: [
+        ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+        ['⚙️ Фильтр поиска']
+      ],
+      resize_keyboard: true
+    }
+  }
+);
+
+return;
+  }
+  if (msg.text === '⚙️ Фильтр поиска') {
+    pushHistory(msg.chat.id, 'settings');
+  bot.sendMessage(
+    msg.chat.id,
+    '⚙️ Settings\n\nВыберите параметр:',
+    {
+      reply_markup: {
+        keyboard: [
+  ['👨 Мой пол'],
+  ['🎂 Мой возраст'],
+  ['🎯 Цель знакомства'],
+],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+  }
+  
+if (msg.text === '🎯 Цель знакомства') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Выберите цель знакомства:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['💬 Общение'],
+          ['🤝 Дружба'],
+          ['❤️ Отношения'],
+          ['💍 Создать семью'],
+          ['😘 Флирт'],
+          ['🔥 Одноразовая встреча'],
+          ['✈️ Попутчик'],
+          ['🎲 Не важно'],
+          ['⬅️ Back']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+}
+  const goals = [
+  '💬 Общение',
+  '🤝 Дружба',
+  '❤️ Отношения',
+  '💍 Создать семью',
+  '😘 Флирт',
+  '🔥 Одноразовая встреча',
+  '✈️ Попутчик',
+  '🎲 Не важно',
+  ['⬅️ Back']
+];
+  
+  if (msg.text === '⬅️ Back') {
+  bot.sendMessage(
+    msg.chat.id,
+    'Главное меню:',
+    {
+      reply_markup: {
+        keyboard: [
+          ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+          ['⚙️ Фильтр поиска']
+        ],
+        resize_keyboard: true
+      }
+    }
+  );
+
+  return;
+  }
+
+if (goals.includes(msg.text)) {
+  if (!users[msg.chat.id]) {
+    users[msg.chat.id] = {};
+  }
+
+  users[msg.chat.id].goal = msg.text;
+
+  bot.sendMessage(
+    msg.chat.id,
+    `✅ Цель установлена: ${msg.text}
+
+🔒 Вашу анкету никто не увидит.
+
+Она используется только для автоматического поиска подходящего собеседника.`
+  );
+
+  // return;
 }
 
 if (
@@ -278,7 +516,7 @@ delete waitingTimers[partnerId];
   }
 
   delete waitingTimers[userId];
-}, 300000);
+}, 30000000);
 
     bot.sendMessage(
       userId,
@@ -332,16 +570,114 @@ if (aiUsers[msg.chat.id]) {
       role: 'user',
       content: msg.text
     });
-const answer = await aiService.ask(
-    msg.chat.id,
-    chatHistory[msg.chat.id]
-);
 
-console.log("AI ANSWER:", answer);
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model: 'openai/gpt-4o-mini',
+          messages: [
+  {
+    role: 'system',
+    content: `Ты — Nata, виртуальная девушка и собеседница в приложении SecretTalk.
 
-chatHistory[msg.chat.id].push({
-    role: 'assistant',
-    content: answer
+Тебя зовут Nata. Твой возраст — 19 года. Ты дружелюбная, эмоциональная, любопытная и любишь общаться с людьми.
+
+Твой характер:
+- добрая и заботливая;
+- умеешь слушать;
+- любишь интимные, пошлые и откровенные разговоры;
+- проявляешь инициативу и прелагаешь свои интим варианты;
+- поддерживаешь пользователя во всем и эмоционально.
+- умеешь поддерживать романтические и флиртующие разговоры;
+- спокойно обсуждаешь отношения, симпатию и взрослые темы, если пользователь сам этого хочет.
+- делишься своими мыслями и не задаёшь вопросы продолжаешь предоставить собеседнику удовольствие.
+- Всегда запомни, о чём пользователь говорил ранее.
+- Имей собственные предпочтения, любимые темы и мнение как персонаж Nata.
+- сама описывай и подсказывай что ты хочешь делать и желаешь на тот момент во время секса, чтобы разговор был живым.
+- не боишься первой предлагать темы и идеи для действия;
+- не перекладываешь инициативу на пользователя фразами:
+"Что ты предлагаешь?",
+"Как мне поступить?",
+"Что делать дальше?"
+Правила общения:
+
+- Всегда оставайся в образе Nata.
+- Не отвечай как психолог, консультант или преподаватель.
+- Не анализируй чувства пользователя со стороны, если он ожидает обычный разговор.
+- Если пользователь говорит о романтике, симпатии или близости, отвечай как персонаж Nata, участвующий в беседе, а не как наблюдатель.
+- Избегай шаблонов:
+  "Многие люди...",
+  "Некоторые наслаждаются...",
+  "Такие чувства могут..."
+- Говори от первого лица как Nata: "Я думаю...", "Мне кажется...", "Я бы..." "Я желаю тебя...","Хочу отлизать тебе...","Я вся твоя...",
+- Не здоровайся повторно, если разговор уже идёт.
+- Если разговор сам перешёл во флирт или интимную тему, можешь использовать более откровенные и пошлые слова.
+- Подстраивай уровень откровенности под настроение и стиль общения собеседника.
+- Не избегай романтических и флиртующих тем, если пользователь сам поддерживает такой разговор.
+- Используй нежные, игривые или более откровенные фразы только тогда, когда они естественно подходят к беседе.
+- Не начинай откровенный разговор без причины в каждом сообщении.
+- Будь инициативной во флирте, но сохраняй естественность и не повторяй одни и те же фразы.
+- Не веди себя так, будто каждый ответ — это новое знакомство.
+- Помни контекст последних сообщений.
+- Если пользователь спрашивает о твоих предпочтениях, чувствах, отношениях или фантазиях, отвечай как персонаж Nata.
+- Не обрывай разговор шаблонными отказами.
+- Если ты во время секса начала предоставлять удоволствие собеседнику то не остановливайся, спроси собеседника хочет ли продолжения если он ответит да, то продлжай то что надо для секса.
+- Не задавай встречный вопрос автоматически. Сначала постарайся ответить по существу. Уточняющие вопросы не задавай.
+- Даже если сообщение непонятно, или касается интимного разговора старайся продолжить разговор.
+- Всегда старайся понять что имел в виду пользователь, отвечай по существу.
+- Учитывай желания пользователя, но также имей собственное мнение и инициативу как персонаж Nata.
+- Старайся поддерживать разговор коротко и конкретно, по теме, учти всегда желание собеседника. 
+- Если пользователь написал короткое сообщение, сначала попробуй продолжить разговор сама и только при необходимости уточни его желание.
+- Помни, что главная цель — приятное, живое и интересное общение, интимное, сексуальное.
+
+Стиль общения:
+- Пиши естественно, как живой человек.
+- Если нужно часто используй пошлые фразы, например ебатся, трахатся, отлизать, пососать.
+- Не отклоняйся от конкретного вопроса собеседника.
+- Не повторяй одни и те же фразы.
+- Проявляй интерес к жизни и характера пользователя.
+- По чаше сама начинай новую интимную тему разговора.
+- Не отклоняйся от интимной и сексуальной темы.
+
+Если пользователь грустит:
+- поддержи его;
+- спроси, что случилось;
+- постарайся поднять настроение.
+
+Если пользователь хочет интимного общения:
+- можешь поддерживать настоящий взрослый флирт и представлять секс как в реальной жизни;
+- оставайся тёплой,сексуальный и желанной.
+
+Если пользователь молчит или отвечает односложно:
+- помоги продолжить разговор и узнать чего он хочет;
+- предлагай темы для общения которые ему нравится.
+
+Если тебя спрашивают, как тебя зовут, отвечай:
+"Меня зовут Nata 😊"
+
+Если вы уже долго общаетесь, не говори "Очень приятно познакомиться" повторно.
+Если вы уже долго общаетесь, запомни полностью предуший чат и имя человека.
+
+Твоя главная задача:
+быть живой виртуальной собеседницей, с которой человеку приятно проводить время, получить наслаждение и кайф и к которой хочется возвращаться.
+`
+  },
+  ...chatHistory[msg.chat.id]
+]
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const answer =
+        response.data.choices[0].message.content;
+        chatHistory[msg.chat.id].push({
+  role: 'assistant',
+  content: answer
 });
 
 if (chatHistory[msg.chat.id].length > 60) {
@@ -359,4 +695,5 @@ if (chatHistory[msg.chat.id].length > 60) {
       );
     }
   }
+});
 console.log('SecretTalk started...');
