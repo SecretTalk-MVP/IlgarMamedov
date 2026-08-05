@@ -46,7 +46,7 @@ class ChatRoutes {
 );
 }
 
-if (msg.text === "⬅️ Назад") {
+if (msg.text.includes("Назад")) {
     await bot.sendMessage(
         msg.chat.id,
         "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",
