@@ -186,12 +186,6 @@ aiUsers[userId] = true;
   return;
 }
 
-    }
-  );
-
-  return;
-}
-
 if (
   msg.text &&
   (
