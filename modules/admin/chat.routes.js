@@ -47,7 +47,7 @@ class ChatRoutes {
 if (msg.text === "⬅️ Назад") {
     await bot.sendMessage(
         msg.chat.id,
-        "Главное меню",
+        "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",
         {
             reply_markup: {
                 keyboard: [
