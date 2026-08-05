@@ -155,7 +155,8 @@ if (
 ) {
     return;
 }
-
+    
+if (msg.text === '👥 Онлайн') {
 onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
 
