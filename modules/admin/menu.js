@@ -18,6 +18,7 @@ async function show(bot, chatId) {
                     ['📢 Рассылка'],
                     ['🚫 Бан / Разбан'],
                     ['⚙️ Настройки']
+                    ['⬅️ Назад']
                 ],
                 resize_keyboard: true
             }
