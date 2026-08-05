@@ -159,30 +159,6 @@ if (
 onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
 
-  if (msg.text === '👥 Онлайн') {
-
-    if (msg.text === '📊 Статистика') {
-        
-    const totalUsers = Object.keys(users).length;
-    const online = onlineUsers.size;
-    const dialogsCount = Object.keys(dialogs).length / 2;
-    const waiting = waitingUsers.length;
-    const aiCount = Object.keys(aiUsers).length;
-
-    bot.sendMessage(
-        msg.chat.id,
-`📊 Статистика
-
-👤 Пользователей: ${totalUsers}
-🟢 Онлайн: ${online}
-💬 Диалогов: ${dialogsCount}
-⏳ В поиске: ${waiting}
-🤖 Общаются с ИИ: ${aiCount}`
-    );
-
-    return;
-    }
-
     let text = `🟢 Онлайн сейчас: ${onlineUsers.size}\n\n`;
 
     let i = 1;
@@ -196,36 +172,7 @@ onlineUsers.add(msg.from.id);
 
     return;
   }
-  if (msg.text === '💬 Активные чаты') {
-
-    const shown = new Set();
-    let text = '💬 Активные чаты\n\n';
-
-    for (const userId in dialogs) {
-
-        const partnerId = dialogs[userId];
-
-        if (shown.has(String(userId)) || shown.has(String(partnerId))) {
-            continue;
-        }
-
-        shown.add(String(userId));
-        shown.add(String(partnerId));
-
-        text += `👤 ${userId} ↔ ${partnerId}\n`;
-    }
-
-    if (shown.size === 0) {
-        text += 'Нет активных диалогов.';
-    } else {
-        text += `\nВсего диалогов: ${shown.size / 2}`;
-      text += `\nПользователей в чатах: ${shown.size}`;
-    }
-
-    bot.sendMessage(msg.chat.id, text);
-
-    return;
-  }
+  
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
 clearUserState(userId);
