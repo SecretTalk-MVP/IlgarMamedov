@@ -14,9 +14,11 @@ class ChatRoutes {
     aiUsers
 ) {
 
-        if (!msg || !msg.text) {
-            return false;
-        }
+    console.log("ADMIN:", msg.text);
+
+    if (!msg || !msg.text) {
+        return false;
+    }
 
         if (msg.text !== "/admin" && msg.text !== "Админ") {
     return false;
