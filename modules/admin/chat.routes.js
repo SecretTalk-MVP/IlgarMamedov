@@ -44,7 +44,25 @@ class ChatRoutes {
 );
 }
 
-await menu.show(bot, msg.chat.id);
+if (msg.text === "⬅️ Назад") {
+    await bot.sendMessage(
+        msg.chat.id,
+        "Главное меню",
+        {
+            reply_markup: {
+                keyboard: [
+                    ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
+                    ['⚙️ Фильтр поиска'],
+                    ['Админ']
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
+
+    return true;
+}
+        await menu.show(bot, msg.chat.id);
 
 return true;
     }
