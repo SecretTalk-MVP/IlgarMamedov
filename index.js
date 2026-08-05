@@ -171,7 +171,6 @@ onlineUsers.add(msg.from.id);
     bot.sendMessage(msg.chat.id, text);
 
     return;
-  }
   
   if (msg.text === '🤖 Поговорить с ИИ') {
   const userId = msg.chat.id;
