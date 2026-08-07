@@ -166,6 +166,10 @@ bot.on('message', async (msg) => {
 
 console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
+  
+  if (await matchmaking.handle(bot, msg, aiUsers)) {
+    return;
+  }
   onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
   
