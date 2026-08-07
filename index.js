@@ -29,19 +29,34 @@ bot.onText(/\/start/, (msg) => {
     );
 
 });
-
 bot.on("message", async (msg) => {
 
     if (msg.text === "🤖 Поговорить с ИИ") {
 
         aiUsers[msg.chat.id] = true;
 
-        await bot.sendMessage(
+        bot.sendMessage(
             msg.chat.id,
             "🤖 Режим AiDa включён.\nНапишите любое сообщение."
         );
 
         return;
+
     }
+    if (!aiUsers[msg.chat.id]) {
+    return;
+}
+
+const answer = await aiService.ask(
+    msg.chat.id,
+    msg.text
+);
+
+bot.sendMessage(
+    msg.chat.id,
+    answer
+);
+
+return;
 
 });
