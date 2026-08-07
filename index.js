@@ -9,6 +9,39 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
+const aiUsers = {};
 
 console.log("✅ Bot initialized");
 console.log("✅ AiDa initialized");
+bot.onText(/\/start/, (msg) => {
+
+    bot.sendMessage(
+        msg.chat.id,
+        "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",
+        {
+            reply_markup: {
+                keyboard: [
+                    ["🤖 Поговорить с ИИ"]
+                ],
+                resize_keyboard: true
+            }
+        }
+    );
+
+});
+
+bot.on("message", async (msg) => {
+
+    if (msg.text === "🤖 Поговорить с ИИ") {
+
+        aiUsers[msg.chat.id] = true;
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "🤖 Режим AiDa включён.\nНапишите любое сообщение."
+        );
+
+        return;
+    }
+
+});
