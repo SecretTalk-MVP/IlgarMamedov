@@ -130,9 +130,6 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
-  if (await matchmaking.handle(bot, msg, aiUsers)) {
-    return;
-  }
   if (
   users[msg.chat.id] &&
   users[msg.chat.id].waitingFor === 'age'
