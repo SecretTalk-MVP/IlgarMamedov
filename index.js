@@ -2,6 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 const fs = require('fs');
 const db = require('./database/db');
+const matchmaking = require('./modules/matchmaking');
 
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
@@ -423,107 +424,6 @@ if (goals.includes(msg.text)) {
   );
 
   // return;
-}
-
-if (
-  msg.text &&
-  (
-    msg.text.includes('Найти собеседника') ||
-    msg.text.includes('Найти нового собеседника')
-  )
-) {
-    bot.sendMessage(
-  msg.chat.id,
-  '🔍 Ищем собеседника...'
-);
-
-  const userId = msg.chat.id;
-  delete aiUsers[userId];
-
-  if (!users[userId]) {
-    users[userId] = {
-      goal: '🎲 Не важно',
-      gender: null,
-      searchGender: 'all',
-      violations: 0,
-      blockedUntil: null
-    };
-  }
-  if (dialogs[userId]) {
-    const partnerId = dialogs[userId];
-
-    delete dialogs[userId];
-    delete dialogs[partnerId];
-
-    bot.sendMessage(
-      partnerId,
-      '❌ Собеседник начал поиск нового собеседника.'
-    );
-  }
-
-  if (waitingUsers.includes(userId)) {
-    return;
-  }
-
-  let partnerId = null;
-
-while (waitingUsers.length > 0) {
-    const candidate = waitingUsers.shift();
-
-    if (candidate === userId) {
-        continue;
-    }
-
-    if (aiUsers[candidate]) {
-        continue;
-    }
-
-    partnerId = candidate;
-    break;
-}
-
-if (partnerId) {
-    dialogs[userId] = partnerId;
-    dialogs[partnerId] = userId;
-    clearTimeout(waitingTimers[userId]);
-clearTimeout(waitingTimers[partnerId]);
-
-delete waitingTimers[userId];
-delete waitingTimers[partnerId];
-
-    bot.sendMessage(
-        userId,
-        '✅ Новый собеседник найден!'
-    );
-
-    bot.sendMessage(
-        partnerId,
-        '✅ Новый собеседник найден!'
-    );
-} else {
-    waitingUsers.push(userId);
-
-    waitingTimers[userId] = setTimeout(() => {
-  const index = waitingUsers.indexOf(userId);
-
-  if (index !== -1) {
-    waitingUsers.splice(index, 1);
-
-    bot.sendMessage(
-      userId,
-      '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
-    );
-  }
-
-  delete waitingTimers[userId];
-}, 30000000);
-
-    bot.sendMessage(
-      userId,
-      '🧪 DEV TEST'
-    );
-  }
-  return;
 }
 
 if (msg.text === '❌ Завершить диалог') {
