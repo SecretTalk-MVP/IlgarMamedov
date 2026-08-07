@@ -130,6 +130,9 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', async (msg) => {
+  if (await matchmaking.handle(bot, msg, aiUsers)) {
+    return;
+  }
   if (
   users[msg.chat.id] &&
   users[msg.chat.id].waitingFor === 'age'
@@ -167,9 +170,6 @@ bot.on('message', async (msg) => {
 console.log("MESSAGE:", msg.from.id);
 await saveUser(msg);
   
-  if (await matchmaking.handle(bot, msg, aiUsers)) {
-    return;
-  }
   onlineUsers.add(msg.from.id);
   console.log("TEXT =", JSON.stringify(msg.text));
   
