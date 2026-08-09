@@ -47,16 +47,33 @@ bot.on("message", async (msg) => {
     return;
 }
 
-const answer = await aiService.ask(
-    msg.chat.id,
-    msg.text
-);
+    try {
 
-bot.sendMessage(
-    msg.chat.id,
-    answer
-);
+        console.log("🤖 AiDa request:", msg.chat.id, msg.text);
 
-return;
+        const answer = await aiService.ask(
+            msg.chat.id,
+            msg.text
+        );
+
+        console.log("🤖 AiDa answer:", answer);
+
+        await bot.sendMessage(
+            msg.chat.id,
+            answer
+        );
+
+    } catch (error) {
+
+        console.error("❌ AiDa error:", error);
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "❌ AiDa не смогла ответить. Ошибка записана в лог."
+        );
+
+    }
+
+    return;
 
 });
