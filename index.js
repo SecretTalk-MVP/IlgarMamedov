@@ -52,9 +52,14 @@ bot.on("message", async (msg) => {
         console.log("🤖 AiDa request:", msg.chat.id, msg.text);
 
         const answer = await aiService.ask(
-            msg.chat.id,
-            msg.text
-        );
+    msg.chat.id,
+    [
+        {
+            role: "user",
+            content: msg.text
+        }
+    ]
+);
 
         console.log("🤖 AiDa answer:", answer);
 
