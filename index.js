@@ -9,6 +9,7 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
+const searchRoutes = require('./search/routes');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
@@ -21,8 +22,9 @@ bot.onText(/\/start/, (msg) => {
         {
             reply_markup: {
                 keyboard: [
-                    ["🤖 Поговорить с ИИ"]
-                ],
+    ["🤖 Поговорить с ИИ"],
+    ["👥 Найти собеседника"]
+],
                 resize_keyboard: true
             }
         }
@@ -30,6 +32,15 @@ bot.onText(/\/start/, (msg) => {
 
 });
 bot.on("message", async (msg) => {
+        const searchHandled = await searchRoutes.handle(
+        bot,
+        msg,
+        aiUsers
+    );
+
+    if (searchHandled) {
+        return;
+    }
 
     if (msg.text === "🤖 Поговорить с ИИ") {
 
