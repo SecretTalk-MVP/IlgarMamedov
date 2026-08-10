@@ -9,87 +9,78 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
-const matchmakingRoutes = require('./matchmaking/routes');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
 console.log("✅ AiDa initialized");
-bot.onText(/\/start/, (msg) => {
+bot.onText(//start/, (msg) => {
 
-    bot.sendMessage(
-        msg.chat.id,
-        "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",
-        {
-            reply_markup: {
-                keyboard: [
-    ["🤖 Поговорить с ИИ"],
-    ["👥 Найти собеседника"]
-],
-                resize_keyboard: true
-            }
-        }
-    );
+bot.sendMessage(  
+    msg.chat.id,  
+    "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",  
+    {  
+        reply_markup: {  
+            keyboard: [  
+                ["🤖 Поговорить с ИИ"]  
+            ],  
+            resize_keyboard: true  
+        }  
+    }  
+);
 
 });
 bot.on("message", async (msg) => {
-        const searchHandled = await searchRoutes.handle(
-        bot,
-        msg,
-        aiUsers
-    );
 
-    if (searchHandled) {
-        return;
-    }
+if (msg.text === "🤖 Поговорить с ИИ") {  
 
-    if (msg.text === "🤖 Поговорить с ИИ") {
+    aiUsers[msg.chat.id] = true;  
 
-        aiUsers[msg.chat.id] = true;
+    bot.sendMessage(  
+        msg.chat.id,  
+        "🤖 Режим AiDa включён.\nНапишите любое сообщение."  
+    );  
 
-        bot.sendMessage(
-            msg.chat.id,
-            "🤖 Режим AiDa включён.\nНапишите любое сообщение."
-        );
+    return;  
 
-        return;
+}  
+if (!aiUsers[msg.chat.id]) {  
+return;
 
-    }
-    if (!aiUsers[msg.chat.id]) {
-    return;
 }
 
-    try {
+try {  
 
-        console.log("🤖 AiDa request:", msg.chat.id, msg.text);
+    console.log("🤖 AiDa request:", msg.chat.id, msg.text);  
 
-        const answer = await aiService.ask(
-    msg.chat.id,
-    [
-        {
-            role: "user",
-            content: msg.text
-        }
-    ]
+    const answer = await aiService.ask(  
+msg.chat.id,  
+[  
+    {  
+        role: "user",  
+        content: msg.text  
+    }  
+]
+
 );
 
-        console.log("🤖 AiDa answer:", answer);
+console.log("🤖 AiDa answer:", answer);  
 
-        await bot.sendMessage(
-            msg.chat.id,
-            answer
-        );
+    await bot.sendMessage(  
+        msg.chat.id,  
+        answer  
+    );  
 
-    } catch (error) {
+} catch (error) {  
 
-        console.error("❌ AiDa error:", error);
+    console.error("❌ AiDa error:", error);  
 
-        await bot.sendMessage(
-            msg.chat.id,
-            "❌ AiDa не смогла ответить. Ошибка записана в лог."
-        );
+    await bot.sendMessage(  
+        msg.chat.id,  
+        "❌ AiDa не смогла ответить. Ошибка записана в лог."  
+    );  
 
-    }
+}  
 
-    return;
+return;
 
 });
