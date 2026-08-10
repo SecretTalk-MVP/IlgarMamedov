@@ -9,7 +9,8 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
-const matchmaking = require('./modules/matchmaking/routes');
+const matchmaking = require('./modules/matchmaking');
+const users = require('./modules/users');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
