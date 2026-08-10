@@ -9,7 +9,7 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
-const searchRoutes = require('./search/routes');
+const matchmaking = require('./modules/matchmaking');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
@@ -34,13 +34,13 @@ bot.onText(/\/start/, (msg) => {
 
 bot.on("message", async (msg) => {
 
-    const searchHandled = await searchRoutes.handle(
-        bot,
-        msg,
-        aiUsers
-    );
+    const matchmakingHandled = await matchmaking.handle(
+  bot,
+  msg,
+  aiUsers
+);
 
-    if (searchHandled) {
+    if (matchmakingHandled) {
         return;
     }
 
