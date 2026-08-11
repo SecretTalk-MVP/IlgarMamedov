@@ -24,8 +24,10 @@ bot.onText(/\/start/, (msg) => {
         {
             reply_markup: {
                 keyboard: [
-                    ["🤖 Поговорить с ИИ"]
-                ],
+                    keyboard: [
+    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
+    ["⚙️ Фильтр поиска"]
+],
                 resize_keyboard: true
             }
         }
