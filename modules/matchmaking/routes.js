@@ -103,6 +103,10 @@ async function handle(
          * очереди перед новым поиском.
          */
         queue.remove(userId);
+                if (state.waitingTimers[userId]) {
+            clearTimeout(state.waitingTimers[userId]);
+            delete state.waitingTimers[userId];
+                }
 
         const partnerId = matcher.findPartner(
             userId,
@@ -110,6 +114,10 @@ async function handle(
         );
 
         if (partnerId) {
+                        if (state.waitingTimers[partnerId]) {
+                clearTimeout(state.waitingTimers[partnerId]);
+                delete state.waitingTimers[partnerId];
+                        }
 
             bot.sendMessage(
                 userId,
@@ -124,6 +132,18 @@ async function handle(
         } else {
 
             queue.add(userId);
+                        state.waitingTimers[userId] = setTimeout(() => {
+
+                queue.remove(userId);
+
+                bot.sendMessage(
+                    userId,
+                    '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
+                );
+
+                delete state.waitingTimers[userId];
+
+            }, 300000);
 
             bot.sendMessage(
                 userId,
