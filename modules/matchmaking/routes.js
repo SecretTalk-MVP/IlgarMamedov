@@ -67,6 +67,10 @@ async function handle(
         }
 
         queue.remove(userId);
+        if (state.waitingTimers[userId]) {
+    clearTimeout(state.waitingTimers[userId]);
+    delete state.waitingTimers[userId];
+        }
 
         return false;
     }
