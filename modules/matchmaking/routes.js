@@ -10,17 +10,42 @@ async function handle(
 ) {
     const userId = msg.chat.id;
 
-    if (
-        msg.text !== '👥 Найти собеседника' &&
-        msg.text !== '❌ Завершить диалог'
-    ) {
-        return await relay(bot, msg, aiUsers);
+    /*
+     * Переход в другую функцию.
+     *
+     * Эта кнопка принадлежит AiDa, а не matchmaking.
+     * Если пользователь сейчас разговаривает с человеком,
+     * сначала завершаем этот диалог, затем возвращаем
+     * управление index.js.
+     */
+    if (msg.text === '🤖 Поговорить с ИИ') {
+
+        delete aiUsers[userId];
+
+        if (dialogs.isInDialog(userId)) {
+
+            const partnerId = dialogs.disconnect(userId);
+
+            if (partnerId) {
+                bot.sendMessage(
+                    partnerId,
+                    '❌ Собеседник покинул чат.'
+                );
+            }
+        }
+
+        return false;
     }
 
+    /*
+     * Завершение текущего диалога.
+     */
     if (msg.text === '❌ Завершить диалог') {
+
         const partnerId = dialogs.disconnect(userId);
 
         if (!partnerId) {
+
             bot.sendMessage(
                 userId,
                 'У вас нет активного диалога.'
@@ -42,48 +67,93 @@ async function handle(
         return true;
     }
 
-    delete aiUsers[userId];
+    /*
+     * Новый поиск собеседника.
+     */
+    if (msg.text === '👥 Найти собеседника') {
 
-    if (dialogs.isInDialog(userId)) {
-        const partnerId = dialogs.disconnect(userId);
+        delete aiUsers[userId];
+
+        /*
+         * Если пользователь уже был в диалоге,
+         * сначала разрываем старый диалог.
+         */
+        if (dialogs.isInDialog(userId)) {
+
+            const partnerId = dialogs.disconnect(userId);
+
+            if (partnerId) {
+
+                bot.sendMessage(
+                    partnerId,
+                    '❌ Собеседник начал поиск нового собеседника.'
+                );
+            }
+        }
+
+        /*
+         * Не добавляем одного пользователя
+         * в очередь несколько раз.
+         */
+        if (queue.has(userId)) {
+            return true;
+        }
+
+        const partnerId = matcher.findPartner(
+            userId,
+            aiUsers
+        );
 
         if (partnerId) {
+
+            bot.sendMessage(
+                userId,
+                '✅ Новый собеседник найден!'
+            );
+
             bot.sendMessage(
                 partnerId,
-                '❌ Собеседник начал поиск нового собеседника.'
+                '✅ Новый собеседник найден!'
+            );
+
+        } else {
+
+            queue.add(userId);
+
+            bot.sendMessage(
+                userId,
+                '🔍 Ищем собеседника...'
             );
         }
-    }
 
-    if (queue.has(userId)) {
         return true;
     }
 
-    const partnerId = matcher.findPartner(
-        userId,
-        aiUsers
-    );
+    /*
+     * Обычное сообщение.
+     *
+     * Только если пользователь действительно
+     * находится в активном диалоге,
+     * сообщение передаётся собеседнику.
+     */
+    if (dialogs.isInDialog(userId)) {
 
-    if (partnerId) {
-        bot.sendMessage(
-            userId,
-            '✅ Новый собеседник найден!'
-        );
-
-        bot.sendMessage(
-            partnerId,
-            '✅ Новый собеседник найден!'
-        );
-    } else {
-        queue.add(userId);
-
-        bot.sendMessage(
-            userId,
-            '🔍 Ищем собеседника...'
+        return await relay(
+            bot,
+            msg,
+            aiUsers
         );
     }
 
-    return true;
+    /*
+     * Это не функция matchmaking.
+     *
+     * Возвращаем false, чтобы index.js
+     * продолжил обработку сообщения:
+     *
+     * AiDa, профиль, настройки и т.д.
+     */
+    return false;
 }
 
 module.exports = {
