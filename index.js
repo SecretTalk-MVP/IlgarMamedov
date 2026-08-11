@@ -37,24 +37,25 @@ bot.onText(/\/start/, (msg) => {
 
 bot.on("message", async (msg) => {
 
-    const matchmakingHandled = await matchmaking.handle(
-  bot,
-  msg,
-  aiUsers
+    const routerHandled = await router.handle(
+    bot,
+    msg,
+    aiUsers
 );
 
-    if (matchmakingHandled) {
-        return;
-    }
-        const routerHandled = await router.handle(
-        bot,
-        msg,
-        aiUsers
-    );
+if (routerHandled) {
+    return;
+}
 
-    if (routerHandled) {
-        return;
-    }
+const matchmakingHandled = await matchmaking.handle(
+    bot,
+    msg,
+    aiUsers
+);
+
+if (matchmakingHandled) {
+    return;
+}
 
     if (msg.text === "🤖 Поговорить с ИИ") {
 
