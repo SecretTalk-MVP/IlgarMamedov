@@ -11,6 +11,7 @@ const bot = new TelegramBot(token, { polling: true });
 const aiService = new AIService();
 const matchmaking = require('./modules/matchmaking/routes');
 const users = require('./modules/users');
+const router = require('./modules/router');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
@@ -43,6 +44,15 @@ bot.on("message", async (msg) => {
 );
 
     if (matchmakingHandled) {
+        return;
+    }
+        const routerHandled = await router.handle(
+        bot,
+        msg,
+        aiUsers
+    );
+
+    if (routerHandled) {
         return;
     }
 
