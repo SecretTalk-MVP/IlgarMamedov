@@ -5,7 +5,7 @@ class Routes {
 
     async handle(bot, msg, aiUsers) {
 
-        if (await admin.handle(bot, msg)) {
+        if (await admin.handle(bot, msg, aiUsers)) {
             return true;
         }
 
