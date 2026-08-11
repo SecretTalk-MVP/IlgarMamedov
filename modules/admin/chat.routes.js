@@ -4,25 +4,28 @@ const statistics = require("./statistics");
 
 class ChatRoutes {
 
-    async handle(
-    bot,
-    msg,
-    users,
-    onlineUsers,
-    dialogs,
-    waitingUsers,
-    aiUsers
-) {
+    async handle(bot, msg, aiUsers) {
 
-    console.log("ADMIN:", msg.text);
+        if (!msg || !msg.text) {
+            return false;
+        }
 
-    if (!msg || !msg.text) {
-        return false;
-    }
+        const adminButtons = [
+            "/admin",
+            "Админ",
+            "📊 Статистика",
+            "👥 Пользователи",
+            "💬 Активные чаты",
+            "📢 Рассылка",
+            "🚫 Бан / Разбан",
+            "⚙️ Настройки"
+        ];
 
-        if (msg.text !== "/admin" && msg.text !== "Админ") {
-    return false;
-}
+        if (!adminButtons.includes(msg.text)) {
+            return false;
+        }
+
+        console.log("ADMIN:", msg.text);
 
         if (!permissions.isAdmin(msg.from.id)) {
 
@@ -35,38 +38,30 @@ class ChatRoutes {
         }
 
         if (msg.text === "📊 Статистика") {
-    return await statistics.show(
-    bot,
-    msg,
-    users,
-    onlineUsers,
-    dialogs,
-    waitingUsers,
-    aiUsers
-);
-}
 
-if (msg.text.includes("Назад")) {
-    await bot.sendMessage(
-        msg.chat.id,
-        "Добро пожаловать в SecretTalk 🚀\n\nВыберите действие:",
-        {
-            reply_markup: {
-                keyboard: [
-                    ['🤖 Поговорить с ИИ', '👥 Найти собеседника'],
-                    ['⚙️ Фильтр поиска'],
-                    ['Админ']
-                ],
-                resize_keyboard: true
-            }
+            return await statistics.show(
+                bot,
+                msg,
+                aiUsers
+            );
         }
-    );
 
-    return true;
-}
-        await menu.show(bot, msg.chat.id);
+        if (msg.text === "/admin" || msg.text === "Админ") {
 
-return true;
+            await menu.show(
+                bot,
+                msg.chat.id
+            );
+
+            return true;
+        }
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "🚧 Эта функция администратора пока находится в разработке."
+        );
+
+        return true;
     }
 
 }
