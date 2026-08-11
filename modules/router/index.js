@@ -1,11 +1,21 @@
-const routes = require("./routes");
+const admin = require("../admin");
+const settings = require("../settings");
 
-class Router {
+class Routes {
 
-    async handle(bot, msg) {
-        return await routes.handle(bot, msg);
+    async handle(bot, msg, aiUsers) {
+
+        if (await admin.handle(bot, msg)) {
+            return true;
+        }
+
+        if (await settings.handle(bot, msg, aiUsers)) {
+            return true;
+        }
+
+        return false;
     }
 
 }
 
-module.exports = new Router();
+module.exports = new Routes();
