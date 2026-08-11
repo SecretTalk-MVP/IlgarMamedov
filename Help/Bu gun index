@@ -29,11 +29,76 @@ bot.onText(/\/start/, (msg) => {
         {
             reply_markup: {
                 keyboard: [
-                    ["🤖 Поговорить с ИИ"]
-                ],
+    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
+    ["⚙️ Фильтр поиска"]
+],
                 resize_keyboard: true
             }
         }
+    );
+
+});
+
+bot.on("message", async (msg) => {
+
+    const matchmakingHandled = await matchmaking.handle(
+  bot,
+  msg,
+  aiUsers
+);
+
+    if (matchmakingHandled) {
+        return;
+    }
+
+    if (msg.text === "🤖 Поговорить с ИИ") {
+
+        aiUsers[msg.chat.id] = true;
+
+        bot.sendMessage(
+            msg.chat.id,
+            "🤖 Режим AiDa включён.\nНапишите любое сообщение."
+        );
+
+        return;
+    }
+
+    if (!aiUsers[msg.chat.id]) {
+        return;
+    }
+
+    try {
+
+        console.log("🤖 AiDa request:", msg.chat.id, msg.text);
+
+        const answer = await aiService.ask(
+            msg.chat.id,
+            [
+                {
+                    role: "user",
+                    content: msg.text
+                }
+            ]
+        );
+
+        console.log("🤖 AiDa answer:", answer);
+
+        await bot.sendMessage(
+            msg.chat.id,
+            answer
+        );
+
+    } catch (error) {
+
+        console.error("❌ AiDa error:", error);
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "❌ AiDa не смогла ответить. Ошибка записана в лог."
+        );
+    }
+
+});
     );
 
 });
