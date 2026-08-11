@@ -1,3 +1,4 @@
+const state = require('./state');
 const queue = require('./queue');
 const matcher = require('./matcher');
 const dialogs = require('./dialogs');
@@ -11,41 +12,13 @@ async function handle(
     const userId = msg.chat.id;
 
     /*
-     * Переход в другую функцию.
-     *
-     * Эта кнопка принадлежит AiDa, а не matchmaking.
-     * Если пользователь сейчас разговаривает с человеком,
-     * сначала завершаем этот диалог, затем возвращаем
-     * управление index.js.
-     */
-    if (msg.text === '🤖 Поговорить с ИИ') {
-
-        delete aiUsers[userId];
-
-        if (dialogs.isInDialog(userId)) {
-
-            const partnerId = dialogs.disconnect(userId);
-
-            if (partnerId) {
-                bot.sendMessage(
-                    partnerId,
-                    '❌ Собеседник покинул чат.'
-                );
-            }
-        }
-
-        return false;
-    }
-
-    /*
-     * Завершение текущего диалога.
+     * 1. Завершение текущего human-to-human диалога.
      */
     if (msg.text === '❌ Завершить диалог') {
 
         const partnerId = dialogs.disconnect(userId);
 
         if (!partnerId) {
-
             bot.sendMessage(
                 userId,
                 'У вас нет активного диалога.'
@@ -68,22 +41,52 @@ async function handle(
     }
 
     /*
-     * Новый поиск собеседника.
+     * 2. Переход в режим ИИ.
+     *
+     * ВАЖНО:
+     * Если пользователь сейчас находится
+     * в human-to-human диалоге, сначала
+     * разрываем этот диалог.
+     *
+     * После этого возвращаем false,
+     * чтобы index.js передал команду
+     * AIService.
+     */
+    if (msg.text === '🤖 Поговорить с ИИ') {
+
+        if (dialogs.isInDialog(userId)) {
+
+            const partnerId = dialogs.disconnect(userId);
+
+            if (partnerId) {
+                bot.sendMessage(
+                    partnerId,
+                    '❌ Собеседник перешёл в режим ИИ.'
+                );
+            }
+        }
+
+        queue.remove(userId);
+
+        return false;
+    }
+
+    /*
+     * 3. Новый поиск собеседника.
      */
     if (msg.text === '👥 Найти собеседника') {
 
         delete aiUsers[userId];
 
         /*
-         * Если пользователь уже был в диалоге,
-         * сначала разрываем старый диалог.
+         * Если пользователь уже находится
+         * в диалоге — сначала завершаем его.
          */
         if (dialogs.isInDialog(userId)) {
 
             const partnerId = dialogs.disconnect(userId);
 
             if (partnerId) {
-
                 bot.sendMessage(
                     partnerId,
                     '❌ Собеседник начал поиск нового собеседника.'
@@ -92,12 +95,10 @@ async function handle(
         }
 
         /*
-         * Не добавляем одного пользователя
-         * в очередь несколько раз.
+         * Убираем пользователя из старой
+         * очереди перед новым поиском.
          */
-        if (queue.has(userId)) {
-            return true;
-        }
+        queue.remove(userId);
 
         const partnerId = matcher.findPartner(
             userId,
@@ -130,14 +131,11 @@ async function handle(
     }
 
     /*
-     * Обычное сообщение.
-     *
-     * Только если пользователь действительно
-     * находится в активном диалоге,
-     * сообщение передаётся собеседнику.
+     * 4. Если пользователь находится
+     *    в активном human-to-human диалоге —
+     *    передаём сообщение собеседнику.
      */
     if (dialogs.isInDialog(userId)) {
-
         return await relay(
             bot,
             msg,
@@ -146,12 +144,8 @@ async function handle(
     }
 
     /*
-     * Это не функция matchmaking.
-     *
-     * Возвращаем false, чтобы index.js
-     * продолжил обработку сообщения:
-     *
-     * AiDa, профиль, настройки и т.д.
+     * 5. Это не matchmaking.
+     *    Передаём управление index.js.
      */
     return false;
 }
