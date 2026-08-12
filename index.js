@@ -19,6 +19,7 @@ console.log("✅ Bot initialized");
 console.log("✅ AiDa initialized");
 
 bot.onText(/\/start/, (msg) => {
+    console.log("START USER ID:", msg.from.id);
 
     const keyboard = [
         ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
