@@ -12,6 +12,7 @@ const aiService = new AIService();
 const matchmaking = require('./modules/matchmaking/routes');
 const users = require('./modules/users');
 const router = require('./modules/router');
+const admin = require('./modules/admin');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
