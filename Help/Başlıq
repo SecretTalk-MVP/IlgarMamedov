@@ -2,10 +2,11 @@
 // НЕ ПОДКЛЮЧАТЬ
 // НЕ ИМПОРТИРОВАТЬ
 // Только эталон старой функциональности SecretTalk
-заменили modules/admin/chat.routes.js
+добавили Админ 13 Августа 01:20
 
 
-const TelegramBot = require('node-telegram-bot-api');
+
+    const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 const fs = require('fs');
 const db = require('./database/db');
@@ -19,22 +20,30 @@ const aiService = new AIService();
 const matchmaking = require('./modules/matchmaking/routes');
 const users = require('./modules/users');
 const router = require('./modules/router');
+const admin = require('./modules/admin');
 const aiUsers = {};
 
 console.log("✅ Bot initialized");
 console.log("✅ AiDa initialized");
 
 bot.onText(/\/start/, (msg) => {
+    console.log("START USER ID:", msg.from.id);
+
+    const keyboard = [
+    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
+    ["⚙️ Фильтр поиска"]
+];
+
+if (admin.permissions.isAdmin(msg.from.id)) {
+    keyboard[1].push("👑 Админ");
+}
 
     bot.sendMessage(
         msg.chat.id,
         "Добро пожаловать в SecretTalk 💌\n\nВыберите действие:",
         {
             reply_markup: {
-                keyboard: [
-    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
-    ["⚙️ Фильтр поиска"]
-],
+                keyboard: keyboard,
                 resize_keyboard: true
             }
         }
