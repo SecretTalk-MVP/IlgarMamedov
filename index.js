@@ -26,6 +26,8 @@ bot.onText(/\/start/, (msg) => {
     ];
 
     if (admin.permissions.isAdmin(msg.from.id)) {
+    keyboard.push(["Админ"]);
+}
         keyboard.push(["Админ"]);
     }
 
