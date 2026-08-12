@@ -22,13 +22,13 @@ bot.onText(/\/start/, (msg) => {
     console.log("START USER ID:", msg.from.id);
 
     const keyboard = [
-        ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
-        ["⚙️ Фильтр поиска"]
-    ];
+    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
+    ["⚙️ Фильтр поиска"]
+];
 
-    if (admin.permissions.isAdmin(msg.from.id)) {
-    keyboard.push(["Админ"]);
-    }
+if (admin.permissions.isAdmin(msg.from.id)) {
+    keyboard[1].push("👑 Админ");
+}
 
     bot.sendMessage(
         msg.chat.id,
