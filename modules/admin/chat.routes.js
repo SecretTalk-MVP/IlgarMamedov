@@ -11,15 +11,18 @@ class ChatRoutes {
         }
 
         const adminButtons = [
-            "/admin",
-            "Админ",
-            "📊 Статистика",
-            "👥 Пользователи",
-            "💬 Активные чаты",
-            "📢 Рассылка",
-            "🚫 Бан / Разбан",
-            "⚙️ Настройки"
-        ];
+    "/admin",
+    "Админ",
+    "Admin",
+    "👑 Админ",
+    "👑 Admin",
+    "📊 Статистика",
+    "👥 Пользователи",
+    "💬 Активные чаты",
+    "📢 Рассылка",
+    "🚫 Бан / Разбан",
+    "⚙️ Настройки"
+];
 
         if (!adminButtons.includes(msg.text)) {
             return false;
@@ -46,7 +49,13 @@ class ChatRoutes {
             );
         }
 
-        if (msg.text === "/admin" || msg.text === "Админ") {
+        if (
+    msg.text === "/admin" ||
+    msg.text === "Админ" ||
+    msg.text === "Admin" ||
+    msg.text === "👑 Админ" ||
+    msg.text === "👑 Admin"
+) {
 
             await menu.show(
                 bot,
