@@ -19,23 +19,22 @@ console.log("✅ Bot initialized");
 console.log("✅ AiDa initialized");
 
 bot.onText(/\/start/, (msg) => {
+
     const keyboard = [
-    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
-    ["⚙️ Фильтр поиска"]
-];
+        ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
+        ["⚙️ Фильтр поиска"]
+    ];
+
+    if (admin.permissions.isAdmin(msg.from.id)) {
+        keyboard.push(["Админ"]);
+    }
 
     bot.sendMessage(
         msg.chat.id,
         "Добро пожаловать в SecretTalk 💌\n\nВыберите действие:",
         {
             reply_markup: {
-                if (admin.permissions.isAdmin(msg.from.id)) {
-    keyboard.push(["Админ"]);
-    }
-                keyboard: [
-    ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
-    ["⚙️ Фильтр поиска"],
-],
+                keyboard: keyboard,
                 resize_keyboard: true
             }
         }
