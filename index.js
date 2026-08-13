@@ -1,7 +1,4 @@
 const TelegramBot = require('node-telegram-bot-api');
-const axios = require('axios');
-const fs = require('fs');
-const db = require('./database/db');
 
 const AIService = require('./ai/ai.service');
 
@@ -10,7 +7,6 @@ const bot = new TelegramBot(token, { polling: true });
 
 const aiService = new AIService();
 const matchmaking = require('./modules/matchmaking/routes');
-const users = require('./modules/users');
 const router = require('./modules/router');
 const admin = require('./modules/admin');
 const aiUsers = {};
@@ -26,7 +22,7 @@ bot.onText(/\/start/, (msg) => {
     ["⚙️ Фильтр поиска"]
 ];
 
-if (admin.permissions.isAdmin(msg.from.id)) {
+if (admin.isAdmin(msg.from.id)) {
     keyboard[1].push("👑 Админ");
 }
 
