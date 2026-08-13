@@ -1,7 +1,6 @@
 const menu = require("./menu");
 const permissions = require("./permissions");
 const statistics = require("./statistics");
-const adminUsers = new Set();
 
 class ChatRoutes {
 
