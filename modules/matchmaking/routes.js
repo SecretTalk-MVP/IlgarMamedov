@@ -4,11 +4,37 @@ const matcher = require('./matcher');
 const dialogs = require('./dialogs');
 const relay = require('./relay');
 
+function leaveForAi(userId) {
+
+    if (dialogs.isInDialog(userId)) {
+
+        const partnerId = dialogs.disconnect(userId);
+
+        if (partnerId) {
+            return partnerId;
+        }
+    }
+
+    queue.remove(userId);
+
+    if (state.waitingTimers[userId]) {
+        clearTimeout(state.waitingTimers[userId]);
+        delete state.waitingTimers[userId];
+    }
+
+    return null;
+}
+
 async function handle(
     bot,
     msg,
     aiUsers
 ) {
+
+    if (!msg || !msg.text) {
+        return false;
+    }
+
     const userId = msg.chat.id;
 
     /*
@@ -19,7 +45,8 @@ async function handle(
         const partnerId = dialogs.disconnect(userId);
 
         if (!partnerId) {
-            bot.sendMessage(
+
+            await bot.sendMessage(
                 userId,
                 'У вас нет активного диалога.'
             );
@@ -27,12 +54,12 @@ async function handle(
             return true;
         }
 
-        bot.sendMessage(
+        await bot.sendMessage(
             userId,
             '❌ Диалог завершён.'
         );
 
-        bot.sendMessage(
+        await bot.sendMessage(
             partnerId,
             '❌ Собеседник покинул чат.'
         );
@@ -41,20 +68,7 @@ async function handle(
     }
 
     /*
-     * 2. Переход в режим ИИ.
-     *
-     * ВАЖНО:
-     * Если пользователь сейчас находится
-     * в human-to-human диалоге, сначала
-     * разрываем этот диалог.
-     *
-     * После этого возвращаем false,
-     * чтобы index.js передал команду
-     * AIService.
-     */
-    
-    /*
-     * 3. Новый поиск собеседника.
+     * 2. Новый поиск собеседника.
      */
     if (msg.text === '👥 Найти собеседника') {
 
@@ -69,7 +83,8 @@ async function handle(
             const partnerId = dialogs.disconnect(userId);
 
             if (partnerId) {
-                bot.sendMessage(
+
+                await bot.sendMessage(
                     partnerId,
                     '❌ Собеседник начал поиск нового собеседника.'
                 );
@@ -77,14 +92,18 @@ async function handle(
         }
 
         /*
-         * Убираем пользователя из старой
-         * очереди перед новым поиском.
+         * Убираем пользователя из старой очереди.
          */
         queue.remove(userId);
-                if (state.waitingTimers[userId]) {
-            clearTimeout(state.waitingTimers[userId]);
+
+        if (state.waitingTimers[userId]) {
+
+            clearTimeout(
+                state.waitingTimers[userId]
+            );
+
             delete state.waitingTimers[userId];
-                }
+        }
 
         const partnerId = matcher.findPartner(
             userId,
@@ -92,17 +111,22 @@ async function handle(
         );
 
         if (partnerId) {
-                        if (state.waitingTimers[partnerId]) {
-                clearTimeout(state.waitingTimers[partnerId]);
-                delete state.waitingTimers[partnerId];
-                        }
 
-            bot.sendMessage(
+            if (state.waitingTimers[partnerId]) {
+
+                clearTimeout(
+                    state.waitingTimers[partnerId]
+                );
+
+                delete state.waitingTimers[partnerId];
+            }
+
+            await bot.sendMessage(
                 userId,
                 '✅ Новый собеседник найден!'
             );
 
-            bot.sendMessage(
+            await bot.sendMessage(
                 partnerId,
                 '✅ Новый собеседник найден!'
             );
@@ -110,20 +134,24 @@ async function handle(
         } else {
 
             queue.add(userId);
-                        state.waitingTimers[userId] = setTimeout(() => {
 
-                queue.remove(userId);
+            state.waitingTimers[userId] = setTimeout(
+                () => {
 
-                bot.sendMessage(
-                    userId,
-                    '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
-                );
+                    queue.remove(userId);
 
-                delete state.waitingTimers[userId];
+                    bot.sendMessage(
+                        userId,
+                        '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
+                    );
 
-            }, 300000);
+                    delete state.waitingTimers[userId];
 
-            bot.sendMessage(
+                },
+                300000
+            );
+
+            await bot.sendMessage(
                 userId,
                 '🔍 Ищем собеседника...'
             );
@@ -133,11 +161,12 @@ async function handle(
     }
 
     /*
-     * 4. Если пользователь находится
+     * 3. Если пользователь находится
      *    в активном human-to-human диалоге —
      *    передаём сообщение собеседнику.
      */
     if (dialogs.isInDialog(userId)) {
+
         return await relay(
             bot,
             msg,
@@ -146,12 +175,13 @@ async function handle(
     }
 
     /*
-     * 5. Это не matchmaking.
-     *    Передаём управление index.js.
+     * 4. Это не matchmaking.
+     *    Передаём управление Router.
      */
     return false;
 }
 
 module.exports = {
-    handle
+    handle,
+    leaveForAi
 };
