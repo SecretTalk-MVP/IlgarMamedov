@@ -1,7 +1,7 @@
 /**
  * SecretTalk
  * AiDa User Module
- * Version: 1.0
+ * Version: 1.1
  */
 
 const aiService = require('../../ai');
@@ -18,7 +18,7 @@ async function handle(bot, msg) {
     const text = msg.text;
 
     /*
-     * Вход в режим AiDa.
+     * Переход в режим AiDa.
      */
     if (text === '🤖 Поговорить с ИИ') {
 
@@ -30,6 +30,26 @@ async function handle(bot, msg) {
         );
 
         return true;
+    }
+
+    /*
+     * Кнопки других модулей.
+     * Передаём управление Router.
+     */
+    const externalButtons = [
+        '👥 Найти собеседника',
+        '⚙️ Фильтр поиска',
+        '👑 Админ',
+        '👑 Admin',
+        'Админ',
+        'Admin'
+    ];
+
+    if (externalButtons.includes(text)) {
+
+        delete aiUsers[userId];
+
+        return false;
     }
 
     /*
