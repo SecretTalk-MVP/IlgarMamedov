@@ -52,29 +52,7 @@ async function handle(
      * чтобы index.js передал команду
      * AIService.
      */
-    if (msg.text === '🤖 Поговорить с ИИ') {
-
-        if (dialogs.isInDialog(userId)) {
-
-            const partnerId = dialogs.disconnect(userId);
-
-            if (partnerId) {
-                bot.sendMessage(
-                    partnerId,
-                    '❌ Собеседник перешёл в режим ИИ.'
-                );
-            }
-        }
-
-        queue.remove(userId);
-        if (state.waitingTimers[userId]) {
-    clearTimeout(state.waitingTimers[userId]);
-    delete state.waitingTimers[userId];
-        }
-
-        return false;
-    }
-
+    
     /*
      * 3. Новый поиск собеседника.
      */
