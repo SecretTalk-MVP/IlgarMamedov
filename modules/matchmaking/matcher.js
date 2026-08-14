@@ -1,11 +1,12 @@
 const state = require('./state');
-const queue = require('./queue');
 const dialogs = require('./dialogs');
 
 function findPartner(userId, aiUsers) {
+
     let partnerId = null;
 
     while (state.waitingUsers.length > 0) {
+
         const candidate = state.waitingUsers.shift();
 
         if (candidate === userId) {
