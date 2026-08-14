@@ -4,37 +4,11 @@ const matcher = require('./matcher');
 const dialogs = require('./dialogs');
 const relay = require('./relay');
 
-function leaveForAi(userId) {
-
-    if (dialogs.isInDialog(userId)) {
-
-        const partnerId = dialogs.disconnect(userId);
-
-        if (partnerId) {
-            return partnerId;
-        }
-    }
-
-    queue.remove(userId);
-
-    if (state.waitingTimers[userId]) {
-        clearTimeout(state.waitingTimers[userId]);
-        delete state.waitingTimers[userId];
-    }
-
-    return null;
-}
-
 async function handle(
     bot,
     msg,
     aiUsers
 ) {
-
-    if (!msg || !msg.text) {
-        return false;
-    }
-
     const userId = msg.chat.id;
 
     /*
@@ -45,7 +19,6 @@ async function handle(
         const partnerId = dialogs.disconnect(userId);
 
         if (!partnerId) {
-
             await bot.sendMessage(
                 userId,
                 'У вас нет активного диалога.'
@@ -83,7 +56,6 @@ async function handle(
             const partnerId = dialogs.disconnect(userId);
 
             if (partnerId) {
-
                 await bot.sendMessage(
                     partnerId,
                     '❌ Собеседник начал поиск нового собеседника.'
@@ -97,11 +69,7 @@ async function handle(
         queue.remove(userId);
 
         if (state.waitingTimers[userId]) {
-
-            clearTimeout(
-                state.waitingTimers[userId]
-            );
-
+            clearTimeout(state.waitingTimers[userId]);
             delete state.waitingTimers[userId];
         }
 
@@ -113,11 +81,7 @@ async function handle(
         if (partnerId) {
 
             if (state.waitingTimers[partnerId]) {
-
-                clearTimeout(
-                    state.waitingTimers[partnerId]
-                );
-
+                clearTimeout(state.waitingTimers[partnerId]);
                 delete state.waitingTimers[partnerId];
             }
 
@@ -135,21 +99,18 @@ async function handle(
 
             queue.add(userId);
 
-            state.waitingTimers[userId] = setTimeout(
-                () => {
+            state.waitingTimers[userId] = setTimeout(() => {
 
-                    queue.remove(userId);
+                queue.remove(userId);
 
-                    bot.sendMessage(
-                        userId,
-                        '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
-                    );
+                bot.sendMessage(
+                    userId,
+                    '⌛ Поиск остановлен. Нажмите «👥 Найти собеседника», чтобы попробовать снова.'
+                );
 
-                    delete state.waitingTimers[userId];
+                delete state.waitingTimers[userId];
 
-                },
-                300000
-            );
+            }, 300000);
 
             await bot.sendMessage(
                 userId,
@@ -161,9 +122,7 @@ async function handle(
     }
 
     /*
-     * 3. Если пользователь находится
-     *    в активном human-to-human диалоге —
-     *    передаём сообщение собеседнику.
+     * 3. Активный human-to-human диалог.
      */
     if (dialogs.isInDialog(userId)) {
 
@@ -174,11 +133,39 @@ async function handle(
         );
     }
 
-    /*
-     * 4. Это не matchmaking.
-     *    Передаём управление Router.
-     */
     return false;
+}
+
+/*
+ * Пользователь покидает matchmaking
+ * и переходит в режим AiDa.
+ */
+function leaveForAi(userId) {
+
+    let partnerId = null;
+
+    /*
+     * Если пользователь находится
+     * в активном диалоге — разрываем его.
+     */
+    if (dialogs.isInDialog(userId)) {
+        partnerId = dialogs.disconnect(userId);
+    }
+
+    /*
+     * Убираем из очереди поиска.
+     */
+    queue.remove(userId);
+
+    /*
+     * Останавливаем таймер поиска.
+     */
+    if (state.waitingTimers[userId]) {
+        clearTimeout(state.waitingTimers[userId]);
+        delete state.waitingTimers[userId];
+    }
+
+    return partnerId;
 }
 
 module.exports = {
