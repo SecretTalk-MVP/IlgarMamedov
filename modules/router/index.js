@@ -1,34 +1,67 @@
 const aida = require("../aida");
 const admin = require("../admin");
 const settings = require("../settings");
+const matchmaking = require("../matchmaking/routes");
 
 class Router {
 
     async handle(bot, msg) {
 
         /*
-         * 1. AiDa
+         * 1. Переход в режим AiDa.
          *
-         * Сначала проверяем AiDa,
-         * чтобы она могла корректно
-         * выйти из своего режима при
-         * переходе пользователя в другой модуль.
+         * Сначала очищаем состояние
+         * human-to-human matchmaking.
+         */
+        if (msg.text === "🤖 Поговорить с ИИ") {
+
+            const partnerId = matchmaking.leaveForAi(
+                msg.chat.id
+            );
+
+            if (partnerId) {
+
+                await bot.sendMessage(
+                    partnerId,
+                    "❌ Собеседник перешёл в режим ИИ."
+                );
+            }
+
+            return await aida.handle(
+                bot,
+                msg
+            );
+        }
+
+        /*
+         * 2. AiDa.
+         *
+         * Обрабатывает сообщения пользователя,
+         * находящегося в режиме AiDa.
          */
         if (await aida.handle(bot, msg)) {
             return true;
         }
 
         /*
-         * 2. Администрирование
+         * 3. Администрирование.
          */
-        if (await admin.handle(bot, msg, aida.users)) {
+        if (await admin.handle(
+            bot,
+            msg,
+            aida.users
+        )) {
             return true;
         }
 
         /*
-         * 3. Настройки / фильтр поиска
+         * 4. Настройки / фильтр поиска.
          */
-        if (await settings.handle(bot, msg, aida.users)) {
+        if (await settings.handle(
+            bot,
+            msg,
+            aida.users
+        )) {
             return true;
         }
 
