@@ -1,4 +1,4 @@
-const admin = require('./modules/admin');
+const adminRoutes = require('./modules/admin/chat.routes');
 
 class Router {
 
@@ -7,10 +7,14 @@ class Router {
         /*
          * ADMIN
          *
-         * Единственный Router проекта
-         * передаёт управление модулю Admin.
+         * Admin подключён непосредственно
+         * к единому Router проекта.
          */
-        if (await admin.handle(bot, msg)) {
+        if (await adminRoutes.handle(
+            bot,
+            msg,
+            {}
+        )) {
             return true;
         }
 
