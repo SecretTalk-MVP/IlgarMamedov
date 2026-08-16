@@ -1,5 +1,4 @@
-const adminRoutes = require('./modules/admin/chat.routes');
-const aida = require('./modules/aida');
+const admin = require('./modules/admin');
 
 class Router {
 
@@ -8,14 +7,10 @@ class Router {
         /*
          * ADMIN
          *
-         * Первый подключённый модуль
-         * единого Router.
+         * Единственный Router проекта
+         * передаёт управление модулю Admin.
          */
-        if (await adminRoutes.handle(
-            bot,
-            msg,
-            aida.users
-        )) {
+        if (await admin.handle(bot, msg)) {
             return true;
         }
 
