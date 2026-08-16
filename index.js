@@ -1,64 +1,71 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 const token = process.env.BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
 
-const router = require('./modules/router');
-const matchmaking = require('./modules/matchmaking/routes');
-const admin = require('./modules/admin');
-const aida = require('./modules/aida');
+const bot = new TelegramBot(token, {
+    polling: true
+});
 
-console.log("✅ Bot initialized");
-console.log("✅ AiDa initialized");
+const router = require('./router');
+const menu = require('./menu');
 
+console.log('✅ SecretTalk started');
+console.log('✅ Root index.js initialized');
+
+
+/*
+ * ==================================================
+ * /start
+ * ==================================================
+ *
+ * Главное меню создаётся только через menu.js.
+ */
 bot.onText(/\/start/, async (msg) => {
 
     console.log(
-        "START USER ID:",
+        'START USER ID:',
         msg.from.id
     );
 
-    const keyboard = [
-        ["🤖 Поговорить с ИИ", "👥 Найти собеседника"],
-        ["⚙️ Фильтр поиска"]
-    ];
-
-    if (admin.isAdmin(msg.from.id)) {
-        keyboard[1].push("👑 Админ");
-    }
-
-    await bot.sendMessage(
-        msg.chat.id,
-        "Добро пожаловать в SecretTalk 💌\n\nВыберите действие:",
-        {
-            reply_markup: {
-                keyboard,
-                resize_keyboard: true
-            }
-        }
-    );
-
-});
-
-bot.on("message", async (msg) => {
-
-    const routerHandled = await router.handle(
+    await menu.show(
         bot,
         msg
     );
+});
 
-    if (routerHandled) {
-        return;
-    }
 
-    const matchmakingHandled = await matchmaking.handle(
-        bot,
-        msg,
-        aida.users
-    );
+/*
+ * ==================================================
+ * ЕДИНАЯ ТОЧКА ОБРАБОТКИ СООБЩЕНИЙ
+ * ==================================================
+ *
+ * Все пользовательские действия сначала
+ * проходят через единый Router.
+ */
+bot.on('message', async (msg) => {
 
-    if (matchmakingHandled) {
-        return;
+    try {
+
+        const handled = await router.handle(
+            bot,
+            msg
+        );
+
+        if (handled) {
+            return;
+        }
+
+    } catch (error) {
+
+        console.error(
+            '❌ Router error:',
+            error
+        );
+
+        await bot.sendMessage(
+            msg.chat.id,
+            '❌ Произошла ошибка. Попробуйте ещё раз.'
+        );
     }
 
 });
