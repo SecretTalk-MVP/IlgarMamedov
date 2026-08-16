@@ -11,10 +11,9 @@ class Router {
          * к единому Router проекта.
          */
         if (await adminRoutes.handle(
-            bot,
-            msg,
-            {}
-        )) {
+    bot,
+    msg
+)) {
             return true;
         }
 
