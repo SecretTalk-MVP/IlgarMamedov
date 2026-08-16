@@ -15,8 +15,8 @@ class Router {
         /*
          * =========================================================
          * ADMIN
-         * Единый Router проекта обрабатывает Admin напрямую.
-         * modules/admin/chat.routes.js больше не используется.
+         * Единый Router проекта.
+         * Admin больше не имеет собственного Router.
          * =========================================================
          */
 
@@ -36,7 +36,7 @@ class Router {
 
         /*
          * =========================================================
-         * ВЫХОД ИЗ ADMIN
+         * НАЗАД ИЗ ADMIN
          * =========================================================
          */
 
@@ -58,79 +58,21 @@ class Router {
          * =========================================================
          */
 
-        if (adminButtons.includes(msg.text)) {
+        if (!adminButtons.includes(msg.text)) {
+            return false;
+        }
 
-            console.log("ADMIN:", msg.text);
+        console.log("ADMIN:", msg.text);
 
-            /*
-             * Проверка прав администратора
-             */
+        /*
+         * Проверка прав
+         */
 
-            if (!permissions.isAdmin(msg.from.id)) {
-
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
-
-                return true;
-            }
-
-            /*
-             * Вход в панель администратора
-             */
-
-            if (
-                msg.text === "/admin" ||
-                msg.text === "Админ" ||
-                msg.text === "Admin" ||
-                msg.text === "👑 Админ" ||
-                msg.text === "👑 Admin"
-            ) {
-
-                adminUsers.add(msg.from.id);
-
-                const adminKeyboard = [
-                    ["📊 Статистика", "👥 Пользователи"],
-                    ["💬 Активные чаты", "📢 Рассылка"],
-                    ["🚫 Бан / Разбан", "⚙️ Настройки"],
-                    ["⬅️ Назад"]
-                ];
-
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "Добро пожаловать в SecretTalk ❤️\n\nПанель администратора:",
-                    {
-                        reply_markup: {
-                            keyboard: adminKeyboard,
-                            resize_keyboard: true
-                        }
-                    }
-                );
-
-                return true;
-            }
-
-            /*
-             * Статистика
-             */
-
-            if (msg.text === "📊 Статистика") {
-
-                return await statistics.show(
-                    bot,
-                    msg,
-                    aiUsers
-                );
-            }
-
-            /*
-             * Остальные функции Admin
-             */
+        if (!permissions.isAdmin(msg.from.id)) {
 
             await bot.sendMessage(
                 msg.chat.id,
-                "🚧 Эта функция администратора пока находится в разработке."
+                "⛔ У вас нет доступа."
             );
 
             return true;
@@ -138,20 +80,55 @@ class Router {
 
         /*
          * =========================================================
-         * Здесь ниже будут подключаться остальные модули:
-         *
-         * AiDa
-         * Matchmaking
-         * Settings
-         * Users
-         * и т.д.
-         *
-         * Они подключаются к ЭТОМУ Router,
-         * а не создают собственные Router.
+         * ВХОД В ADMIN
          * =========================================================
          */
 
-        return false;
+        if (
+            msg.text === "/admin" ||
+            msg.text === "Админ" ||
+            msg.text === "Admin" ||
+            msg.text === "👑 Админ" ||
+            msg.text === "👑 Admin"
+        ) {
+
+            adminUsers.add(msg.from.id);
+
+            await menu.showAdminMenu(
+                bot,
+                msg.chat.id
+            );
+
+            return true;
+        }
+
+        /*
+         * =========================================================
+         * СТАТИСТИКА
+         * =========================================================
+         */
+
+        if (msg.text === "📊 Статистика") {
+
+            return await statistics.show(
+                bot,
+                msg,
+                aiUsers
+            );
+        }
+
+        /*
+         * =========================================================
+         * ОСТАЛЬНЫЕ ФУНКЦИИ ADMIN
+         * =========================================================
+         */
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "🚧 Эта функция администратора пока находится в разработке."
+        );
+
+        return true;
     }
 }
 
