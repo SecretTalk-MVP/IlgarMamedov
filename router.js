@@ -1,31 +1,45 @@
 const menu = require("./menu");
+
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
+
+const aida = require("./modules/aida");
+const settings = require("./modules/settings");
+const matchmaking = require("./modules/matchmaking/routes");
+
 
 class Router {
 
     constructor() {
+
         /*
-         * Единое состояние навигации всего проекта.
+         * =========================================================
+         * ЕДИНАЯ НАВИГАЦИЯ ВСЕГО ПРОЕКТА
+         * =========================================================
          *
-         * userId -> массив экранов
+         * userId -> ["main", "admin", "statistics"]
          *
-         * Например:
-         * ["main", "admin", "active_chats"]
+         * Каждый пользователь имеет собственный стек экранов.
          */
+
         this.navigation = new Map();
     }
 
+
     /*
      * =========================================================
-     * NAVIGATION
+     * NAVIGATION STACK
      * =========================================================
      */
 
     getStack(userId) {
 
         if (!this.navigation.has(userId)) {
-            this.navigation.set(userId, ["main"]);
+
+            this.navigation.set(
+                userId,
+                ["main"]
+            );
         }
 
         return this.navigation.get(userId);
@@ -34,7 +48,10 @@ class Router {
 
     reset(userId) {
 
-        this.navigation.set(userId, ["main"]);
+        this.navigation.set(
+            userId,
+            ["main"]
+        );
     }
 
 
@@ -42,25 +59,32 @@ class Router {
 
         const stack = this.getStack(userId);
 
-        /*
-         * Не добавляем один и тот же экран
-         * два раза подряд.
-         */
-        if (stack[stack.length - 1] !== screen) {
+        if (
+            stack[stack.length - 1] !== screen
+        ) {
+
             stack.push(screen);
         }
     }
 
 
+    /*
+     * =========================================================
+     * GLOBAL BACK
+     * =========================================================
+     */
+
     async back(bot, msg) {
 
         const userId = msg.from.id;
+
         const stack = this.getStack(userId);
 
+
         /*
-         * Главное меню — самая верхняя точка.
-         * Назад из него никуда не уходит.
+         * Уже в главном меню.
          */
+
         if (stack.length <= 1) {
 
             await menu.showMainMenu(
@@ -71,20 +95,26 @@ class Router {
             return true;
         }
 
+
         /*
          * Убираем текущий экран.
          */
+
         stack.pop();
+
 
         /*
          * Получаем предыдущий экран.
          */
+
         const previousScreen =
             stack[stack.length - 1];
+
 
         /*
          * Показываем предыдущий экран.
          */
+
         await this.showScreen(
             bot,
             msg,
@@ -99,14 +129,22 @@ class Router {
      * =========================================================
      * SCREEN RENDERER
      * =========================================================
-     *
-     * Router является единственным местом,
-     * которое управляет навигацией между экранами.
      */
 
-    async showScreen(bot, msg, screen) {
+    async showScreen(
+        bot,
+        msg,
+        screen
+    ) {
 
         switch (screen) {
+
+
+            /*
+             * =================================================
+             * MAIN
+             * =================================================
+             */
 
             case "main":
 
@@ -118,6 +156,12 @@ class Router {
                 return;
 
 
+            /*
+             * =================================================
+             * ADMIN
+             * =================================================
+             */
+
             case "admin":
 
                 await this.showAdminMenu(
@@ -128,16 +172,28 @@ class Router {
                 return;
 
 
+            /*
+             * =================================================
+             * STATISTICS
+             * =================================================
+             */
+
             case "statistics":
 
                 await statistics.show(
                     bot,
                     msg,
-                    null
+                    aida.users
                 );
 
                 return;
 
+
+            /*
+             * =================================================
+             * ACTIVE CHATS
+             * =================================================
+             */
 
             case "active_chats":
 
@@ -149,6 +205,12 @@ class Router {
                 return;
 
 
+            /*
+             * =================================================
+             * USERS
+             * =================================================
+             */
+
             case "users":
 
                 await bot.sendMessage(
@@ -158,6 +220,12 @@ class Router {
 
                 return;
 
+
+            /*
+             * =================================================
+             * BROADCAST
+             * =================================================
+             */
 
             case "broadcast":
 
@@ -169,6 +237,12 @@ class Router {
                 return;
 
 
+            /*
+             * =================================================
+             * BAN
+             * =================================================
+             */
+
             case "ban":
 
                 await bot.sendMessage(
@@ -179,6 +253,12 @@ class Router {
                 return;
 
 
+            /*
+             * =================================================
+             * SETTINGS
+             * =================================================
+             */
+
             case "settings":
 
                 await bot.sendMessage(
@@ -188,6 +268,12 @@ class Router {
 
                 return;
 
+
+            /*
+             * =================================================
+             * DEFAULT
+             * =================================================
+             */
 
             default:
 
@@ -206,11 +292,14 @@ class Router {
      * ADMIN MENU
      * =========================================================
      *
-     * Это НЕ отдельный Router.
-     * Это экран, которым управляет общий Router.
+     * Главное Admin-меню теперь находится здесь,
+     * в едином Router.
      */
 
-    async showAdminMenu(bot, chatId) {
+    async showAdminMenu(
+        bot,
+        chatId
+    ) {
 
         await bot.sendMessage(
             chatId,
@@ -236,11 +325,21 @@ class Router {
      * =========================================================
      */
 
-    async handle(bot, msg, aiUsers) {
+    async handle(
+        bot,
+        msg,
+        aiUsers
+    ) {
 
-        if (!msg || !msg.text || !msg.from) {
+        if (
+            !msg ||
+            !msg.text ||
+            !msg.from
+        ) {
+
             return false;
         }
+
 
         const userId = msg.from.id;
         const text = msg.text;
@@ -248,11 +347,11 @@ class Router {
 
         /*
          * =====================================================
-         * ГЛОБАЛЬНАЯ КНОПКА НАЗАД
+         * GLOBAL BACK
          * =====================================================
          *
-         * Она НЕ принадлежит Admin.
-         * Она принадлежит всей системе навигации.
+         * Назад принадлежит всей системе,
+         * а не Admin / AiDa / Settings.
          */
 
         if (text === "⬅️ Назад") {
@@ -261,6 +360,66 @@ class Router {
                 bot,
                 msg
             );
+        }
+
+
+        /*
+         * =====================================================
+         * ПЕРЕХОД В AIDA
+         * =====================================================
+         *
+         * Перенесено из старого modules/router/index.js.
+         */
+
+        if (
+            text === "🤖 Поговорить с ИИ"
+        ) {
+
+            const partnerId =
+                matchmaking.leaveForAi(
+                    msg.chat.id
+                );
+
+
+            if (partnerId) {
+
+                await bot.sendMessage(
+                    partnerId,
+                    "❌ Собеседник перешёл в режим ИИ."
+                );
+            }
+
+
+            this.push(
+                userId,
+                "aida"
+            );
+
+
+            return await aida.handle(
+                bot,
+                msg
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * AIDA
+         * =====================================================
+         *
+         * Сообщения пользователя в режиме AiDa
+         * передаются существующему модулю.
+         */
+
+        if (
+            await aida.handle(
+                bot,
+                msg
+            )
+        ) {
+
+            return true;
         }
 
 
@@ -278,7 +437,11 @@ class Router {
             text === "👑 Admin"
         ) {
 
-            if (!permissions.isAdmin(userId)) {
+            if (
+                !permissions.isAdmin(
+                    userId
+                )
+            ) {
 
                 await bot.sendMessage(
                     msg.chat.id,
@@ -288,12 +451,15 @@ class Router {
                 return true;
             }
 
+
             this.reset(userId);
+
 
             this.push(
                 userId,
                 "admin"
             );
+
 
             await this.showAdminMenu(
                 bot,
@@ -311,28 +477,53 @@ class Router {
          */
 
         const adminScreens = {
-            "📊 Статистика": "statistics",
-            "👥 Пользователи": "users",
-            "💬 Активные чаты": "active_chats",
-            "📢 Рассылка": "broadcast",
-            "🚫 Бан / Разбан": "ban",
-            "⚙️ Настройки": "settings"
+
+            "📊 Статистика":
+                "statistics",
+
+            "👥 Пользователи":
+                "users",
+
+            "💬 Активные чаты":
+                "active_chats",
+
+            "📢 Рассылка":
+                "broadcast",
+
+            "🚫 Бан / Разбан":
+                "ban",
+
+            "⚙️ Настройки":
+                "settings"
         };
 
 
-        if (adminScreens[text]) {
+        if (
+            adminScreens[text]
+        ) {
+
+            const stack =
+                this.getStack(userId);
+
 
             /*
-             * Если пользователь не находится
-             * внутри Admin — эти кнопки не обрабатываем.
+             * Admin-кнопки работают
+             * только внутри Admin.
              */
-            const stack = this.getStack(userId);
 
-            if (!stack.includes("admin")) {
+            if (
+                !stack.includes("admin")
+            ) {
+
                 return false;
             }
 
-            if (!permissions.isAdmin(userId)) {
+
+            if (
+                !permissions.isAdmin(
+                    userId
+                )
+            ) {
 
                 await bot.sendMessage(
                     msg.chat.id,
@@ -342,12 +533,16 @@ class Router {
                 return true;
             }
 
-            const screen = adminScreens[text];
+
+            const screen =
+                adminScreens[text];
+
 
             this.push(
                 userId,
                 screen
             );
+
 
             await this.showScreen(
                 bot,
@@ -361,14 +556,57 @@ class Router {
 
         /*
          * =====================================================
-         * НЕ НАШЛИ МАРШРУТ
+         * SETTINGS / FILTER
          * =====================================================
          *
-         * Другие модули будут подключаться сюда постепенно.
+         * Переносим старую маршрутизацию Settings
+         * в единый Router.
+         */
+
+        if (
+            text === "⚙️ Фильтр поиска"
+        ) {
+
+            this.push(
+                userId,
+                "settings"
+            );
+
+
+            return await settings.handle(
+                bot,
+                msg,
+                aida.users
+            );
+        }
+
+
+        /*
+         * Остальные сообщения пока передаём дальше
+         * существующей архитектуре через Router.
+         */
+
+        if (
+            await settings.handle(
+                bot,
+                msg,
+                aida.users
+            )
+        ) {
+
+            return true;
+        }
+
+
+        /*
+         * =====================================================
+         * НИЧЕГО НЕ НАЙДЕНО
+         * =====================================================
          */
 
         return false;
     }
 }
+
 
 module.exports = new Router();
