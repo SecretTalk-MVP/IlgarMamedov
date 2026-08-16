@@ -27,10 +27,10 @@ bot.onText(/\/start/, async (msg) => {
         msg.from.id
     );
 
-    await menu.show(
-        bot,
-        msg
-    );
+    await menu.showMainMenu(
+    bot,
+    msg.chat.id
+);
 });
 
 
