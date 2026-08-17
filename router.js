@@ -3,7 +3,7 @@ const menu = require("./menu");
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 
-const aida = require("./modules/aida");
+const aida = require("./modules/aida/aida");
 const settings = require("./modules/settings");
 const matchmaking = require("./modules/matchmaking/routes");
 
