@@ -7,7 +7,6 @@ const aida = require("./modules/aida/aida");
 const settings = require("./modules/settings");
 const matchmaking = require("./modules/matchmaking/routes");
 
-
 class Router {
 
     constructor() {
