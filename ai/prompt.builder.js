@@ -1,17 +1,34 @@
-const { getAidaSystemPrompt } = require("./aida.system.prompt");
+const fs = require("fs");
+const path = require("path");
 
 class PromptBuilder {
 
     constructor() {
-        console.log("✅ PromptBuilder initialized");
+
+        this.aidaSystemPrompt = fs.readFileSync(
+            path.join(
+                __dirname,
+                "..",
+                "ai_characters",
+                "aida.system.md"
+            ),
+            "utf8"
+        );
+
+        console.log(
+            "✅ PromptBuilder initialized"
+        );
     }
 
     build(messages) {
-        console.log("🧠 Building prompt...");
+
+        console.log(
+            "🧠 Building prompt..."
+        );
 
         const systemPrompt = {
             role: "system",
-            content: getAidaSystemPrompt()
+            content: this.aidaSystemPrompt
         };
 
         return [
