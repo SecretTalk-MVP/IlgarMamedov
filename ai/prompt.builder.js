@@ -1,19 +1,38 @@
+const fs = require("fs");
+const path = require("path");
+
 class PromptBuilder {
 
     constructor() {
 
+        this.aidaSystemPrompt = fs.readFileSync(
+            path.join(
+                __dirname,
+                "..",
+                "ai_characters",
+                "aida.system.md"
+            ),
+            "utf8"
+        );
+
         console.log(
-            "⚠️ AiDa system prompt temporarily disabled for diagnostic test"
+            "✅ PromptBuilder initialized"
         );
     }
 
     build(messages) {
 
         console.log(
-            "🧪 Building prompt WITHOUT AiDa system prompt..."
+            "🧠 Building prompt..."
         );
 
+        const systemPrompt = {
+            role: "system",
+            content: this.aidaSystemPrompt
+        };
+
         return [
+            systemPrompt,
             ...messages
         ];
     }
