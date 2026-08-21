@@ -204,8 +204,7 @@ class AiDa {
             }
         }
     }
-}
-async handle(bot, msg) {
+    async handle(bot, msg) {
     const userId = msg.from.id;
     const text = msg.text;
 
@@ -221,7 +220,7 @@ async handle(bot, msg) {
     );
 
     return true;
+    }
 }
-
 
 module.exports = new AiDa();
