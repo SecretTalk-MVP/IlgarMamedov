@@ -130,79 +130,9 @@ class AiDa {
                 "AiDa received an empty response from the model"
             );
         }
-
-
-        /*
-         * Remember explicit user information.
-         *
-         * The memory module is responsible for
-         * persistent storage.
-         */
-        await this.rememberExplicitFacts(
-            userId,
-            userMessage
-        );
-
-
-        return answer.trim();
-    }
-
-
-    async rememberExplicitFacts(userId, text) {
-
-        const value = String(text).trim();
-
-        /*
-         * Name
-         */
-        const nameMatch = value.match(
-            /(?:меня зовут|моё имя|мое имя)\s+(.+)/i
-        );
-
-        if (nameMatch) {
-
-            const name = nameMatch[1]
-                .trim()
-                .replace(/[.!?]+$/, "");
-
-            if (name) {
-
-                await memory.remember(
-                    userId,
-                    "name",
-                    name
-                );
-
-            }
-        }
-
-
-        /*
-         * Favourite colour.
-         *
-         * Example:
-         * "Мой любимый цвет — синий."
-         */
-        const colorMatch = value.match(
-            /(?:мой|моя)\s+любим(?:ый|ая)\s+цвет\s*(?:-|—|–|:)?\s*(.+)/i
-        );
-
-        if (colorMatch) {
-
-            const color = colorMatch[1]
-                .trim()
-                .replace(/[.!?]+$/, "");
-
-            if (color) {
-
-                await memory.remember(
-                    userId,
-                    "favorite_color",
-                    color
-                );
-
-            }
-        }
+        
+return answer.trim();
+    
     }
     async handle(bot, msg) {
     const userId = msg.from.id;
