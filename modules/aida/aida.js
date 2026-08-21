@@ -1,116 +1,210 @@
 /**
  * SecretTalk
- * AiDa User Module
- * Version: 2.0
+ * AiDa Module
+ *
+ * AiDa is completely self-contained here.
+ *
+ * Character:
+ *     ./aida.system.md
+ *
+ * Memory:
+ *     ./aida.memory.js
+ *
+ * Router remains outside this module.
  */
 
-const aiService = require('../../ai');
+const fs = require("fs");
+const path = require("path");
 
-const aiUsers = {};
+const OpenRouterClient = require("../../ai/openrouter.client");
+const memory = require("./aida.memory");
 
-async function handle(bot, msg) {
+class AiDa {
 
-    if (!msg || !msg.text) {
-        return false;
+    constructor() {
+
+        this.name = "AiDa";
+
+        this.systemPromptPath = path.join(
+            __dirname,
+            "aida.system.md"
+        );
+
+        this.systemPrompt = fs.readFileSync(
+            this.systemPromptPath,
+            "utf-8"
+        );
+
+        this.openRouter = new OpenRouterClient();
+
+        console.log("✅ AiDa initialized");
+        console.log("🧠 AiDa character:", this.systemPromptPath);
+
     }
 
-    const userId = msg.chat.id;
-    const text = msg.text;
 
-    /*
-     * Переход в режим AiDa.
-     */
-    if (text === '🤖 Поговорить с ИИ') {
+    async ask(userId, userMessage) {
 
-        aiUsers[userId] = true;
+        if (!userId) {
+            throw new Error("AiDa requires userId");
+        }
 
-        await bot.sendMessage(
-            userId,
-            '🤖 Режим AiDa включён.\nНапишите любое сообщение.'
+        if (!userMessage || !String(userMessage).trim()) {
+            throw new Error("AiDa requires userMessage");
+        }
+
+        /*
+         * Load long-term memory.
+         */
+        const userMemory = await memory.load(userId);
+
+
+        /*
+         * Build the system message.
+         *
+         * IMPORTANT:
+         * AiDa's personality comes ONLY from
+         * aida.system.md.
+         *
+         * Memory is additional information
+         * about the user and never replaces
+         * the character.
+         */
+        const memoryText = JSON.stringify(
+            userMemory || {},
+            null,
+            2
         );
 
-        return true;
+        const systemMessage = [
+            this.systemPrompt.trim(),
+
+            "",
+            "---",
+            "LONG-TERM MEMORY",
+            "---",
+            "The following information was previously saved about the user.",
+            "Use it naturally when relevant.",
+            "Do not invent information that is not present here.",
+            "Do not mention the internal memory system.",
+            "",
+            memoryText
+        ].join("\n");
+
+
+        /*
+         * Send the conversation directly
+         * to OpenRouter.
+         *
+         * We intentionally do NOT use:
+         * - AIService
+         * - PromptBuilder
+         * - ContextBuilder
+         * - old MemoryEngine
+         *
+         * This keeps AiDa independent.
+         */
+        const response = await this.openRouter.sendMessage([
+            {
+                role: "system",
+                content: systemMessage
+            },
+            {
+                role: "user",
+                content: String(userMessage).trim()
+            }
+        ]);
+
+
+        if (!response.success) {
+            throw new Error(response.error);
+        }
+
+
+        const answer =
+            response.data?.choices?.[0]?.message?.content;
+
+
+        if (!answer) {
+            throw new Error(
+                "AiDa received an empty response from the model"
+            );
+        }
+
+
+        /*
+         * Remember explicit user information.
+         *
+         * The memory module is responsible for
+         * persistent storage.
+         */
+        await this.rememberExplicitFacts(
+            userId,
+            userMessage
+        );
+
+
+        return answer.trim();
     }
 
-    /*
-     * Кнопки других модулей.
-     *
-     * Передаём управление единому Router.
-     */
-    const externalButtons = [
-        '👥 Найти собеседника',
-        '⚙️ Фильтр поиска',
-        '👑 Админ',
-        '👑 Admin',
-        'Админ',
-        'Admin'
-    ];
 
-    if (externalButtons.includes(text)) {
+    async rememberExplicitFacts(userId, text) {
 
-        delete aiUsers[userId];
+        const value = String(text).trim();
 
-        return false;
-    }
-
-    /*
-     * Пользователь не находится
-     * в режиме AiDa.
-     */
-    if (!aiUsers[userId]) {
-        return false;
-    }
-
-    /*
-     * Передача сообщения AiDa.
-     */
-    try {
-
-        console.log(
-            '🤖 AiDa request:',
-            userId,
-            text
+        /*
+         * Name
+         */
+        const nameMatch = value.match(
+            /(?:меня зовут|моё имя|мое имя)\s+(.+)/i
         );
 
-        const answer = await aiService.ask(
-            userId,
-            [
-                {
-                    role: 'user',
-                    content: text
-                }
-            ]
+        if (nameMatch) {
+
+            const name = nameMatch[1]
+                .trim()
+                .replace(/[.!?]+$/, "");
+
+            if (name) {
+
+                await memory.remember(
+                    userId,
+                    "name",
+                    name
+                );
+
+            }
+        }
+
+
+        /*
+         * Favourite colour.
+         *
+         * Example:
+         * "Мой любимый цвет — синий."
+         */
+        const colorMatch = value.match(
+            /(?:мой|моя)\s+любим(?:ый|ая)\s+цвет\s*(?:-|—|–|:)?\s*(.+)/i
         );
 
-        console.log(
-            '🤖 AiDa answer:',
-            answer
-        );
+        if (colorMatch) {
 
-        await bot.sendMessage(
-            userId,
-            answer
-        );
+            const color = colorMatch[1]
+                .trim()
+                .replace(/[.!?]+$/, "");
 
-        return true;
+            if (color) {
 
-    } catch (error) {
+                await memory.remember(
+                    userId,
+                    "favorite_color",
+                    color
+                );
 
-        console.error(
-            '❌ AiDa error:',
-            error
-        );
-
-        await bot.sendMessage(
-            userId,
-            '❌ AiDa не смогла ответить. Ошибка записана в лог.'
-        );
-
-        return true;
+            }
+        }
     }
 }
 
-module.exports = {
-    handle,
-    users: aiUsers
-};
+
+module.exports = new AiDa();
