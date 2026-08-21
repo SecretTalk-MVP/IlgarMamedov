@@ -205,6 +205,23 @@ class AiDa {
         }
     }
 }
+async handle(bot, msg) {
+    const userId = msg.from.id;
+    const text = msg.text;
+
+    if (!text) {
+        return false;
+    }
+
+    const answer = await this.ask(userId, text);
+
+    await bot.sendMessage(
+        msg.chat.id,
+        answer
+    );
+
+    return true;
+}
 
 
 module.exports = new AiDa();
