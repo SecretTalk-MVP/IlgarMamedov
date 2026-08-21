@@ -3,7 +3,6 @@ const menu = require("./menu");
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 
-const aida = require("./modules/aida/aida");
 const settings = require("./modules/settings");
 const matchmaking = require("./modules/matchmaking/routes");
 
@@ -182,7 +181,6 @@ class Router {
                 await statistics.show(
                     bot,
                     msg,
-                    aida.users
                 );
 
                 return;
@@ -575,7 +573,6 @@ class Router {
             return await settings.handle(
                 bot,
                 msg,
-                aida.users
             );
         }
 
@@ -589,7 +586,6 @@ class Router {
             await settings.handle(
                 bot,
                 msg,
-                aida.users
             )
         ) {
 
