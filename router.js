@@ -1,4 +1,5 @@
 const menu = require("./menu");
+const aida = require("./modules/aida/aida");
 
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
