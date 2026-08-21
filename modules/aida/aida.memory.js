@@ -7,7 +7,7 @@ class AiDaMemory {
             `
             SELECT memory
             FROM user_memory
-            WHERE user_id = $1
+            WHERE telegram_id = $1
             `,
             [userId]
         );
@@ -22,9 +22,9 @@ class AiDaMemory {
     async save(userId, memory) {
         await db.query(
             `
-            INSERT INTO user_memory (user_id, memory)
+            INSERT INTO user_memory (telegram_id, memory)
             VALUES ($1, $2)
-            ON CONFLICT (user_id)
+            ON CONFLICT (telegram_id)
             DO UPDATE SET
                 memory = EXCLUDED.memory,
                 updated_at = CURRENT_TIMESTAMP
