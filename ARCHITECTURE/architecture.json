@@ -1,0 +1,66 @@
+{
+  "project": "SecretTalk",
+  "architecture_version": "1.0",
+
+  "governance": {
+    "constitution": "PROJECT_DEVELOPMENT_CONSTITUTION/CONSTITUTION.md",
+    "module_standard": "PROJECT_DEVELOPMENT_CONSTITUTION/MODULE_STANDARD.md",
+    "rule": "No architectural change without checking the Constitution and Module Standard first."
+  },
+
+  "application_entrypoint": {
+    "file": "index.js",
+    "role": "application bootstrap and lifecycle",
+    "business_logic_allowed": false
+  },
+
+  "router": {
+    "file": "router.js",
+    "role": "central user event and navigation routing",
+    "business_logic_allowed": false,
+    "modules_must_register_here": true
+  },
+
+  "menu": {
+    "file": "menu.js",
+    "role": "main user interface and entrypoints"
+  },
+
+  "modules": {
+    "location": "modules/",
+    "integration_standard": "PROJECT_DEVELOPMENT_CONSTITUTION/MODULE_STANDARD.md"
+  },
+
+  "module_integration": {
+    "required_flow": [
+      "CREATE",
+      "VERIFY",
+      "REGISTER",
+      "INTEGRATE",
+      "REMOVE_OLD",
+      "VERIFY",
+      "COMMIT",
+      "DEPLOY",
+      "TEST"
+    ],
+    "router_required_for_user_modules": true,
+    "index_required_only_for_root_lifecycle": true,
+    "duplicate_active_implementations_allowed": false
+  },
+
+  "state_management": {
+    "owner": "router.js",
+    "rule": "State-dependent modules receive messages only when their state is active."
+  },
+
+  "governance_rules": [
+    "Do not create duplicate implementations.",
+    "Do not connect modules directly to index.js unless root lifecycle integration is required.",
+    "Do not place module business logic in router.js.",
+    "Every user-facing module must have an explicit entrypoint.",
+    "Every user-facing module must be registered through the Router.",
+    "Every visible command, button, callback or menu entry must have a registered route.",
+    "Old implementations must be removed after successful replacement.",
+    "Architectural exceptions must be documented before implementation."
+  ]
+}
