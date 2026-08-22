@@ -4,12 +4,13 @@
   "description": "SecretTalk Telegram Bot",
   "main": "index.js",
   "scripts": {
-  "start": "node index.js",
-  "setup": "node database/setup.js"
-},
+    "start": "node index.js",
+    "setup": "node database/setup.js",
+    "governance": "node scripts/architecture-check.js"
+  },
   "dependencies": {
-  "node-telegram-bot-api": "^0.66.0",
-  "axios": "^1.7.2",
-  "pg": "^8.13.1"
-}
+    "node-telegram-bot-api": "^0.66.0",
+    "axios": "^1.7.2",
+    "pg": "^8.13.1"
+  }
 }
