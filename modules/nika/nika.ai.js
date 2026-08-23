@@ -1,119 +1,115 @@
 /**
  * SecretTalk
- * Nika AI Backend
+ * Nika Module
  *
- * Independent AI layer for Nika.
+ * Nika is an independent character module.
  *
- * Nika does not modify the shared OpenRouterClient.
- * Nika uses its own model configuration.
+ * AI backend:
+ *     ./nika.ai.js
+ *
+ * Character definition:
+ *     ./nika.system.md
+ *
+ * Verification is intentionally not implemented here yet.
+ * Until the dedicated verification module exists, only the Admin
+ * can enter Nika for testing.
  */
 
-const OpenRouterClient = require("../../ai/openrouter.client");
+const fs = require("fs");
+const path = require("path");
 
-class NikaAI {
+const nikaAI = require("./nika.ai");
+const permissions = require("../admin/permissions");
+
+class Nika {
 
     constructor() {
 
-        this.model =
-            process.env.NIKA_MODEL;
+        this.name = "Nika";
 
-        if (!this.model) {
-            throw new Error(
-                "NIKA_MODEL environment variable is required"
-            );
-        }
+        this.systemPromptPath = path.join(
+            __dirname,
+            "nika.system.md"
+        );
 
-        this.temperature =
-            Number(
-                process.env.NIKA_TEMPERATURE || 1.0
-            );
+        this.systemPrompt = fs.readFileSync(
+            this.systemPromptPath,
+            "utf-8"
+        );
 
-        this.maxTokens =
-            Number(
-                process.env.NIKA_MAX_TOKENS || 1200
-            );
-
-        this.client =
-            new OpenRouterClient();
-
-        this.client.config = {
-            ...this.client.config,
-
-            MODEL: this.model,
-            TEMPERATURE: this.temperature,
-            MAX_TOKENS: this.maxTokens
-        };
-
-        console.log("✅ Nika AI initialized");
+        console.log("✅ Nika initialized");
         console.log(
-            "🤖 Nika model:",
-            this.model
+            "🌶️ Nika character:",
+            this.systemPromptPath
         );
     }
 
-    async generate(
-        systemPrompt,
-        userMessage,
-        context = []
-    ) {
+    isAdmin(userId) {
+        return permissions.isAdmin(userId);
+    }
 
-        if (!systemPrompt) {
-            throw new Error(
-                "NikaAI requires systemPrompt"
-            );
+    async ask(userId, userMessage) {
+
+        if (!userId) {
+            throw new Error("Nika requires userId");
         }
 
         if (
             !userMessage ||
             !String(userMessage).trim()
         ) {
-            throw new Error(
-                "NikaAI requires userMessage"
-            );
+            throw new Error("Nika requires userMessage");
         }
 
-        const messages = [
-            {
-                role: "system",
-                content: systemPrompt
-            },
+        return await nikaAI.generate(
+            this.systemPrompt.trim(),
+            String(userMessage).trim()
+        );
+    }
 
-            ...context,
+    async handle(bot, msg) {
 
-            {
-                role: "user",
-                content: String(
-                    userMessage
-                ).trim()
-            }
-        ];
-
-        const response =
-            await this.client.sendMessage(
-                messages
-            );
-
-        if (!response.success) {
-            throw new Error(
-                response.error ||
-                "Nika AI request failed"
-            );
+        if (!msg || !msg.from || !msg.chat) {
+            return false;
         }
 
-        const answer =
-            response.data
-                ?.choices?.[0]
-                ?.message
-                ?.content;
-
-        if (!answer) {
-            throw new Error(
-                "Nika AI returned empty response"
-            );
+        if (!msg.text) {
+            return false;
         }
 
-        return answer.trim();
+        const userId = msg.from.id;
+
+        /*
+         * TEMPORARY ADMIN EXCEPTION
+         *
+         * The Admin may enter Nika without verification.
+         *
+         * This is only for development/testing.
+         * It will be replaced by the Verification module later.
+         */
+
+        if (!this.isAdmin(userId)) {
+
+            await bot.sendMessage(
+                msg.chat.id,
+                "🔐 Для общения с Никой сначала необходимо пройти верификацию."
+            );
+
+            return true;
+        }
+
+        const answer = await this.ask(
+            userId,
+            msg.text
+        );
+
+        await bot.sendMessage(
+            msg.chat.id,
+            answer
+        );
+
+        return true;
     }
 }
 
-module.exports = new NikaAI();
+module.exports = new Nika();
