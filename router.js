@@ -5,7 +5,7 @@ const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 
 const settings = require("./modules/settings");
-const matchmaking = require("./modules/matchmaking/routes");
+const matchmaking = require("./modules/matchmaking/controller");
 
 class Router {
 
