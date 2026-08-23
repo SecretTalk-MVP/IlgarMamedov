@@ -1,26 +1,32 @@
 const aida = require("../aida");
 const admin = require("../admin");
 const settings = require("../settings");
-const matchmaking = require("../matchmaking/routes");
+const matchmaking = require("../matchmaking/controller");
+const matchmakingKeyboard = require("../matchmaking/keyboard");
+const nika = require("../nika/nika");
 
 class Router {
 
     async handle(bot, msg) {
 
+        if (!msg || !msg.text || !msg.from) {
+            return false;
+        }
+
+        const text = msg.text;
+
         /*
-         * 1. Переход в режим AiDa.
-         *
-         * Сначала очищаем состояние
-         * human-to-human matchmaking.
+         * AiDa — существующий независимый маршрут.
+         * НЕ МЕНЯЕМ.
          */
-        if (msg.text === "🤖 Поговорить с ИИ") {
+
+        if (text === "🤖 Поговорить с ИИ") {
 
             const partnerId = matchmaking.leaveForAi(
                 msg.chat.id
             );
 
             if (partnerId) {
-
                 await bot.sendMessage(
                     partnerId,
                     "❌ Собеседник перешёл в режим ИИ."
@@ -33,19 +39,82 @@ class Router {
             );
         }
 
-        /*
-         * 2. AiDa.
-         *
-         * Обрабатывает сообщения пользователя,
-         * находящегося в режиме AiDa.
-         */
         if (await aida.handle(bot, msg)) {
             return true;
         }
 
+
         /*
-         * 3. Администрирование.
+         * Найти собеседника
          */
+
+        if (text === "👥 Найти собеседника") {
+
+            await bot.sendMessage(
+                msg.chat.id,
+                "Кого вы хотите найти?",
+                matchmakingKeyboard.search()
+            );
+
+            return true;
+        }
+
+
+        /*
+         * Случайный реальный собеседник
+         */
+
+        if (text === "🎲 Случайного собеседника") {
+
+            return await matchmaking.findRandom(
+                bot,
+                msg,
+                aida.users
+            );
+        }
+
+
+        /*
+         * Выбор цифрового персонажа
+         */
+
+        if (text === "🤖 Выбрать персонажа") {
+
+            await bot.sendMessage(
+                msg.chat.id,
+                "🤖 Выберите персонажа:",
+                {
+                    reply_markup: {
+                        keyboard: [
+                            ["👩 Ника"],
+                            ["⬅️ Назад"]
+                        ],
+                        resize_keyboard: true
+                    }
+                }
+            );
+
+            return true;
+        }
+
+
+        /*
+         * Ника
+         */
+
+        if (text === "👩 Ника") {
+
+            return await nika.handle(
+                bot,
+                msg
+            );
+        }
+
+
+        /*
+         * Администрирование
+         */
+
         if (await admin.handle(
             bot,
             msg,
@@ -54,9 +123,11 @@ class Router {
             return true;
         }
 
+
         /*
-         * 4. Настройки / фильтр поиска.
+         * Настройки / фильтр поиска
          */
+
         if (await settings.handle(
             bot,
             msg,
@@ -65,9 +136,17 @@ class Router {
             return true;
         }
 
-        return false;
-    }
 
+        /*
+         * Активный human-to-human диалог
+         */
+
+        return await matchmaking.handle(
+            bot,
+            msg,
+            aida.users
+        );
+    }
 }
 
 module.exports = new Router();
