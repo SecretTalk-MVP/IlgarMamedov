@@ -586,46 +586,51 @@ class Router {
          * NIKA ENTRY
          * =====================================================
          */
+if (
+    text === "Ника"
+) {
 
-        if (
-            text === "Ника"
-        ) {
+    /*
+     * Для обычных пользователей
+     * здесь позже будет запуск verification.
+     *
+     * Администратор имеет временный bypass.
+     */
 
+    if (
+        !permissions.isAdmin(
+            userId
+        )
+    ) {
 
+        await bot.sendMessage(
+            msg.chat.id,
+            "🔐 Для общения с Никой сначала необходимо пройти верификацию."
+        );
 
-            /*
-             * Администратор имеет временный
-             * bypass верификации.
-             *
-             * Для остальных пользователей
-             * verification будет подключена
-             * отдельным модулем.
-             */
+        return true;
+    }
 
-            if (
-                !permissions.isAdmin(
-                    userId
-                )
-            ) {
+    /*
+     * Входим в режим Nika.
+     *
+     * ВАЖНО:
+     * слово "Ника" является выбором персонажа,
+     * а НЕ сообщением для AI.
+     */
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-                );
+    this.push(
+        userId,
+        "nika"
+    );
 
-                return true;
-            }
-            this.push(
-    userId,
-    "nika"
-);
+    await bot.sendMessage(
+        msg.chat.id,
+        "Привет. Я Ника. Теперь можем поговорить."
+    );
 
-
-            return await nika.handle(
-                bot,
-                msg
-            );
-        }
+    return true;
+}
 
 
         /*
