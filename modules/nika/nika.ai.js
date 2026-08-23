@@ -1,115 +1,78 @@
 /**
  * SecretTalk
- * Nika Module
+ * Nika AI Backend
  *
- * Nika is an independent character module.
- *
- * AI backend:
- *     ./nika.ai.js
- *
- * Character definition:
- *     ./nika.system.md
- *
- * Verification is intentionally not implemented here yet.
- * Until the dedicated verification module exists, only the Admin
- * can enter Nika for testing.
+ * Keeps Nika's model configuration separate from the global AI config.
+ * The model is supplied by Railway: NIKA_MODEL.
  */
 
-const fs = require("fs");
-const path = require("path");
+const OpenRouterClient = require("../../ai/openrouter.client");
 
-const nikaAI = require("./nika.ai");
-const permissions = require("../admin/permissions");
-
-class Nika {
+class NikaAI {
 
     constructor() {
 
-        this.name = "Nika";
+        this.openRouter = new OpenRouterClient();
 
-        this.systemPromptPath = path.join(
-            __dirname,
-            "nika.system.md"
-        );
+        this.model = process.env.NIKA_MODEL;
 
-        this.systemPrompt = fs.readFileSync(
-            this.systemPromptPath,
-            "utf-8"
-        );
+        if (!this.model) {
+            throw new Error("NIKA_MODEL is not configured");
+        }
 
-        console.log("✅ Nika initialized");
-        console.log(
-            "🌶️ Nika character:",
-            this.systemPromptPath
-        );
+        console.log("✅ Nika AI initialized");
+        console.log("🤖 Nika model:", this.model);
     }
 
-    isAdmin(userId) {
-        return permissions.isAdmin(userId);
-    }
+    async generate(systemPrompt, userMessage) {
 
-    async ask(userId, userMessage) {
+        const messages = [
+            {
+                role: "system",
+                content: systemPrompt
+            },
+            {
+                role: "user",
+                content: userMessage
+            }
+        ];
 
-        if (!userId) {
-            throw new Error("Nika requires userId");
+        const originalModel =
+            this.openRouter.config.MODEL;
+
+        this.openRouter.config.MODEL =
+            this.model;
+
+        try {
+
+            const response =
+                await this.openRouter.sendMessage(
+                    messages
+                );
+
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            const answer =
+                response.data
+                    ?.choices?.[0]
+                    ?.message?.content;
+
+            if (!answer) {
+                throw new Error(
+                    "Nika received an empty response from the model"
+                );
+            }
+
+            return answer.trim();
+
+        } finally {
+
+            this.openRouter.config.MODEL =
+                originalModel;
         }
-
-        if (
-            !userMessage ||
-            !String(userMessage).trim()
-        ) {
-            throw new Error("Nika requires userMessage");
-        }
-
-        return await nikaAI.generate(
-            this.systemPrompt.trim(),
-            String(userMessage).trim()
-        );
-    }
-
-    async handle(bot, msg) {
-
-        if (!msg || !msg.from || !msg.chat) {
-            return false;
-        }
-
-        if (!msg.text) {
-            return false;
-        }
-
-        const userId = msg.from.id;
-
-        /*
-         * TEMPORARY ADMIN EXCEPTION
-         *
-         * The Admin may enter Nika without verification.
-         *
-         * This is only for development/testing.
-         * It will be replaced by the Verification module later.
-         */
-
-        if (!this.isAdmin(userId)) {
-
-            await bot.sendMessage(
-                msg.chat.id,
-                "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-            );
-
-            return true;
-        }
-
-        const answer = await this.ask(
-            userId,
-            msg.text
-        );
-
-        await bot.sendMessage(
-            msg.chat.id,
-            answer
-        );
-
-        return true;
     }
 }
 
-module.exports = new Nika();
+module.exports = new NikaAI();
