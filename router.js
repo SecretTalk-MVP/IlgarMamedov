@@ -591,10 +591,6 @@ class Router {
             text === "Ника"
         ) {
 
-            this.push(
-                userId,
-                "nika"
-            );
 
 
             /*
@@ -619,6 +615,10 @@ class Router {
 
                 return true;
             }
+            this.push(
+    userId,
+    "nika"
+);
 
 
             return await nika.handle(
