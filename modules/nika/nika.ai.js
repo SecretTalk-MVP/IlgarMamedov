@@ -5,7 +5,7 @@
  * Independent AI layer for Nika.
  *
  * Nika does not modify the shared OpenRouterClient.
- * Instead, it creates its own configuration for that client.
+ * Nika uses its own model configuration.
  */
 
 const OpenRouterClient = require("../../ai/openrouter.client");
@@ -15,8 +15,13 @@ class NikaAI {
     constructor() {
 
         this.model =
-            process.env.NIKA_MODEL ||
-            "openai/gpt-5.6";
+            process.env.NIKA_MODEL;
+
+        if (!this.model) {
+            throw new Error(
+                "NIKA_MODEL environment variable is required"
+            );
+        }
 
         this.temperature =
             Number(
@@ -30,13 +35,6 @@ class NikaAI {
 
         this.client =
             new OpenRouterClient();
-
-        /*
-         * Nika gets an independent AI configuration.
-         *
-         * The shared OpenRouterClient implementation
-         * remains untouched.
-         */
 
         this.client.config = {
             ...this.client.config,
