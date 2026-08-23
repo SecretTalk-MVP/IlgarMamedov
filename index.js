@@ -7,31 +7,8 @@ const bot = new TelegramBot(token, {
 });
 
 const router = require('./router');
-const menu = require('./menu');
 
 console.log('✅ SecretTalk started');
-console.log('✅ Root index.js initialized');
-
-
-/*
- * ==================================================
- * /start
- * ==================================================
- *
- * Главное меню создаётся только через menu.js.
- */
-bot.onText(/\/start/, async (msg) => {
-
-    console.log(
-        'START USER ID:',
-        msg.from.id
-    );
-
-    await menu.showMainMenu(
-    bot,
-    msg.chat.id
-);
-});
 
 
 /*
@@ -39,9 +16,10 @@ bot.onText(/\/start/, async (msg) => {
  * ЕДИНАЯ ТОЧКА ОБРАБОТКИ СООБЩЕНИЙ
  * ==================================================
  *
- * Все пользовательские действия сначала
- * проходят через единый Router.
+ * Все пользовательские действия проходят
+ * через единый Router.
  */
+
 bot.on('message', async (msg) => {
 
     try {
