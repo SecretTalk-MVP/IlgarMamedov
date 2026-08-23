@@ -4,11 +4,8 @@
  *
  * Independent AI layer for Nika.
  *
- * This module deliberately does not use:
- * - AiDa AI implementation
- * - AIService
- * - PromptBuilder
- * - ContextBuilder
+ * Nika does not modify the shared OpenRouterClient.
+ * Instead, it creates its own configuration for that client.
  */
 
 const OpenRouterClient = require("../../ai/openrouter.client");
@@ -33,6 +30,27 @@ class NikaAI {
 
         this.client =
             new OpenRouterClient();
+
+        /*
+         * Nika gets an independent AI configuration.
+         *
+         * The shared OpenRouterClient implementation
+         * remains untouched.
+         */
+
+        this.client.config = {
+            ...this.client.config,
+
+            MODEL: this.model,
+            TEMPERATURE: this.temperature,
+            MAX_TOKENS: this.maxTokens
+        };
+
+        console.log("✅ Nika AI initialized");
+        console.log(
+            "🤖 Nika model:",
+            this.model
+        );
     }
 
     async generate(
@@ -61,7 +79,9 @@ class NikaAI {
                 role: "system",
                 content: systemPrompt
             },
+
             ...context,
+
             {
                 role: "user",
                 content: String(
@@ -72,12 +92,7 @@ class NikaAI {
 
         const response =
             await this.client.sendMessage(
-                messages,
-                {
-                    model: this.model,
-                    temperature: this.temperature,
-                    max_tokens: this.maxTokens
-                }
+                messages
             );
 
         if (!response.success) {
