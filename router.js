@@ -5,7 +5,6 @@ const nika = require("./modules/nika/nika");
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 
-const settings = require("./modules/settings");
 const matchmaking = require("./modules/matchmaking/controller");
 
 class Router {
@@ -723,21 +722,6 @@ if (
          * =====================================================
          */
 
-        if (
-            text === "⚙️ Фильтр поиска"
-        ) {
-
-            this.push(
-                userId,
-                "settings"
-            );
-
-
-            return await settings.handle(
-                bot,
-                msg
-            );
-        }
 
 
         /*
@@ -745,16 +729,6 @@ if (
          * SETTINGS FALLBACK
          * =====================================================
          */
-
-        if (
-            await settings.handle(
-                bot,
-                msg
-            )
-        ) {
-
-            return true;
-        }
 
 
         /*
