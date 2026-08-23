@@ -1,5 +1,6 @@
 const menu = require("./menu");
 const aida = require("./modules/aida/aida");
+const nika = require("./modules/nika/nika");
 
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
@@ -13,7 +14,7 @@ class Router {
 
         /*
          * =========================================================
-         * ЕДИНАЯ НАВИГАЦИЯ ВСЕГО ПРОЕКТА
+         * ЕДИНАЯ НАВИГАЦИЯ
          * =========================================================
          */
 
@@ -52,7 +53,8 @@ class Router {
 
     push(userId, screen) {
 
-        const stack = this.getStack(userId);
+        const stack =
+            this.getStack(userId);
 
         if (
             stack[stack.length - 1] !== screen
@@ -71,9 +73,12 @@ class Router {
 
     async back(bot, msg) {
 
-        const userId = msg.from.id;
+        const userId =
+            msg.from.id;
 
-        const stack = this.getStack(userId);
+        const stack =
+            this.getStack(userId);
+
 
         if (stack.length <= 1) {
 
@@ -85,10 +90,13 @@ class Router {
             return true;
         }
 
+
         stack.pop();
+
 
         const previousScreen =
             stack[stack.length - 1];
+
 
         await this.showScreen(
             bot,
@@ -138,7 +146,7 @@ class Router {
 
                 await statistics.show(
                     bot,
-                    msg,
+                    msg
                 );
 
                 return;
@@ -194,6 +202,26 @@ class Router {
                 return;
 
 
+            case "find_partner":
+
+                await this.showFindPartnerMenu(
+                    bot,
+                    msg
+                );
+
+                return;
+
+
+            case "characters":
+
+                await this.showCharactersMenu(
+                    bot,
+                    msg
+                );
+
+                return;
+
+
             default:
 
                 await menu.showMainMenu(
@@ -237,6 +265,65 @@ class Router {
 
     /*
      * =========================================================
+     * FIND PARTNER MENU
+     * =========================================================
+     */
+
+    async showFindPartnerMenu(
+        bot,
+        msg
+    ) {
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "Кого вы хотите найти?",
+            {
+                reply_markup: {
+                    keyboard: [
+                        ["🎲 Случайного собеседника"],
+                        ["🤖 Выбрать персонажа"],
+                        ["⬅️ Назад"]
+                    ],
+                    resize_keyboard: true
+                }
+            }
+        );
+    }
+
+
+    /*
+     * =========================================================
+     * CHARACTER MENU
+     * =========================================================
+     *
+     * AiDa здесь намеренно отсутствует.
+     *
+     * AiDa остаётся на главном пользовательском меню.
+     */
+
+    async showCharactersMenu(
+        bot,
+        msg
+    ) {
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "Выберите персонажа",
+            {
+                reply_markup: {
+                    keyboard: [
+                        ["Ника"],
+                        ["⬅️ Назад"]
+                    ],
+                    resize_keyboard: true
+                }
+            }
+        );
+    }
+
+
+    /*
+     * =========================================================
      * MAIN ROUTER
      * =========================================================
      */
@@ -257,19 +344,22 @@ class Router {
         }
 
 
-        const userId = msg.from.id;
-        const text = msg.text;
+        const userId =
+            msg.from.id;
+
+        const text =
+            msg.text;
 
 
         /*
          * =====================================================
-         * /start — GLOBAL
+         * GLOBAL /start
          * =====================================================
-         *
-         * Никогда не передаём /start в AiDa.
          */
 
-        if (text === "/start") {
+        if (
+            text === "/start"
+        ) {
 
             this.reset(userId);
 
@@ -288,7 +378,9 @@ class Router {
          * =====================================================
          */
 
-        if (text === "⬅️ Назад") {
+        if (
+            text === "⬅️ Назад"
+        ) {
 
             return await this.back(
                 bot,
@@ -299,7 +391,7 @@ class Router {
 
         /*
          * =====================================================
-         * ADMIN ENTRY — GLOBAL
+         * ADMIN ENTRY
          * =====================================================
          */
 
@@ -328,7 +420,6 @@ class Router {
 
             this.reset(userId);
 
-
             this.push(
                 userId,
                 "admin"
@@ -346,7 +437,7 @@ class Router {
 
         /*
          * =====================================================
-         * ADMIN SCREENS — GLOBAL
+         * ADMIN SCREENS
          * =====================================================
          */
 
@@ -425,31 +516,125 @@ class Router {
 
         /*
          * =====================================================
-         * SETTINGS / FILTER — GLOBAL
+         * FIND PARTNER
          * =====================================================
          */
 
         if (
-            text === "⚙️ Фильтр поиска"
+            text === "👥 Найти собеседника"
         ) {
 
             this.push(
                 userId,
-                "settings"
+                "find_partner"
             );
 
 
-            return await settings.handle(
+            await this.showFindPartnerMenu(
                 bot,
-                msg,
+                msg
+            );
+
+            return true;
+        }
+
+
+        /*
+         * =====================================================
+         * RANDOM PARTNER
+         * =====================================================
+         */
+
+        if (
+            text === "🎲 Случайного собеседника"
+        ) {
+
+            return await matchmaking.handle(
+                bot,
+                msg
             );
         }
 
 
         /*
          * =====================================================
-         * ПЕРЕХОД В AIDA
+         * CHARACTER SELECTION
          * =====================================================
+         */
+
+        if (
+            text === "🤖 Выбрать персонажа"
+        ) {
+
+            this.push(
+                userId,
+                "characters"
+            );
+
+
+            await this.showCharactersMenu(
+                bot,
+                msg
+            );
+
+            return true;
+        }
+
+
+        /*
+         * =====================================================
+         * NIKA ENTRY
+         * =====================================================
+         */
+
+        if (
+            text === "Ника"
+        ) {
+
+            this.push(
+                userId,
+                "nika"
+            );
+
+
+            /*
+             * Администратор имеет временный
+             * bypass верификации.
+             *
+             * Для остальных пользователей
+             * verification будет подключена
+             * отдельным модулем.
+             */
+
+            if (
+                !permissions.isAdmin(
+                    userId
+                )
+            ) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    "🔐 Для общения с Никой сначала необходимо пройти верификацию."
+                );
+
+                return true;
+            }
+
+
+            return await nika.handle(
+                bot,
+                msg
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * AIDA ENTRY
+         * =====================================================
+         *
+         * AiDa остаётся отдельным пунктом
+         * главного меню.
          */
 
         if (
@@ -486,25 +671,10 @@ class Router {
 
         /*
          * =====================================================
-         * AIDA ACTIVE MODE
+         * NIKA ACTIVE MODE
          * =====================================================
          *
-         * ВАЖНО:
-         *
-         * Этот блок находится ПОСЛЕ всех глобальных
-         * системных маршрутов.
-         *
-         * Поэтому AiDa больше не перехватывает:
-         *
-         * /start
-         * /admin
-         * Admin
-         * Admin-кнопки
-         * Назад
-         * Фильтр поиска
-         *
-         * Сначала Router проверяет систему.
-         * Только потом получает слово AiDa.
+         * Только после глобальных команд.
          */
 
         const stack =
@@ -512,10 +682,53 @@ class Router {
 
 
         if (
+            stack[stack.length - 1] === "nika"
+        ) {
+
+            return await nika.handle(
+                bot,
+                msg
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * AIDA ACTIVE MODE
+         * =====================================================
+         *
+         * AiDa никогда не получает сообщение
+         * раньше системных маршрутов.
+         */
+
+        if (
             stack[stack.length - 1] === "aida"
         ) {
 
             return await aida.handle(
+                bot,
+                msg
+            );
+        }
+
+
+        /*
+         * =====================================================
+         * SETTINGS / FILTER
+         * =====================================================
+         */
+
+        if (
+            text === "⚙️ Фильтр поиска"
+        ) {
+
+            this.push(
+                userId,
+                "settings"
+            );
+
+
+            return await settings.handle(
                 bot,
                 msg
             );
@@ -531,7 +744,7 @@ class Router {
         if (
             await settings.handle(
                 bot,
-                msg,
+                msg
             )
         ) {
 
@@ -541,7 +754,7 @@ class Router {
 
         /*
          * =====================================================
-         * НИЧЕГО НЕ НАЙДЕНО
+         * NOTHING FOUND
          * =====================================================
          */
 
