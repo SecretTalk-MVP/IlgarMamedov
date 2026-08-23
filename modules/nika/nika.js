@@ -47,11 +47,6 @@ class Nika {
         );
     }
 
-    isAdmin(userId) {
-
-        return permissions.isAdmin(userId);
-    }
-
     async ask(userId, userMessage) {
 
         if (!userId) {
@@ -90,26 +85,6 @@ class Nika {
         }
 
         const userId = msg.from.id;
-
-        /*
-         * TEMPORARY ADMIN BYPASS
-         *
-         * The Admin can use Nika without
-         * verification during development.
-         *
-         * This will later be replaced by
-         * the dedicated verification system.
-         */
-
-        if (!this.isAdmin(userId)) {
-
-            await bot.sendMessage(
-                msg.chat.id,
-                "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-            );
-
-            return true;
-        }
 
         const answer =
             await this.ask(
