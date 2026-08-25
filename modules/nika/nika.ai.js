@@ -1,64 +1,93 @@
-async generate(systemPrompt, conversationMessages) {
+/**
+ * SecretTalk
+ * Nika AI Backend
+ *
+ * Keeps Nika's model configuration separate from the global AI config.
+ * The model is supplied by Railway: NIKA_MODEL.
+ */
 
-    if (
-        !systemPrompt ||
-        !String(systemPrompt).trim()
-    ) {
-        throw new Error(
-            "Nika requires systemPrompt"
-        );
-    }
+const OpenRouterClient = require("../../ai/openrouter.client");
 
-    if (
-        !Array.isArray(conversationMessages) ||
-        conversationMessages.length === 0
-    ) {
-        throw new Error(
-            "Nika requires conversationMessages"
-        );
-    }
+class NikaAI {
 
-    const messages = [
-        {
-            role: "system",
-            content: String(systemPrompt).trim()
-        },
-        ...conversationMessages
-    ];
+    constructor() {
 
-    const originalModel =
-        this.openRouter.config.MODEL;
+        this.openRouter = new OpenRouterClient();
 
-    this.openRouter.config.MODEL =
-        this.model;
+        this.model = process.env.NIKA_MODEL;
 
-    try {
-
-        const response =
-            await this.openRouter.sendMessage(
-                messages
-            );
-
-        if (!response.success) {
-            throw new Error(response.error);
+        if (!this.model) {
+            throw new Error("NIKA_MODEL is not configured");
         }
 
-        const answer =
-            response.data
-                ?.choices?.[0]
-                ?.message?.content;
+        console.log("✅ Nika AI initialized");
+        console.log("🤖 Nika model:", this.model);
+    }
 
-        if (!answer) {
+    async generate(systemPrompt, conversationMessages) {
+
+        if (
+            !systemPrompt ||
+            !String(systemPrompt).trim()
+        ) {
             throw new Error(
-                "Nika received an empty response from the model"
+                "Nika requires systemPrompt"
             );
         }
 
-        return answer.trim();
+        if (
+            !Array.isArray(conversationMessages) ||
+            conversationMessages.length === 0
+        ) {
+            throw new Error(
+                "Nika requires conversationMessages"
+            );
+        }
 
-    } finally {
+        const messages = [
+            {
+                role: "system",
+                content: String(systemPrompt).trim()
+            },
+            ...conversationMessages
+        ];
+
+        const originalModel =
+            this.openRouter.config.MODEL;
 
         this.openRouter.config.MODEL =
-            originalModel;
+            this.model;
+
+        try {
+
+            const response =
+                await this.openRouter.sendMessage(
+                    messages
+                );
+
+            if (!response.success) {
+                throw new Error(response.error);
+            }
+
+            const answer =
+                response.data
+                    ?.choices?.[0]
+                    ?.message?.content;
+
+            if (!answer) {
+                throw new Error(
+                    "Nika received an empty response from the model"
+                );
+            }
+
+            return answer.trim();
+
+        } finally {
+
+            this.openRouter.config.MODEL =
+                originalModel;
+        }
     }
 }
+
+module.exports = new NikaAI();
