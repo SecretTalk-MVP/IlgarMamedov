@@ -21,6 +21,7 @@ const fs = require("fs");
 const path = require("path");
 
 const nikaAI = require("./nika.ai");
+const nikaConversation = require("./nika.conversation");
 const permissions = require("../admin/permissions");
 
 class Nika {
