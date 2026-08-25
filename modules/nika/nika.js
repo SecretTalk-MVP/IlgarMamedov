@@ -48,28 +48,57 @@ class Nika {
         );
     }
 
-    async ask(userId, userMessage) {
+  async ask(userId, userMessage) {
 
-        if (!userId) {
-            throw new Error(
-                "Nika requires userId"
-            );
-        }
-
-        if (
-            !userMessage ||
-            !String(userMessage).trim()
-        ) {
-            throw new Error(
-                "Nika requires userMessage"
-            );
-        }
-
-        return await nikaAI.generate(
-            this.systemPrompt.trim(),
-            String(userMessage).trim()
+    if (!userId) {
+        throw new Error(
+            "Nika requires userId"
         );
     }
+
+    if (
+        !userMessage ||
+        !String(userMessage).trim()
+    ) {
+        throw new Error(
+            "Nika requires userMessage"
+        );
+    }
+
+    const message =
+        String(userMessage).trim();
+
+    const previousMessages =
+        nikaConversation.getMessages(
+            userId
+        );
+
+    const conversationMessages = [
+        ...previousMessages,
+        {
+            role: "user",
+            content: message
+        }
+    ];
+
+    const answer =
+        await nikaAI.generate(
+            this.systemPrompt.trim(),
+            conversationMessages
+        );
+
+    nikaConversation.addUserMessage(
+        userId,
+        message
+    );
+
+    nikaConversation.addAssistantMessage(
+        userId,
+        answer
+    );
+
+    return answer;
+  }
 
     async handle(bot, msg) {
 
