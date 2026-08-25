@@ -1,26 +1,12 @@
-/**
- * SecretTalk
- * Unified Memory Module
- *
- * Memory belongs to the user, not to a character.
- *
- * This module is intentionally independent.
- * It is NOT connected to Nika, AiDa or index.js yet.
- */
-
 class Memory {
 
     constructor() {
-
         console.log("🧠 Unified Memory initialized");
-
     }
-
 
     createEmpty() {
 
         return {
-
             profile: {
                 name: null,
                 gender: null,
@@ -42,11 +28,8 @@ class Memory {
                 notes: [],
                 promises: []
             }
-
         };
-
     }
-
 
     normalize(memory) {
 
@@ -57,7 +40,6 @@ class Memory {
         }
 
         return {
-
             ...base,
             ...memory,
 
@@ -80,11 +62,8 @@ class Memory {
                 ...base.relationship,
                 ...(memory.relationship || {})
             }
-
         };
-
     }
-
 
     update(memory, userMessage) {
 
@@ -100,32 +79,14 @@ class Memory {
         const message = String(userMessage).trim();
         const lower = message.toLowerCase();
 
-
-        /*
-         * Profile: name
-         */
-
-        const nameMatch = lower.match(
+        const nameMatch = message.match(
             /(?:меня зовут|моё имя|мое имя)\s+(.+)/i
         );
 
         if (nameMatch) {
-
             result.profile.name =
-                message
-                    .substring(
-                        message.toLowerCase()
-                            .indexOf(nameMatch[0].toLowerCase())
-                        + nameMatch[0].length
-                    )
-                    .trim();
-
+                nameMatch[1].trim();
         }
-
-
-        /*
-         * Profile: language
-         */
 
         if (
             lower.includes("я говорю по-русски") ||
@@ -134,13 +95,11 @@ class Memory {
             result.profile.language = "ru";
         }
 
-
         if (
             lower.includes("я говорю на азербайджанском")
         ) {
             result.profile.language = "az";
         }
-
 
         if (
             lower.includes("я говорю на турецком")
@@ -148,26 +107,17 @@ class Memory {
             result.profile.language = "tr";
         }
 
-
         if (
             lower.includes("i speak english")
         ) {
             result.profile.language = "en";
         }
 
-
-        /*
-         * Conversation metadata.
-         */
-
         result.conversation.lastInteraction =
             new Date().toISOString();
 
-
         return result;
-
     }
-
 
     getRelevant(memory, keys = null) {
 
@@ -185,14 +135,10 @@ class Memory {
             if (key in normalized) {
                 result[key] = normalized[key];
             }
-
         }
 
         return result;
-
     }
-
 }
-
 
 module.exports = new Memory();
