@@ -7,7 +7,8 @@
     "start": "node index.js",
     "setup": "node database/setup.js",
     "governance": "node scripts/architecture-check.js",
-    "preflight": "node scripts/module-preflight.js"
+    "preflight": "node scripts/module-preflight.js",
+    "test:navigation": "node scripts/test-navigation.js"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.66.0",
