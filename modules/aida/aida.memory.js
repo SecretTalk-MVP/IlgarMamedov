@@ -3,6 +3,13 @@ const db = require("../../database/db");
 class AiDaMemory {
 
     async load(userId) {
+
+        if (!userId) {
+            throw new Error(
+                "AiDaMemory requires userId"
+            );
+        }
+
         const result = await db.query(
             `
             SELECT memory
@@ -19,37 +26,98 @@ class AiDaMemory {
         return result.rows[0].memory || {};
     }
 
+
     async save(userId, memory) {
+
+        if (!userId) {
+            throw new Error(
+                "AiDaMemory requires userId"
+            );
+        }
+
+        if (
+            !memory ||
+            typeof memory !== "object" ||
+            Array.isArray(memory)
+        ) {
+            throw new Error(
+                "AiDaMemory requires memory object"
+            );
+        }
+
         await db.query(
             `
-            INSERT INTO user_memory (telegram_id, memory)
+            INSERT INTO user_memory (
+                telegram_id,
+                memory
+            )
             VALUES ($1, $2)
             ON CONFLICT (telegram_id)
             DO UPDATE SET
                 memory = EXCLUDED.memory,
                 updated_at = CURRENT_TIMESTAMP
             `,
-            [userId, JSON.stringify(memory)]
+            [
+                userId,
+                JSON.stringify(memory)
+            ]
         );
 
         return memory;
     }
 
+
     async remember(userId, key, value) {
-        const memory = await this.load(userId);
 
-        memory[key] = value;
+        if (!userId) {
+            throw new Error(
+                "AiDaMemory requires userId"
+            );
+        }
 
-        return await this.save(userId, memory);
+        if (!key || !String(key).trim()) {
+            throw new Error(
+                "AiDaMemory requires key"
+            );
+        }
+
+        const memory =
+            await this.load(userId);
+
+        memory[String(key).trim()] = value;
+
+        return await this.save(
+            userId,
+            memory
+        );
     }
+
 
     async forget(userId, key) {
-        const memory = await this.load(userId);
 
-        delete memory[key];
+        if (!userId) {
+            throw new Error(
+                "AiDaMemory requires userId"
+            );
+        }
 
-        return await this.save(userId, memory);
+        if (!key || !String(key).trim()) {
+            throw new Error(
+                "AiDaMemory requires key"
+            );
+        }
+
+        const memory =
+            await this.load(userId);
+
+        delete memory[String(key).trim()];
+
+        return await this.save(
+            userId,
+            memory
+        );
     }
 }
+
 
 module.exports = new AiDaMemory();
