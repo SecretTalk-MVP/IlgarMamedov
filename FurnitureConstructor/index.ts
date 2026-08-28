@@ -1,7 +1,7 @@
 export {
   BaseDrawerModule,
   default as BaseDrawerModuleDefault,
-} from './BaseDrawerModule';
+} from './modules/furniture/base-drawer/BaseDrawerModule';
 
 export type {
   DrawerSystem,
@@ -9,4 +9,4 @@ export type {
   PartDefinition,
   DrawerDefinition,
   BaseDrawerModuleModel,
-} from './BaseDrawerModule';
+} from './modules/furniture/base-drawer/BaseDrawerModule';
