@@ -10,6 +10,12 @@
  * Character:
  *     ./nika.system.md
  *
+ * Long-term memory:
+ *     ./nika.memory.js
+ *
+ * Conversation:
+ *     ./nika.conversation.js
+ *
  * Verification:
  *     Will be connected later.
  *
@@ -21,6 +27,7 @@ const fs = require("fs");
 const path = require("path");
 
 const nikaAI = require("./nika.ai");
+const nikaMemory = require("./nika.memory");
 const nikaConversation = require("./nika.conversation");
 const permissions = require("../admin/permissions");
 
@@ -48,57 +55,87 @@ class Nika {
         );
     }
 
-  async ask(userId, userMessage) {
+    buildSystemPrompt(memory) {
 
-    if (!userId) {
-        throw new Error(
-            "Nika requires userId"
-        );
-    }
-
-    if (
-        !userMessage ||
-        !String(userMessage).trim()
-    ) {
-        throw new Error(
-            "Nika requires userMessage"
-        );
-    }
-
-    const message =
-        String(userMessage).trim();
-
-    const previousMessages =
-        nikaConversation.getMessages(
-            userId
+        const memoryContext = JSON.stringify(
+            memory || {},
+            null,
+            2
         );
 
-    const conversationMessages = [
-        ...previousMessages,
-        {
-            role: "user",
-            content: message
-        }
-    ];
-
-    const answer =
-        await nikaAI.generate(
+        return [
             this.systemPrompt.trim(),
-            conversationMessages
+            "",
+            "NIKA LONG-TERM MEMORY",
+            "",
+            "The following information is stored long-term for this user.",
+            "Use it naturally when relevant.",
+            "Do not invent facts that are not present in the memory.",
+            "Do not reveal the internal memory structure to the user.",
+            "",
+            memoryContext
+        ].join("\n");
+    }
+
+    async ask(userId, userMessage) {
+
+        if (!userId) {
+            throw new Error(
+                "Nika requires userId"
+            );
+        }
+
+        if (
+            !userMessage ||
+            !String(userMessage).trim()
+        ) {
+            throw new Error(
+                "Nika requires userMessage"
+            );
+        }
+
+        const message =
+            String(userMessage).trim();
+
+        const memory =
+            await nikaMemory.load(userId);
+
+        const previousMessages =
+            nikaConversation.getMessages(
+                userId
+            );
+
+        const conversationMessages = [
+            ...previousMessages,
+            {
+                role: "user",
+                content: message
+            }
+        ];
+
+        const systemPrompt =
+            this.buildSystemPrompt(
+                memory
+            );
+
+        const answer =
+            await nikaAI.generate(
+                systemPrompt,
+                conversationMessages
+            );
+
+        nikaConversation.addUserMessage(
+            userId,
+            message
         );
 
-    nikaConversation.addUserMessage(
-        userId,
-        message
-    );
+        nikaConversation.addAssistantMessage(
+            userId,
+            answer
+        );
 
-    nikaConversation.addAssistantMessage(
-        userId,
-        answer
-    );
-
-    return answer;
-  }
+        return answer;
+    }
 
     async handle(bot, msg) {
 
