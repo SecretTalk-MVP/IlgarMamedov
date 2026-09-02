@@ -10,6 +10,9 @@
  * Memory:
  *     ./aida.memory.js
  *
+ * Conversation History:
+ *     PostgreSQL -> aida_messages
+ *
  * Router remains outside this module.
  */
 
@@ -18,6 +21,7 @@ const path = require("path");
 
 const OpenRouterClient = require("../../ai/openrouter.client");
 const memory = require("./aida.memory");
+const db = require("../../database/db");
 
 class AiDa {
 
@@ -43,6 +47,52 @@ class AiDa {
     }
 
 
+    async loadConversationHistory(userId) {
+
+        if (!userId) {
+            throw new Error("AiDa requires userId");
+        }
+
+        const result = await db.query(`
+            SELECT role, content
+            FROM aida_messages
+            WHERE telegram_id = $1
+            ORDER BY id ASC
+        `, [userId]);
+
+        return result.rows;
+    }
+
+
+    async saveMessage(userId, role, content) {
+
+        if (!userId) {
+            throw new Error("AiDa requires userId");
+        }
+
+        if (!role || !["user", "assistant"].includes(role)) {
+            throw new Error("AiDa requires valid message role");
+        }
+
+        if (!content || !String(content).trim()) {
+            throw new Error("AiDa requires message content");
+        }
+
+        await db.query(`
+            INSERT INTO aida_messages (
+                telegram_id,
+                role,
+                content
+            )
+            VALUES ($1, $2, $3)
+        `, [
+            userId,
+            role,
+            String(content).trim()
+        ]);
+    }
+
+
     async ask(userId, userMessage) {
 
         if (!userId) {
@@ -53,6 +103,9 @@ class AiDa {
             throw new Error("AiDa requires userMessage");
         }
 
+        const text = String(userMessage).trim();
+
+
         /*
          * Load long-term memory.
          */
@@ -60,15 +113,17 @@ class AiDa {
 
 
         /*
-         * Build the system message.
+         * Load conversation history.
          *
-         * IMPORTANT:
-         * AiDa's personality comes ONLY from
-         * aida.system.md.
-         *
-         * Memory is additional information
-         * about the user and never replaces
-         * the character.
+         * Conversation history and long-term memory
+         * are intentionally kept separate.
+         */
+        const conversationHistory =
+            await this.loadConversationHistory(userId);
+
+
+        /*
+         * Build long-term memory context.
          */
         const memoryText = JSON.stringify(
             userMemory || {},
@@ -93,27 +148,34 @@ class AiDa {
 
 
         /*
-         * Send the conversation directly
-         * to OpenRouter.
+         * Build the complete model context.
          *
-         * We intentionally do NOT use:
-         * - AIService
-         * - PromptBuilder
-         * - ContextBuilder
-         * - old MemoryEngine
-         *
-         * This keeps AiDa independent.
+         * Order:
+         * 1. Character identity
+         * 2. Long-term memory
+         * 3. Conversation history
+         * 4. Current user message
          */
-        const response = await this.openRouter.sendMessage([
+        const messages = [
             {
                 role: "system",
                 content: systemMessage
             },
+
+            ...conversationHistory,
+
             {
                 role: "user",
-                content: String(userMessage).trim()
+                content: text
             }
-        ]);
+        ];
+
+
+        /*
+         * Send the complete context to OpenRouter.
+         */
+        const response =
+            await this.openRouter.sendMessage(messages);
 
 
         if (!response.success) {
@@ -130,27 +192,51 @@ class AiDa {
                 "AiDa received an empty response from the model"
             );
         }
-        
-return answer.trim();
-    
+
+        const trimmedAnswer = answer.trim();
+
+
+        /*
+         * Persist the actual conversation only
+         * after a successful model response.
+         */
+        await this.saveMessage(
+            userId,
+            "user",
+            text
+        );
+
+        await this.saveMessage(
+            userId,
+            "assistant",
+            trimmedAnswer
+        );
+
+
+        return trimmedAnswer;
     }
+
+
     async handle(bot, msg) {
-    const userId = msg.from.id;
-    const text = msg.text;
 
-    if (!text) {
-        return false;
-    }
+        const userId = msg.from.id;
+        const text = msg.text;
 
-    const answer = await this.ask(userId, text);
+        if (!text) {
+            return false;
+        }
 
-    await bot.sendMessage(
-        msg.chat.id,
-        answer
-    );
+        const answer =
+            await this.ask(userId, text);
 
-    return true;
+        await bot.sendMessage(
+            msg.chat.id,
+            answer
+        );
+
+        return true;
     }
 }
+
 
 module.exports = new AiDa();
