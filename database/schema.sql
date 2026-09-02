@@ -38,3 +38,14 @@ CREATE TABLE IF NOT EXISTS user_memory (
     memory JSONB NOT NULL DEFAULT '{}'::jsonb,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS aida_messages (
+    id BIGSERIAL PRIMARY KEY,
+    telegram_id BIGINT NOT NULL,
+    role TEXT NOT NULL
+        CHECK (role IN ('user', 'assistant')),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_aida_messages_user_time
+ON aida_messages (telegram_id, created_at);
