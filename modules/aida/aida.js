@@ -162,7 +162,7 @@ class AiDa {
         content: systemMessage
     },
 
-    ...conversationHistory.slice(-20),
+    ...conversationHistory.slice(-8),
 
     {
         role: "user",
