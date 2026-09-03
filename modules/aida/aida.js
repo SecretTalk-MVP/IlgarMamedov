@@ -157,18 +157,18 @@ class AiDa {
          * 4. Current user message
          */
         const messages = [
-            {
-                role: "system",
-                content: systemMessage
-            },
+    {
+        role: "system",
+        content: systemMessage
+    },
 
-            ...conversationHistory,
+    ...conversationHistory.slice(-20),
 
-            {
-                role: "user",
-                content: text
-            }
-        ];
+    {
+        role: "user",
+        content: text
+    }
+];
 
 
         /*
