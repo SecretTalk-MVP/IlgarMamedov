@@ -5,7 +5,7 @@ const AI_CONFIG = {
 
     TEMPERATURE: 0.8,
 
-    MAX_TOKENS: 487,
+    MAX_TOKENS: 400,
 
     TOP_P: 1,
 
