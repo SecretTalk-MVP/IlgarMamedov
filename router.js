@@ -596,19 +596,24 @@ if (
      * Администратор имеет временный bypass.
      */
 
-    if (
-        !permissions.isAdmin(
-            userId
-        )
-    ) {
+   const verification =
+    require("./modules/verification");
 
-        await bot.sendMessage(
-            msg.chat.id,
-            "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-        );
+const isAdmin =
+    permissions.isAdmin(userId);
 
-        return true;
-    }
+const isVerified =
+    await verification.isVerified(userId);
+
+if (!isAdmin && !isVerified) {
+
+    await bot.sendMessage(
+        msg.chat.id,
+        "🔐 Для общения с Никой сначала необходимо пройти верификацию."
+    );
+
+    return true;
+}
 
     /*
      * Входим в режим Nika.
