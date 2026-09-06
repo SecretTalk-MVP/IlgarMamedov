@@ -1,18 +1,17 @@
 const AI_CONFIG = {
   MODE: "production",
 
-    MODEL: "openai/gpt-5.5",
+  MODEL: "openai/gpt-4o-mini",
 
-    TEMPERATURE: 0.8,
+  TEMPERATURE: 0.8,
 
-    MAX_TOKENS: 400,
+  MAX_TOKENS: 400,
 
-    TOP_P: 1,
+  TOP_P: 1,
 
-    PRESENCE_PENALTY: 0,
+  PRESENCE_PENALTY: 0,
 
-    FREQUENCY_PENALTY: 0
-
+  FREQUENCY_PENALTY: 0
 };
 
 module.exports = AI_CONFIG;
