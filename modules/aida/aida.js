@@ -7,9 +7,6 @@
  * Character:
  *     ./aida.system.md
  *
- * Memory:
- *     ./aida.memory.js
- *
  * Conversation History:
  *     PostgreSQL -> aida_messages
  *
@@ -20,7 +17,6 @@ const fs = require("fs");
 const path = require("path");
 
 const OpenRouterClient = require("../../ai/openrouter.client");
-const memory = require("./aida.memory");
 const db = require("../../database/db");
 
 class AiDa {
@@ -62,8 +58,7 @@ class AiDa {
         `, [userId]);
 
         /*
-         * We selected newest messages first,
-         * so restore chronological order.
+         * Restore chronological order.
          */
         return result.rows.reverse();
     }
@@ -112,63 +107,26 @@ class AiDa {
 
 
         /*
-         * Load long-term memory.
-         */
-        const userMemory = await memory.load(userId);
-
-
-        /*
          * Load recent conversation history.
          *
-         * Only the latest 6 messages are used
-         * to keep the prompt compact.
+         * Long-term memory is intentionally NOT used.
          */
         const conversationHistory =
             await this.loadConversationHistory(userId);
 
 
         /*
-         * Build long-term memory context.
-         */
-        const memoryText = JSON.stringify(
-            userMemory || {},
-            null,
-            2
-        );
-
-
-        /*
-         * Build system message.
-         */
-        const systemMessage = [
-            this.systemPrompt.trim(),
-
-            "",
-            "---",
-            "LONG-TERM MEMORY",
-            "---",
-            "The following information was previously saved about the user.",
-            "Use it naturally when relevant.",
-            "Do not invent information that is not present here.",
-            "Do not mention the internal memory system.",
-            "",
-            memoryText
-        ].join("\n");
-
-
-        /*
-         * Build complete model context.
+         * Build model context.
          *
          * Order:
          * 1. Character identity
-         * 2. Long-term memory
-         * 3. Recent conversation history
-         * 4. Current user message
+         * 2. Recent conversation history
+         * 3. Current user message
          */
         const messages = [
             {
                 role: "system",
-                content: systemMessage
+                content: this.systemPrompt.trim()
             },
 
             ...conversationHistory,
@@ -181,14 +139,23 @@ class AiDa {
 
 
         console.log("🧠 AiDa context:");
-        console.log("System prompt:", this.systemPrompt.length, "chars");
-        console.log("Memory:", memoryText.length, "chars");
-        console.log("History messages:", conversationHistory.length);
-        console.log("Total messages:", messages.length);
+        console.log(
+            "System prompt:",
+            this.systemPrompt.length,
+            "chars"
+        );
+        console.log(
+            "History messages:",
+            conversationHistory.length
+        );
+        console.log(
+            "Total messages:",
+            messages.length
+        );
 
 
         /*
-         * Send complete context to OpenRouter.
+         * Send context to OpenRouter.
          */
         const response =
             await this.openRouter.sendMessage(messages);
