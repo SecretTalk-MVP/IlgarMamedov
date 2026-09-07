@@ -57,10 +57,15 @@ class AiDa {
             SELECT role, content
             FROM aida_messages
             WHERE telegram_id = $1
-            ORDER BY id ASC
+            ORDER BY id DESC
+            LIMIT 6
         `, [userId]);
 
-        return result.rows;
+        /*
+         * We selected newest messages first,
+         * so restore chronological order.
+         */
+        return result.rows.reverse();
     }
 
 
@@ -113,10 +118,10 @@ class AiDa {
 
 
         /*
-         * Load conversation history.
+         * Load recent conversation history.
          *
-         * Conversation history and long-term memory
-         * are intentionally kept separate.
+         * Only the latest 6 messages are used
+         * to keep the prompt compact.
          */
         const conversationHistory =
             await this.loadConversationHistory(userId);
@@ -131,6 +136,10 @@ class AiDa {
             2
         );
 
+
+        /*
+         * Build system message.
+         */
         const systemMessage = [
             this.systemPrompt.trim(),
 
@@ -148,29 +157,38 @@ class AiDa {
 
 
         /*
-         * Build the complete model context.
+         * Build complete model context.
          *
          * Order:
          * 1. Character identity
          * 2. Long-term memory
-         * 3. Conversation history
+         * 3. Recent conversation history
          * 4. Current user message
          */
         const messages = [
-    {
-        role: "system",
-        content: systemMessage
-    },
+            {
+                role: "system",
+                content: systemMessage
+            },
 
-    {
-        role: "user",
-        content: text
-    }
-];
+            ...conversationHistory,
+
+            {
+                role: "user",
+                content: text
+            }
+        ];
+
+
+        console.log("🧠 AiDa context:");
+        console.log("System prompt:", this.systemPrompt.length, "chars");
+        console.log("Memory:", memoryText.length, "chars");
+        console.log("History messages:", conversationHistory.length);
+        console.log("Total messages:", messages.length);
 
 
         /*
-         * Send the complete context to OpenRouter.
+         * Send complete context to OpenRouter.
          */
         const response =
             await this.openRouter.sendMessage(messages);
