@@ -7,8 +7,14 @@
  * Character:
  *     ./aida.system.md
  *
- * Conversation History:
- *     PostgreSQL -> aida_messages
+ * Conversation:
+ *     Current message only.
+ *
+ * Long-term memory:
+ *     Disabled.
+ *
+ * Database:
+ *     Not used by AiDa.
  *
  * Router remains outside this module.
  */
@@ -17,7 +23,6 @@ const fs = require("fs");
 const path = require("path");
 
 const OpenRouterClient = require("../../ai/openrouter.client");
-const db = require("../../database/db");
 
 class AiDa {
 
@@ -38,99 +43,55 @@ class AiDa {
         this.openRouter = new OpenRouterClient();
 
         console.log("✅ AiDa initialized");
-        console.log("🧠 AiDa character:", this.systemPromptPath);
-
-    }
-
-
-    async loadConversationHistory(userId) {
-
-        if (!userId) {
-            throw new Error("AiDa requires userId");
-        }
-
-        const result = await db.query(`
-            SELECT role, content
-            FROM aida_messages
-            WHERE telegram_id = $1
-            ORDER BY id DESC
-            LIMIT 6
-        `, [userId]);
-
-        /*
-         * Restore chronological order.
-         */
-        return result.rows.reverse();
-    }
-
-
-    async saveMessage(userId, role, content) {
-
-        if (!userId) {
-            throw new Error("AiDa requires userId");
-        }
-
-        if (!role || !["user", "assistant"].includes(role)) {
-            throw new Error("AiDa requires valid message role");
-        }
-
-        if (!content || !String(content).trim()) {
-            throw new Error("AiDa requires message content");
-        }
-
-        await db.query(`
-            INSERT INTO aida_messages (
-                telegram_id,
-                role,
-                content
-            )
-            VALUES ($1, $2, $3)
-        `, [
-            userId,
-            role,
-            String(content).trim()
-        ]);
+        console.log(
+            "🧠 AiDa character:",
+            this.systemPromptPath
+        );
+        console.log(
+            "🧹 AiDa long-term memory: disabled"
+        );
+        console.log(
+            "🧹 AiDa conversation history: disabled"
+        );
     }
 
 
     async ask(userId, userMessage) {
 
         if (!userId) {
-            throw new Error("AiDa requires userId");
+            throw new Error(
+                "AiDa requires userId"
+            );
         }
 
-        if (!userMessage || !String(userMessage).trim()) {
-            throw new Error("AiDa requires userMessage");
+        if (
+            !userMessage ||
+            !String(userMessage).trim()
+        ) {
+            throw new Error(
+                "AiDa requires userMessage"
+            );
         }
 
-        const text = String(userMessage).trim();
+        const text =
+            String(userMessage).trim();
 
 
         /*
-         * Load recent conversation history.
+         * AiDa intentionally uses only:
          *
-         * Long-term memory is intentionally NOT used.
-         */
-        const conversationHistory =
-            await this.loadConversationHistory(userId);
-
-
-        /*
-         * Build model context.
+         * 1. Character system prompt
+         * 2. Current user message
          *
-         * Order:
-         * 1. Character identity
-         * 2. Recent conversation history
-         * 3. Current user message
+         * No long-term memory.
+         * No conversation history.
+         * No PostgreSQL.
          */
         const messages = [
             {
                 role: "system",
                 content: this.systemPrompt.trim()
             },
-
-            ...conversationHistory,
-
             {
                 role: "user",
                 content: text
@@ -145,8 +106,7 @@ class AiDa {
             "chars"
         );
         console.log(
-            "History messages:",
-            conversationHistory.length
+            "History messages: 0"
         );
         console.log(
             "Total messages:",
@@ -155,19 +115,26 @@ class AiDa {
 
 
         /*
-         * Send context to OpenRouter.
+         * Send only the current context
+         * to OpenRouter.
          */
         const response =
-            await this.openRouter.sendMessage(messages);
+            await this.openRouter.sendMessage(
+                messages
+            );
 
 
         if (!response.success) {
-            throw new Error(response.error);
+            throw new Error(
+                response.error
+            );
         }
 
 
         const answer =
-            response.data?.choices?.[0]?.message?.content;
+            response.data
+                ?.choices?.[0]
+                ?.message?.content;
 
 
         if (!answer) {
@@ -176,41 +143,33 @@ class AiDa {
             );
         }
 
-        const trimmedAnswer = answer.trim();
 
-
-        /*
-         * Persist the actual conversation only
-         * after a successful model response.
-         */
-        await this.saveMessage(
-            userId,
-            "user",
-            text
-        );
-
-        await this.saveMessage(
-            userId,
-            "assistant",
-            trimmedAnswer
-        );
-
-
-        return trimmedAnswer;
+        return answer.trim();
     }
 
 
     async handle(bot, msg) {
 
-        const userId = msg.from.id;
-        const text = msg.text;
-
-        if (!text) {
+        if (
+            !msg ||
+            !msg.from ||
+            !msg.chat
+        ) {
             return false;
         }
 
+        if (!msg.text) {
+            return false;
+        }
+
+        const userId =
+            msg.from.id;
+
         const answer =
-            await this.ask(userId, text);
+            await this.ask(
+                userId,
+                msg.text
+            );
 
         await bot.sendMessage(
             msg.chat.id,
