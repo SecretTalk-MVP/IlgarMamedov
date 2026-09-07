@@ -10,9 +10,6 @@
  * Character:
  *     ./nika.system.md
  *
- * Long-term memory:
- *     ./nika.memory.js
- *
  * Conversation:
  *     ./nika.conversation.js
  *
@@ -27,7 +24,6 @@ const fs = require("fs");
 const path = require("path");
 
 const nikaAI = require("./nika.ai");
-const nikaMemory = require("./nika.memory");
 const nikaConversation = require("./nika.conversation");
 const permissions = require("../admin/permissions");
 
@@ -55,27 +51,6 @@ class Nika {
         );
     }
 
-    buildSystemPrompt(memory) {
-
-        const memoryContext = JSON.stringify(
-            memory || {},
-            null,
-            2
-        );
-
-        return [
-            this.systemPrompt.trim(),
-            "",
-            "NIKA LONG-TERM MEMORY",
-            "",
-            "The following information is stored long-term for this user.",
-            "Use it naturally when relevant.",
-            "Do not invent facts that are not present in the memory.",
-            "Do not reveal the internal memory structure to the user.",
-            "",
-            memoryContext
-        ].join("\n");
-    }
 
     async ask(userId, userMessage) {
 
@@ -97,14 +72,21 @@ class Nika {
         const message =
             String(userMessage).trim();
 
-        const memory =
-            await nikaMemory.load(userId);
 
+        /*
+         * Load recent conversation history.
+         *
+         * Long-term memory is intentionally not used.
+         */
         const previousMessages =
             nikaConversation.getMessages(
                 userId
             );
 
+
+        /*
+         * Build conversation context.
+         */
         const conversationMessages = [
             ...previousMessages,
             {
@@ -113,17 +95,25 @@ class Nika {
             }
         ];
 
-        const systemPrompt =
-            this.buildSystemPrompt(
-                memory
-            );
 
+        /*
+         * Generate response using:
+         *
+         * 1. Nika character
+         * 2. Conversation history
+         * 3. Current user message
+         */
         const answer =
             await nikaAI.generate(
-                systemPrompt,
+                this.systemPrompt,
                 conversationMessages
             );
 
+
+        /*
+         * Save conversation only
+         * after successful response.
+         */
         nikaConversation.addUserMessage(
             userId,
             message
@@ -134,8 +124,10 @@ class Nika {
             answer
         );
 
+
         return answer;
     }
+
 
     async handle(bot, msg) {
 
@@ -167,5 +159,6 @@ class Nika {
         return true;
     }
 }
+
 
 module.exports = new Nika();
