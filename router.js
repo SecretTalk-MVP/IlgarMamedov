@@ -677,12 +677,28 @@ if (!isAdmin && !isVerified) {
          */
 
         const stack =
-            this.getStack(userId);
+    this.getStack(userId);
 
 
-        if (
-            stack[stack.length - 1] === "nika"
-        ) {
+/*
+ * =====================================================
+ * RANDOM CHAT ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    await randomchat.handle(
+        bot,
+        msg
+    )
+) {
+    return true;
+}
+
+
+if (
+    stack[stack.length - 1] === "nika"
+) {
 
             return await nika.handle(
                 bot,
