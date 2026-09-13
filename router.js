@@ -641,9 +641,9 @@ if (!isAdmin && !isVerified) {
         ) {
 
             const partnerId =
-                matchmaking.leaveForAi(
-                    msg.chat.id
-                );
+    randomchat.leave(
+        msg.chat.id
+    );
 
 
             if (partnerId) {
