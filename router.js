@@ -5,7 +5,7 @@ const nika = require("./modules/nika/nika");
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 
-const matchmaking = require("./modules/matchmaking/controller");
+const randomchat = require("./modules/randomchat/controller");
 
 class Router {
 
@@ -544,15 +544,12 @@ class Router {
          * =====================================================
          */
 
-        if (
-            text === "🎲 Случайного собеседника"
-        ) {
-
-            return await matchmaking.handle(
-                bot,
-                msg
-            );
-        }
+     if (text === "🎲 Случайного собеседника") {
+    return await randomchat.findRandom(
+        bot,
+        msg
+    );
+}
 
 
         /*
