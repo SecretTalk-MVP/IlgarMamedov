@@ -332,22 +332,15 @@ class Router {
         msg,
         aiUsers
     ) {
-
-        if (
-            !msg ||
-            !msg.text ||
-            !msg.from
-        ) {
-
-            return false;
-        }
+if (!msg || !msg.from || !msg.chat) {
+    return false;
+}
 
 
         const userId =
             msg.from.id;
 
-        const text =
-            msg.text;
+        const text = msg.text || "";
 
 
         /*
