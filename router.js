@@ -505,7 +505,40 @@ if (!msg || !msg.from || !msg.chat) {
 
             return true;
         }
+                /*
+         * =====================================================
+         * ADMIN USER SEARCH
+         * =====================================================
+         */
 
+        const stackForUsers =
+            this.getStack(userId);
+
+        if (
+            stackForUsers.includes("admin") &&
+            stackForUsers[stackForUsers.length - 1] === "users"
+        ) {
+
+            if (
+                !permissions.canViewUsers(
+                    userId
+                )
+            ) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    "⛔ У вас нет доступа."
+                );
+
+                return true;
+            }
+
+            return await users.showUser(
+                bot,
+                msg,
+                text
+            );
+        }
 
         /*
          * =====================================================
