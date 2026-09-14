@@ -4,6 +4,7 @@ const nika = require("./modules/nika/nika");
 
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
+const users = require("./modules/admin/users");
 
 const randomchat = require("./modules/randomchat/controller");
 
@@ -163,12 +164,12 @@ class Router {
 
             case "users":
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "👥 Пользователи\n\n🚧 Эта функция администратора пока находится в разработке."
-                );
+    await users.showSearch(
+        bot,
+        msg
+    );
 
-                return;
+    return;
 
 
             case "broadcast":
