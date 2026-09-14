@@ -1,44 +1,53 @@
 /**
  * SecretTalk
  * Admin Statistics
- * Version: 4.0
+ * Version: 5.0
+ *
+ * Statistics use:
+ * - PostgreSQL for persistent user data
+ * - Random Chat runtime state for active chats
+ *
+ * Legacy matchmaking is not used.
  */
 
 const db = require('../../database/db');
-const matchmakingState = require('../matchmaking/state');
+const randomchatState = require('../randomchat/state');
 
 class Statistics {
 
-    async show(bot, msg, aiUsers) {
+    async show(bot, msg) {
 
         try {
 
-            const result = await db.query(
-                'SELECT COUNT(*) AS count FROM users'
-            );
+            const result = await db.query(`
+                SELECT
+                    COUNT(*) AS total_users,
+                    COUNT(*) FILTER (
+                        WHERE last_seen >= CURRENT_TIMESTAMP - INTERVAL '5 minutes'
+                    ) AS online_users
+                FROM users
+            `);
 
-            const totalUsers = Number(result.rows[0].count);
+            const totalUsers =
+                Number(result.rows[0].total_users);
 
-            const online = 0;
+            const onlineUsers =
+                Number(result.rows[0].online_users);
 
-            const dialogsCount =
-                Object.keys(matchmakingState.dialogs).length / 2;
+            const waitingUsers =
+                randomchatState.waiting.size;
 
-            const waiting =
-                matchmakingState.waitingUsers.length;
-
-            const aiCount =
-                Object.keys(aiUsers || {}).length;
+            const activeChats =
+                randomchatState.sessions.size / 2;
 
             await bot.sendMessage(
                 msg.chat.id,
 `📊 Статистика
 
 👤 Пользователей: ${totalUsers}
-🟢 Онлайн: ${online}
-💬 Диалогов: ${dialogsCount}
-⏳ В поиске: ${waiting}
-🤖 Общаются с AiDa: ${aiCount}`
+🟢 Активны за 5 мин: ${onlineUsers}
+💬 Активных чатов: ${activeChats}
+⏳ В поиске: ${waitingUsers}`
             );
 
             return true;
