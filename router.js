@@ -134,10 +134,10 @@ class Router {
 
             case "admin":
 
-                await this.showAdminMenu(
-                    bot,
-                    msg.chat.id
-                );
+                            await menu.showAdminMenu(
+                bot,
+                msg.chat.id
+            );
 
                 return;
 
@@ -231,35 +231,6 @@ class Router {
 
                 return;
         }
-    }
-
-
-    /*
-     * =========================================================
-     * ADMIN MENU
-     * =========================================================
-     */
-
-    async showAdminMenu(
-        bot,
-        chatId
-    ) {
-
-        await bot.sendMessage(
-            chatId,
-            "Добро пожаловать в SecretTalk ❤️\n\nПанель администратора:",
-            {
-                reply_markup: {
-                    keyboard: [
-                        ["📊 Статистика", "👥 Пользователи"],
-                        ["💬 Активные чаты", "📢 Рассылка"],
-                        ["🚫 Бан / Разбан", "⚙️ Настройки"],
-                        ["⬅️ Назад"]
-                    ],
-                    resize_keyboard: true
-                }
-            }
-        );
     }
 
 
@@ -419,10 +390,10 @@ if (!msg || !msg.from || !msg.chat) {
             );
 
 
-            await this.showAdminMenu(
-                bot,
-                msg.chat.id
-            );
+            await menu.showAdminMenu(
+    bot,
+    msg.chat.id
+);
 
             return true;
         }
