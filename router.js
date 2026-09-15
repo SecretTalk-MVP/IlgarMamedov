@@ -7,6 +7,7 @@ const statistics = require("./modules/admin/statistics");
 const users = require("./modules/admin/users");
 
 const randomchat = require("./modules/randomchat/controller");
+const searchFilter = require("./modules/searchfilter/controller");
 
 class Router {
 
@@ -134,10 +135,10 @@ class Router {
 
             case "admin":
 
-                            await menu.showAdminMenu(
-                bot,
-                msg.chat.id
-            );
+                await menu.showAdminMenu(
+                    bot,
+                    msg.chat.id
+                );
 
                 return;
 
@@ -164,12 +165,12 @@ class Router {
 
             case "users":
 
-    await users.showSearch(
-        bot,
-        msg
-    );
+                await users.showSearch(
+                    bot,
+                    msg
+                );
 
-    return;
+                return;
 
 
             case "broadcast":
@@ -215,6 +216,16 @@ class Router {
             case "characters":
 
                 await this.showCharactersMenu(
+                    bot,
+                    msg
+                );
+
+                return;
+
+
+            case "search_filter":
+
+                await searchFilter.show(
                     bot,
                     msg
                 );
@@ -304,15 +315,17 @@ class Router {
         msg,
         aiUsers
     ) {
-if (!msg || !msg.from || !msg.chat) {
-    return false;
-}
+
+        if (!msg || !msg.from || !msg.chat) {
+            return false;
+        }
 
 
         const userId =
             msg.from.id;
 
-        const text = msg.text || "";
+        const text =
+            msg.text || "";
 
 
         /*
@@ -391,9 +404,9 @@ if (!msg || !msg.from || !msg.chat) {
 
 
             await menu.showAdminMenu(
-    bot,
-    msg.chat.id
-);
+                bot,
+                msg.chat.id
+            );
 
             return true;
         }
@@ -476,7 +489,9 @@ if (!msg || !msg.from || !msg.chat) {
 
             return true;
         }
-                /*
+
+
+        /*
          * =====================================================
          * ADMIN USER SEARCH
          * =====================================================
@@ -511,6 +526,29 @@ if (!msg || !msg.from || !msg.chat) {
             );
         }
 
+
+        /*
+         * =====================================================
+         * SEARCH FILTER ENTRY
+         * =====================================================
+         */
+
+        if (
+            text === "⚙️ Фильтр поиска"
+        ) {
+
+            this.push(
+                userId,
+                "search_filter"
+            );
+
+            return await searchFilter.show(
+                bot,
+                msg
+            );
+        }
+
+
         /*
          * =====================================================
          * FIND PARTNER
@@ -542,12 +580,15 @@ if (!msg || !msg.from || !msg.chat) {
          * =====================================================
          */
 
-     if (text === "🎲 Случайного собеседника") {
-    return await randomchat.findRandom(
-        bot,
-        msg
-    );
-}
+        if (
+            text === "🎲 Случайного собеседника"
+        ) {
+
+            return await randomchat.findRandom(
+                bot,
+                msg
+            );
+        }
 
 
         /*
@@ -580,56 +621,61 @@ if (!msg || !msg.from || !msg.chat) {
          * NIKA ENTRY
          * =====================================================
          */
-if (
-    text === "Ника"
-) {
 
-    /*
-     * Для обычных пользователей
-     * здесь позже будет запуск verification.
-     *
-     * Администратор имеет временный bypass.
-     */
+        if (
+            text === "Ника"
+        ) {
 
-   const verification =
-    require("./modules/verification");
+            /*
+             * Для обычных пользователей
+             * здесь позже будет запуск verification.
+             *
+             * Администратор имеет временный bypass.
+             */
 
-const isAdmin =
-    permissions.isAdmin(userId);
+            const verification =
+                require("./modules/verification");
 
-const isVerified =
-    await verification.isVerified(userId);
+            const isAdmin =
+                permissions.isAdmin(userId);
 
-if (!isAdmin && !isVerified) {
+            const isVerified =
+                await verification.isVerified(userId);
 
-    await bot.sendMessage(
-        msg.chat.id,
-        "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-    );
+            if (
+                !isAdmin &&
+                !isVerified
+            ) {
 
-    return true;
-}
+                await bot.sendMessage(
+                    msg.chat.id,
+                    "🔐 Для общения с Никой сначала необходимо пройти верификацию."
+                );
 
-    /*
-     * Входим в режим Nika.
-     *
-     * ВАЖНО:
-     * слово "Ника" является выбором персонажа,
-     * а НЕ сообщением для AI.
-     */
+                return true;
+            }
 
-    this.push(
-        userId,
-        "nika"
-    );
 
-    await bot.sendMessage(
-        msg.chat.id,
-        "Привет. Я Ника. Теперь можем поговорить."
-    );
+            /*
+             * Входим в режим Nika.
+             *
+             * ВАЖНО:
+             * слово "Ника" является выбором персонажа,
+             * а НЕ сообщением для AI.
+             */
 
-    return true;
-}
+            this.push(
+                userId,
+                "nika"
+            );
+
+            await bot.sendMessage(
+                msg.chat.id,
+                "Привет. Я Ника. Теперь можем поговорить."
+            );
+
+            return true;
+        }
 
 
         /*
@@ -646,9 +692,9 @@ if (!isAdmin && !isVerified) {
         ) {
 
             const partnerId =
-    randomchat.leave(
-        msg.chat.id
-    );
+                randomchat.leave(
+                    msg.chat.id
+                );
 
 
             if (partnerId) {
@@ -675,35 +721,40 @@ if (!isAdmin && !isVerified) {
 
         /*
          * =====================================================
-         * NIKA ACTIVE MODE
+         * ACTIVE ROUTING
          * =====================================================
-         *
-         * Только после глобальных команд.
          */
 
         const stack =
-    this.getStack(userId);
+            this.getStack(userId);
 
 
-/*
- * =====================================================
- * RANDOM CHAT ACTIVE MODE
- * =====================================================
- */
+        /*
+         * =====================================================
+         * RANDOM CHAT ACTIVE MODE
+         * =====================================================
+         */
 
-if (
-    await randomchat.handle(
-        bot,
-        msg
-    )
-) {
-    return true;
-}
+        if (
+            await randomchat.handle(
+                bot,
+                msg
+            )
+        ) {
+
+            return true;
+        }
 
 
-if (
-    stack[stack.length - 1] === "nika"
-) {
+        /*
+         * =====================================================
+         * NIKA ACTIVE MODE
+         * =====================================================
+         */
+
+        if (
+            stack[stack.length - 1] === "nika"
+        ) {
 
             return await nika.handle(
                 bot,
@@ -734,17 +785,19 @@ if (
 
         /*
          * =====================================================
-         * SETTINGS / FILTER
+         * SEARCH FILTER ACTIVE MODE
          * =====================================================
          */
 
+        if (
+            stack[stack.length - 1] === "search_filter"
+        ) {
 
-
-        /*
-         * =====================================================
-         * SETTINGS FALLBACK
-         * =====================================================
-         */
+            return await searchFilter.handle(
+                bot,
+                msg
+            );
+        }
 
 
         /*
