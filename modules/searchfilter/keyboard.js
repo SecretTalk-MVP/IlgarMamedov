@@ -2,7 +2,7 @@ function mainKeyboard() {
     return {
         reply_markup: {
             keyboard: [
-                ['👨 Мужчины', '👩 Женщины'],
+                ['👤 Пол'],
                 ['🎯 Цель'],
                 ['🎂 Возраст'],
                 ['📍 Город'],
