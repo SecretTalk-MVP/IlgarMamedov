@@ -14,6 +14,7 @@
  *      ├── Interaction Mode
  *      ├── Initiative Engine
  *      ├── Safety Gate
+ *      ├── PostgreSQL Runtime Persistence
  *      └── Conversation / Memory
  *              ↓
  *           Nika AI
@@ -21,6 +22,7 @@
  * Responsibilities:
  * - orchestrate Nika runtime;
  * - maintain runtime state;
+ * - persist runtime state in PostgreSQL;
  * - control state transitions;
  * - determine conversational initiative;
  * - enforce consent-aware interaction modes;
@@ -42,6 +44,7 @@ const path = require("path");
 
 const nikaAI = require("./nika.ai");
 const NikaConversation = require("./nika.conversation");
+const NikaPersistence = require("./nika.persistence");
 
 
 class Nika {
@@ -50,9 +53,16 @@ class Nika {
 
         this.name = "Nika";
 
+
         /*
-         * Persona Layer
+         * =========================================================
+         * PERSONA LAYER
+         * =========================================================
+         *
+         * Nika's character remains completely separated
+         * from runtime logic.
          */
+
         this.systemPromptPath = path.join(
             __dirname,
             "nika.system.md"
@@ -66,72 +76,146 @@ class Nika {
 
 
         /*
-         * Relationship State
+         * =========================================================
+         * RELATIONSHIP STATE
+         * =========================================================
          */
+
         this.RELATIONSHIP_STATES = Object.freeze({
-            NEW: "NEW",
-            ACQUAINTED: "ACQUAINTED",
-            FAMILIAR: "FAMILIAR",
-            CLOSE: "CLOSE"
+
+            NEW:
+                "NEW",
+
+            ACQUAINTED:
+                "ACQUAINTED",
+
+            FAMILIAR:
+                "FAMILIAR",
+
+            CLOSE:
+                "CLOSE"
         });
 
 
         /*
-         * Consent State
+         * =========================================================
+         * CONSENT STATE
+         * =========================================================
          */
+
         this.CONSENT_STATES = Object.freeze({
-            UNKNOWN: "UNKNOWN",
-            GRANTED: "GRANTED",
-            DECLINED: "DECLINED",
-            REVOKED: "REVOKED"
+
+            UNKNOWN:
+                "UNKNOWN",
+
+            GRANTED:
+                "GRANTED",
+
+            DECLINED:
+                "DECLINED",
+
+            REVOKED:
+                "REVOKED"
         });
 
 
         /*
-         * Interaction Mode
+         * =========================================================
+         * INTERACTION MODE
+         * =========================================================
          */
+
         this.INTERACTION_MODES = Object.freeze({
-            NEUTRAL: "NEUTRAL",
-            FRIENDLY: "FRIENDLY",
-            PLAYFUL: "PLAYFUL",
-            ROMANTIC: "ROMANTIC",
-            ADULT_ORIENTED: "ADULT_ORIENTED"
+
+            NEUTRAL:
+                "NEUTRAL",
+
+            FRIENDLY:
+                "FRIENDLY",
+
+            PLAYFUL:
+                "PLAYFUL",
+
+            ROMANTIC:
+                "ROMANTIC",
+
+            ADULT_ORIENTED:
+                "ADULT_ORIENTED"
         });
 
 
         /*
-         * Initiative Engine actions.
+         * =========================================================
+         * INITIATIVE ENGINE
+         * =========================================================
          */
+
         this.INITIATIVE_ACTIONS = Object.freeze({
-            ANSWER: "ANSWER",
-            CONTINUE: "CONTINUE",
-            REACT: "REACT",
-            TEASE: "TEASE",
-            FLIRT: "FLIRT",
-            SUGGEST: "SUGGEST",
-            ASK: "ASK",
-            CHANGE_TOPIC: "CHANGE_TOPIC",
-            DEESCALATE: "DEESCALATE",
-            STOP: "STOP"
+
+            ANSWER:
+                "ANSWER",
+
+            CONTINUE:
+                "CONTINUE",
+
+            REACT:
+                "REACT",
+
+            TEASE:
+                "TEASE",
+
+            FLIRT:
+                "FLIRT",
+
+            SUGGEST:
+                "SUGGEST",
+
+            ASK:
+                "ASK",
+
+            CHANGE_TOPIC:
+                "CHANGE_TOPIC",
+
+            DEESCALATE:
+                "DEESCALATE",
+
+            STOP:
+                "STOP"
         });
 
 
         /*
-         * IMPORTANT:
+         * =========================================================
+         * CONVERSATION / MEMORY
+         * =========================================================
          *
          * nika.conversation.js exports a CLASS.
          *
-         * We therefore create exactly one conversation
-         * runtime instance here.
-         *
-         * This fixes the architecture mismatch that caused
-         * the previous getMessages() failure.
+         * Exactly one conversation runtime instance is created.
          */
+
         this.conversation =
             new NikaConversation();
 
 
+        /*
+         * =========================================================
+         * POSTGRESQL PERSISTENCE
+         * =========================================================
+         *
+         * Runtime state is persisted separately from the
+         * conversation/memory layer.
+         *
+         * This prevents Railway restarts from resetting
+         * Nika's runtime state.
+         */
+
+        this.persistence =
+            NikaPersistence;
+
+
         console.log("✅ Nika initialized");
+
         console.log(
             "🌶️ Nika character:",
             this.systemPromptPath
@@ -175,17 +259,9 @@ class Nika {
 
     /*
      * =========================================================
-     * STATE ACCESS
+     * STATE NORMALIZATION
      * =========================================================
      */
-
-    getRuntimeState(userId) {
-
-        return this.conversation.getState(
-            userId
-        );
-    }
-
 
     normalizeRuntimeState(state) {
 
@@ -199,10 +275,85 @@ class Nika {
             ...(state || {}),
 
             metadata: {
+
                 ...defaults.metadata,
-                ...((state && state.metadata) || {})
+
+                ...(
+                    state &&
+                    state.metadata
+                        ? state.metadata
+                        : {}
+                )
             }
         };
+    }
+
+
+    /*
+     * =========================================================
+     * POSTGRESQL STATE LOADING
+     * =========================================================
+     *
+     * Load persistent state into the current conversation
+     * runtime before processing a message.
+     */
+
+    async loadPersistentRuntimeState(userId) {
+
+        const persistentState =
+            await this.persistence.getState(
+                userId
+            );
+
+        const normalized =
+            this.normalizeRuntimeState(
+                persistentState
+            );
+
+        this.conversation.setState(
+            userId,
+            normalized
+        );
+
+        return normalized;
+    }
+
+
+    /*
+     * =========================================================
+     * POSTGRESQL STATE SAVING
+     * =========================================================
+     */
+
+    async savePersistentRuntimeState(userId) {
+
+        const state =
+            this.normalizeRuntimeState(
+                this.getRuntimeState(
+                    userId
+                )
+            );
+
+        await this.persistence.saveState(
+            userId,
+            state
+        );
+
+        return state;
+    }
+
+
+    /*
+     * =========================================================
+     * STATE ACCESS
+     * =========================================================
+     */
+
+    getRuntimeState(userId) {
+
+        return this.conversation.getState(
+            userId
+        );
     }
 
 
@@ -212,7 +363,10 @@ class Nika {
      * =========================================================
      */
 
-    isModeAllowed(state, mode) {
+    isModeAllowed(
+        state,
+        mode
+    ) {
 
         const normalized =
             this.normalizeRuntimeState(
@@ -226,7 +380,9 @@ class Nika {
         ) {
 
             return (
+
                 normalized.adultVerified === true &&
+
                 normalized.consentState ===
                     this.CONSENT_STATES.GRANTED
             );
@@ -239,8 +395,10 @@ class Nika {
         ) {
 
             return (
+
                 normalized.consentState !==
                     this.CONSENT_STATES.DECLINED &&
+
                 normalized.consentState !==
                     this.CONSENT_STATES.REVOKED
             );
@@ -258,7 +416,9 @@ class Nika {
 
         const state =
             this.normalizeRuntimeState(
-                this.getRuntimeState(userId)
+                this.getRuntimeState(
+                    userId
+                )
             );
 
 
@@ -286,7 +446,9 @@ class Nika {
         ) {
 
             return this.conversation.updateState(
+
                 userId,
+
                 {
                     interactionMode:
                         this.INTERACTION_MODES.NEUTRAL
@@ -296,7 +458,9 @@ class Nika {
 
 
         return this.conversation.updateState(
+
             userId,
+
             {
                 interactionMode:
                     requestedMode
@@ -310,7 +474,7 @@ class Nika {
      * ADULT VERIFICATION
      * =========================================================
      *
-     * Verification and consent are deliberately separate.
+     * Verification and consent remain deliberately separate.
      */
 
     setAdultVerification(
@@ -319,7 +483,9 @@ class Nika {
     ) {
 
         return this.conversation.updateState(
+
             userId,
+
             {
                 adultVerified:
                     Boolean(verified)
@@ -358,17 +524,20 @@ class Nika {
 
 
         const patch = {
+
             consentState
         };
 
 
         /*
          * Declined / revoked consent immediately
-         * returns the interaction to NEUTRAL.
+         * returns interaction to NEUTRAL.
          */
+
         if (
             consentState ===
                 this.CONSENT_STATES.DECLINED ||
+
             consentState ===
                 this.CONSENT_STATES.REVOKED
         ) {
@@ -379,7 +548,9 @@ class Nika {
 
 
         return this.conversation.updateState(
+
             userId,
+
             patch
         );
     }
@@ -415,7 +586,9 @@ class Nika {
 
 
         return this.conversation.updateState(
+
             userId,
+
             {
                 relationshipState
             }
@@ -434,7 +607,9 @@ class Nika {
 
         const state =
             this.normalizeRuntimeState(
-                this.getRuntimeState(userId)
+                this.getRuntimeState(
+                    userId
+                )
             );
 
 
@@ -481,7 +656,9 @@ class Nika {
         ) {
 
             return this.setRelationshipState(
+
                 userId,
+
                 nextState
             );
         }
@@ -536,14 +713,19 @@ class Nika {
 
 
         return patterns.some(
+
             pattern =>
+
                 text === pattern ||
+
                 text.includes(
                     ` ${pattern} `
                 ) ||
+
                 text.startsWith(
                     `${pattern} `
                 ) ||
+
                 text.endsWith(
                     ` ${pattern}`
                 )
@@ -581,6 +763,7 @@ class Nika {
 
 
         return patterns.some(
+
             pattern =>
                 text.includes(pattern)
         );
@@ -608,6 +791,7 @@ class Nika {
         /*
          * Safety / de-escalation has priority.
          */
+
         if (
             this.detectDeescalationSignal(
                 userMessage
@@ -621,6 +805,7 @@ class Nika {
         /*
          * Explicit topic change.
          */
+
         if (
             this.detectTopicChangeSignal(
                 userMessage
@@ -635,9 +820,11 @@ class Nika {
          * Declined/revoked consent means
          * no escalation.
          */
+
         if (
             normalized.consentState ===
                 this.CONSENT_STATES.DECLINED ||
+
             normalized.consentState ===
                 this.CONSENT_STATES.REVOKED
         ) {
@@ -655,6 +842,7 @@ class Nika {
          * A direct question normally deserves
          * a direct answer.
          */
+
         if (
             text.endsWith("?") ||
             text.endsWith("？")
@@ -667,6 +855,7 @@ class Nika {
         /*
          * Short messages receive a natural reaction.
          */
+
         if (
             text.length < 20
         ) {
@@ -676,14 +865,13 @@ class Nika {
 
 
         /*
-         * Clear longer messages favor
+         * Longer clear messages favor
          * conversational continuation.
-         *
-         * This is the important change:
          *
          * Nika does not automatically return
          * control to the user with a question.
          */
+
         return this.INITIATIVE_ACTIONS.CONTINUE;
     }
 
@@ -695,7 +883,7 @@ class Nika {
      *
      * This is an APPLICATION state gate.
      *
-     * It does not attempt to replace model/platform safety.
+     * It does not replace model/platform safety.
      */
 
     safetyGate(
@@ -714,6 +902,7 @@ class Nika {
         /*
          * Explicit stop always wins.
          */
+
         if (
             this.detectDeescalationSignal(
                 userMessage
@@ -742,6 +931,7 @@ class Nika {
          * 1. adult verification
          * 2. current consent
          */
+
         if (
             normalized.interactionMode ===
             this.INTERACTION_MODES.ADULT_ORIENTED
@@ -964,6 +1154,7 @@ class Nika {
 
 
             sections.push(
+
                 `${title}:\n- ${values.join(
                     "\n- "
                 )}`
@@ -1014,13 +1205,16 @@ class Nika {
 
         const runtimeInstructions =
             this.buildRuntimeInstructions(
+
                 context.state,
+
                 initiativeAction
             );
 
 
         const memoryInstructions =
             this.buildMemoryInstructions(
+
                 context.memory
             );
 
@@ -1062,7 +1256,9 @@ class Nika {
 
 
         return this.conversation.updateState(
+
             userId,
+
             patch
         );
     }
@@ -1108,11 +1304,27 @@ class Nika {
 
 
         /*
-         * Load complete runtime context.
+         * =====================================================
+         * LOAD PERSISTENT STATE
+         * =====================================================
          *
-         * This replaces the old getMessages()
-         * architecture.
+         * PostgreSQL is the persistent source for Runtime State.
+         *
+         * The in-memory conversation layer is synchronized
+         * from PostgreSQL before processing the message.
          */
+
+        await this.loadPersistentRuntimeState(
+            userId
+        );
+
+
+        /*
+         * =====================================================
+         * BUILD CONTEXT
+         * =====================================================
+         */
+
         const context =
             this.conversation.buildContext(
                 userId
@@ -1126,32 +1338,47 @@ class Nika {
 
 
         /*
-         * Determine WHAT Nika should do.
+         * =====================================================
+         * DETERMINE INITIATIVE
+         * =====================================================
          */
+
         const initiativeAction =
             this.determineInitiative(
+
                 userId,
+
                 message,
+
                 state
             );
 
 
         /*
-         * Safety gate.
+         * =====================================================
+         * SAFETY GATE
+         * =====================================================
          */
+
         const safety =
             this.safetyGate(
+
                 userId,
+
                 message,
+
                 state,
+
                 initiativeAction
             );
 
 
         /*
-         * Apply any state change caused by
-         * safety/de-escalation.
+         * =====================================================
+         * APPLY SAFETY STATE PATCH
+         * =====================================================
          */
+
         let effectiveState =
             state;
 
@@ -1162,18 +1389,25 @@ class Nika {
 
             effectiveState =
                 this.applyStatePatch(
+
                     userId,
+
                     safety.statePatch
                 );
         }
 
 
         /*
-         * Record selected initiative action.
+         * =====================================================
+         * RECORD INITIATIVE ACTION
+         * =====================================================
          */
+
         effectiveState =
             this.applyStatePatch(
+
                 userId,
+
                 {
                     lastInitiativeAction:
                         safety.action
@@ -1182,8 +1416,11 @@ class Nika {
 
 
         /*
-         * Rebuild context after state changes.
+         * =====================================================
+         * REBUILD CONTEXT
+         * =====================================================
          */
+
         const effectiveContext =
             this.conversation.buildContext(
                 userId
@@ -1191,28 +1428,37 @@ class Nika {
 
 
         /*
-         * Build final system prompt.
+         * =====================================================
+         * BUILD FINAL SYSTEM PROMPT
+         * =====================================================
          */
+
         const effectiveSystemPrompt =
             this.buildEffectiveSystemPrompt(
+
                 {
                     ...effectiveContext,
+
                     state:
                         effectiveState
                 },
+
                 safety.action
             );
 
 
         /*
-         * Conversation history:
+         * =====================================================
+         * CONVERSATION HISTORY
+         * =====================================================
          *
          * Existing history +
          * current user message.
          *
-         * The current message is NOT saved until
+         * Current message is NOT saved until
          * generation succeeds.
          */
+
         const conversationMessages = [
 
             ...effectiveContext.conversation,
@@ -1226,27 +1472,40 @@ class Nika {
 
 
         /*
-         * Generate Nika response.
+         * =====================================================
+         * GENERATE NIKA RESPONSE
+         * =====================================================
          */
+
         const answer =
             await nikaAI.generate(
+
                 effectiveSystemPrompt,
+
                 conversationMessages
             );
 
 
         /*
-         * Save the successful exchange.
+         * =====================================================
+         * SAVE SUCCESSFUL EXCHANGE
+         * =====================================================
          */
+
         this.conversation.addUserMessage(
+
             userId,
+
             message
         );
 
 
         this.conversation.addAssistantMessage(
+
             userId,
+
             answer,
+
             {
                 initiativeAction:
                     safety.action,
@@ -1258,19 +1517,39 @@ class Nika {
 
 
         /*
-         * Update relationship state AFTER
-         * successful conversation.
+         * =====================================================
+         * UPDATE RELATIONSHIP
+         * =====================================================
          */
-        const relationshipState =
-            this.updateRelationshipAfterMessage(
-                userId
-            );
+
+        this.updateRelationshipAfterMessage(
+            userId
+        );
 
 
         /*
-         * Update activity timestamp.
+         * =====================================================
+         * UPDATE ACTIVITY
+         * =====================================================
          */
+
         this.conversation.touch(
+            userId
+        );
+
+
+        /*
+         * =====================================================
+         * SAVE FINAL RUNTIME STATE
+         * =====================================================
+         *
+         * This is the important persistence boundary.
+         *
+         * Everything that changed during the successful
+         * interaction is written to PostgreSQL.
+         */
+
+        await this.savePersistentRuntimeState(
             userId
         );
 
@@ -1316,13 +1595,17 @@ class Nika {
 
             const answer =
                 await this.ask(
+
                     userId,
+
                     msg.text
                 );
 
 
             await bot.sendMessage(
+
                 msg.chat.id,
+
                 answer
             );
 
@@ -1341,8 +1624,11 @@ class Nika {
              * Do not expose internal stack traces
              * or implementation details to the user.
              */
+
             await bot.sendMessage(
+
                 msg.chat.id,
+
                 "Произошла ошибка при обработке сообщения. Попробуй ещё раз."
             );
 
@@ -1369,6 +1655,7 @@ class Nika {
 
             runtime:
                 this.normalizeRuntimeState(
+
                     this.getRuntimeState(
                         userId
                     )
