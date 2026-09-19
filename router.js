@@ -476,23 +476,28 @@ class Router {
              */
 
             if (
-                data.startsWith("admin_") &&
-                !permissions.isAdmin(userId)
-            ) {
+    data.startsWith("admin_") &&
+    !permissions.isAdmin(userId)
+) {
 
-                await bot.sendMessage(
-    msg.chat.id,
-    "⛔ У вас нет доступа."
-);
+    await bot.sendMessage(
+        msg.chat.id,
+        "⛔ У вас нет доступа."
+    );
+
+    return true;
+}
 
 
-            /*
-             * Вернуться к списку активных чатов
-             */
+/*
+ * =====================================================
+ * Вернуться к списку активных чатов
+ * =====================================================
+ */
 
-            if (
-                data === "admin_active_chats"
-            ) {
+if (
+    data === "admin_active_chats"
+) {
 
                 /*
                  * Возвращаем Admin Panel
