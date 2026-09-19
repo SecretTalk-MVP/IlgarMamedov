@@ -1,7 +1,9 @@
 const session = require('./session');
+const history = require('./history');
 
 async function relay(bot, msg) {
-    const partnerId = session.getPartner(msg.chat.id);
+    const userId = msg.chat.id;
+    const partnerId = session.getPartner(userId);
 
     if (!partnerId) {
         return false;
@@ -13,8 +15,21 @@ async function relay(bot, msg) {
             msg.chat.id,
             msg.message_id
         );
+
+        const dialogId = session.getDialogId(userId);
+
+        if (dialogId) {
+            await history.saveMessage(
+                dialogId,
+                msg
+            );
+        }
+
     } catch (err) {
-        console.log(err);
+        console.error(
+            'Random Chat relay error:',
+            err
+        );
     }
 
     return true;
