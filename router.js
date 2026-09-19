@@ -11,23 +11,36 @@ const chat = require("./modules/admin/chat");
 const randomchat = require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
 
+
 class Router {
 
     constructor() {
 
         /*
          * =========================================================
-         * ЕДИНАЯ НАВИГАЦИЯ
+         * ОБЩАЯ НАВИГАЦИЯ
          * =========================================================
          */
 
         this.navigation = new Map();
+
+
+        /*
+         * =========================================================
+         * ОТДЕЛЬНАЯ НАВИГАЦИЯ ADMIN PANEL
+         * =========================================================
+         *
+         * Admin Panel больше не смешивается
+         * с общей навигацией SecretTalk.
+         */
+
+        this.adminNavigation = new Map();
     }
 
 
     /*
      * =========================================================
-     * NAVIGATION STACK
+     * ОБЩАЯ NAVIGATION STACK
      * =========================================================
      */
 
@@ -70,6 +83,49 @@ class Router {
 
     /*
      * =========================================================
+     * ADMIN NAVIGATION STACK
+     * =========================================================
+     */
+
+    getAdminStack(userId) {
+
+        if (!this.adminNavigation.has(userId)) {
+
+            this.adminNavigation.set(
+                userId,
+                ["admin"]
+            );
+        }
+
+        return this.adminNavigation.get(userId);
+    }
+
+
+    resetAdmin(userId) {
+
+        this.adminNavigation.set(
+            userId,
+            ["admin"]
+        );
+    }
+
+
+    pushAdmin(userId, screen) {
+
+        const stack =
+            this.getAdminStack(userId);
+
+        if (
+            stack[stack.length - 1] !== screen
+        ) {
+
+            stack.push(screen);
+        }
+    }
+
+
+    /*
+     * =========================================================
      * GLOBAL BACK
      * =========================================================
      */
@@ -79,11 +135,82 @@ class Router {
         const userId =
             msg.from.id;
 
+
+        /*
+         * =====================================================
+         * ADMIN PANEL BACK
+         * =====================================================
+         *
+         * Если пользователь находится внутри Admin Panel,
+         * используем только adminNavigation.
+         */
+
+        const adminStack =
+            this.adminNavigation.get(userId);
+
+
+        if (
+            adminStack &&
+            adminStack.length > 0 &&
+            adminStack.includes("admin")
+        ) {
+
+            /*
+             * Если мы уже на главном экране Admin Panel
+             */
+
+            if (
+                adminStack.length === 1 &&
+                adminStack[0] === "admin"
+            ) {
+
+                this.adminNavigation.delete(userId);
+
+                this.reset(userId);
+
+                await menu.showMainMenu(
+                    bot,
+                    msg.chat.id
+                );
+
+                return true;
+            }
+
+
+            /*
+             * Убираем текущий экран Admin Panel
+             */
+
+            adminStack.pop();
+
+
+            const previousAdminScreen =
+                adminStack[adminStack.length - 1];
+
+
+            await this.showScreen(
+                bot,
+                msg,
+                previousAdminScreen
+            );
+
+            return true;
+        }
+
+
+        /*
+         * =====================================================
+         * ОБЫЧНАЯ НАВИГАЦИЯ
+         * =====================================================
+         */
+
         const stack =
             this.getStack(userId);
 
 
-        if (stack.length <= 1) {
+        if (
+            stack.length <= 1
+        ) {
 
             await menu.showMainMenu(
                 bot,
@@ -314,13 +441,19 @@ class Router {
         aiUsers
     ) {
 
-        if (!msg || !msg.from || !msg.chat) {
+        if (
+            !msg ||
+            !msg.from ||
+            !msg.chat
+        ) {
+
             return false;
         }
 
 
         const userId =
             msg.from.id;
+
 
         const text =
             msg.text || "";
@@ -330,8 +463,6 @@ class Router {
          * =====================================================
          * CALLBACK QUERY
          * =====================================================
-         *
-         * Используется для inline-кнопок Admin Panel.
          */
 
         if (msg.callback_query) {
@@ -365,6 +496,18 @@ class Router {
             if (
                 data === "admin_active_chats"
             ) {
+
+                /*
+                 * Возвращаем Admin Panel
+                 * на экран активных чатов.
+                 */
+
+                this.resetAdmin(userId);
+
+                this.pushAdmin(
+                    userId,
+                    "active_chats"
+                );
 
                 return await chats.showActive(
                     bot,
@@ -446,6 +589,10 @@ class Router {
 
             this.reset(userId);
 
+            this.adminNavigation.delete(
+                userId
+            );
+
             await menu.showMainMenu(
                 bot,
                 msg.chat.id
@@ -501,12 +648,13 @@ class Router {
             }
 
 
+            /*
+             * Полностью очищаем старую навигацию.
+             */
+
             this.reset(userId);
 
-            this.push(
-                userId,
-                "admin"
-            );
+            this.resetAdmin(userId);
 
 
             await menu.showAdminMenu(
@@ -550,12 +698,18 @@ class Router {
             adminScreens[text]
         ) {
 
-            const stack =
-                this.getStack(userId);
+            const adminStack =
+                this.getAdminStack(userId);
 
+
+            /*
+             * Экран Admin Panel доступен
+             * только если пользователь действительно
+             * вошёл через Admin Panel.
+             */
 
             if (
-                !stack.includes("admin")
+                !adminStack.includes("admin")
             ) {
 
                 return false;
@@ -569,7 +723,7 @@ class Router {
             ) {
 
                 await bot.sendMessage(
-                    msg.chat.id,
+                    bot,
                     "⛔ У вас нет доступа."
                 );
 
@@ -581,7 +735,7 @@ class Router {
                 adminScreens[text];
 
 
-            this.push(
+            this.pushAdmin(
                 userId,
                 screen
             );
@@ -603,12 +757,16 @@ class Router {
          * =====================================================
          */
 
-        const stackForUsers =
-            this.getStack(userId);
+        const adminStackForUsers =
+            this.adminNavigation.get(userId);
+
 
         if (
-            stackForUsers.includes("admin") &&
-            stackForUsers[stackForUsers.length - 1] === "users"
+            adminStackForUsers &&
+            adminStackForUsers.includes("admin") &&
+            adminStackForUsers[
+                adminStackForUsers.length - 1
+            ] === "users"
         ) {
 
             if (
@@ -624,6 +782,7 @@ class Router {
 
                 return true;
             }
+
 
             return await users.showUser(
                 bot,
@@ -735,11 +894,14 @@ class Router {
             const verification =
                 require("./modules/verification");
 
+
             const isAdmin =
                 permissions.isAdmin(userId);
 
+
             const isVerified =
                 await verification.isVerified(userId);
+
 
             if (
                 !isAdmin &&
@@ -759,6 +921,7 @@ class Router {
                 userId,
                 "nika"
             );
+
 
             await bot.sendMessage(
                 msg.chat.id,
