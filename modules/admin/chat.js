@@ -49,80 +49,189 @@ class Chat {
 
                 await bot.sendMessage(
                     msg.chat.id,
-                    `💬 Чат #${dialogId}\n\nСообщений пока нет.`
+                    `💬 Чат #${dialogId}\n\nСообщений пока нет.`,
+                    {
+                        reply_markup: {
+                            inline_keyboard: [
+                                [
+                                    {
+                                        text: '⬅️ К активным чатам',
+                                        callback_data: 'admin_active_chats'
+                                    }
+                                ]
+                            ]
+                        }
+                    }
                 );
 
                 return true;
             }
 
 
-            let text =
-                `💬 Чат #${dialogId}\n\n`;
+            await bot.sendMessage(
+                msg.chat.id,
+                `💬 Чат #${dialogId}\n\nСообщений: ${result.rows.length}`
+            );
 
 
-            result.rows.forEach((message) => {
+            for (const message of result.rows) {
 
                 const createdAt =
                     new Date(
                         message.created_at
                     ).toLocaleString('ru-RU');
 
-                let content;
+                const meta =
+                    `👤 ${message.sender}\n🕐 ${createdAt}`;
 
 
-                switch (message.message_type) {
+                try {
 
-                    case 'photo':
-                        content = '📷 Фото';
-                        break;
+                    switch (message.message_type) {
 
-                    case 'video':
-                        content = '🎥 Видео';
-                        break;
+                        case 'text':
 
-                    case 'voice':
-                        content = '🎤 Голосовое';
-                        break;
+                            await bot.sendMessage(
+                                msg.chat.id,
+                                `${meta}\n\n${message.content || '—'}`
+                            );
 
-                    case 'audio':
-                        content = '🎵 Аудио';
-                        break;
+                            break;
 
-                    case 'document':
-                        content = '📄 Документ';
-                        break;
 
-                    case 'sticker':
-                        content = '🎭 Стикер';
-                        break;
+                        case 'photo':
 
-                    case 'video_note':
-                        content = '⭕ Видеосообщение';
-                        break;
+                            await bot.sendPhoto(
+                                msg.chat.id,
+                                message.content,
+                                {
+                                    caption: meta
+                                }
+                            );
 
-                    case 'caption':
-                        content = `📝 ${message.content || ''}`;
-                        break;
+                            break;
 
-                    default:
-                        content =
-                            message.content || '—';
+
+                        case 'video':
+
+                            await bot.sendVideo(
+                                msg.chat.id,
+                                message.content,
+                                {
+                                    caption: meta
+                                }
+                            );
+
+                            break;
+
+
+                        case 'voice':
+
+                            await bot.sendVoice(
+                                msg.chat.id,
+                                message.content,
+                                {
+                                    caption: meta
+                                }
+                            );
+
+                            break;
+
+
+                        case 'audio':
+
+                            await bot.sendAudio(
+                                msg.chat.id,
+                                message.content,
+                                {
+                                    caption: meta
+                                }
+                            );
+
+                            break;
+
+
+                        case 'document':
+
+                            await bot.sendDocument(
+                                msg.chat.id,
+                                message.content,
+                                {
+                                    caption: meta
+                                }
+                            );
+
+                            break;
+
+
+                        case 'sticker':
+
+                            await bot.sendMessage(
+                                msg.chat.id,
+                                meta
+                            );
+
+                            await bot.sendSticker(
+                                msg.chat.id,
+                                message.content
+                            );
+
+                            break;
+
+
+                        case 'video_note':
+
+                            await bot.sendMessage(
+                                msg.chat.id,
+                                meta
+                            );
+
+                            await bot.sendVideoNote(
+                                msg.chat.id,
+                                message.content
+                            );
+
+                            break;
+
+
+                        case 'caption':
+
+                            await bot.sendMessage(
+                                msg.chat.id,
+                                `${meta}\n\n📝 ${message.content || ''}`
+                            );
+
+                            break;
+
+
+                        default:
+
+                            await bot.sendMessage(
+                                msg.chat.id,
+                                `${meta}\n\n${message.content || '—'}`
+                            );
+
+                            break;
+                    }
+
+                } catch (mediaError) {
+
+                    console.error(
+                        `Admin Chat media error [${message.message_type}] message ${message.id}:`,
+                        mediaError
+                    );
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        `${meta}\n\n⚠️ Не удалось открыть сообщение типа: ${message.message_type}`
+                    );
                 }
-
-
-                text +=
-`${message.sender}
-${content}
-🕐 ${createdAt}
-
-`;
-
-            });
+            }
 
 
             await bot.sendMessage(
                 msg.chat.id,
-                text,
+                '💬 Конец чата',
                 {
                     reply_markup: {
                         inline_keyboard: [
