@@ -9,6 +9,32 @@ const DEFAULT_STATE = {
     lastActivityAt: null
 };
 
+function normalizeTimestamp(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    if (value instanceof Date) {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        return new Date(value);
+    }
+
+    if (typeof value === 'string') {
+        const parsed = new Date(value);
+
+        if (Number.isNaN(parsed.getTime())) {
+            return null;
+        }
+
+        return parsed;
+    }
+
+    return null;
+}
+
 async function getState(telegramId) {
     const result = await db.query(
         `
@@ -47,6 +73,10 @@ async function getState(telegramId) {
 }
 
 async function saveState(telegramId, state) {
+    const lastActivityAt = normalizeTimestamp(
+        state.lastActivityAt
+    );
+
     await db.query(
         `
         INSERT INTO nika_runtime_state (
@@ -86,7 +116,7 @@ async function saveState(telegramId, state) {
             state.interactionMode,
             state.adultVerified,
             state.lastInitiativeAction || null,
-            state.lastActivityAt || null
+            lastActivityAt
         ]
     );
 
