@@ -44,7 +44,7 @@ const path = require("path");
 
 const nikaAI = require("./nika.ai");
 const NikaConversation = require("./nika.conversation");
-const NikaPersistence = require("./nika.persistence");
+const NikaPersistence = require("./persistence");
 
 
 class Nika {
