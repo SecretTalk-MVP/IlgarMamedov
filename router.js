@@ -481,12 +481,9 @@ class Router {
             ) {
 
                 await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
-
-                return true;
-            }
+    msg.chat.id,
+    "⛔ У вас нет доступа."
+);
 
 
             /*
