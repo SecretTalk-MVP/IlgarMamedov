@@ -5,6 +5,7 @@ const nika = require("./modules/nika/nika");
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
 const users = require("./modules/admin/users");
+const chats = require("./modules/admin/chats");
 
 const randomchat = require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
@@ -155,12 +156,12 @@ class Router {
 
             case "active_chats":
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "💬 Активные чаты\n\n🚧 Эта функция администратора пока находится в разработке."
-                );
+    await chats.showActive(
+        bot,
+        msg
+    );
 
-                return;
+    return;
 
 
             case "users":
