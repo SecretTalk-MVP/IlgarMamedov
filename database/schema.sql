@@ -44,3 +44,16 @@ CREATE TABLE IF NOT EXISTS aida_messages (
 
 CREATE INDEX IF NOT EXISTS idx_aida_messages_user_time
 ON aida_messages (telegram_id, created_at);
+CREATE TABLE IF NOT EXISTS nika_runtime_state (
+    telegram_id BIGINT PRIMARY KEY,
+    relationship_state TEXT DEFAULT 'NEW',
+    consent_state TEXT DEFAULT 'UNKNOWN',
+    interaction_mode TEXT DEFAULT 'NEUTRAL',
+    adult_verified BOOLEAN DEFAULT FALSE,
+    last_initiative_action TEXT,
+    last_activity_at TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_nika_runtime_state_updated
+ON nika_runtime_state (updated_at);
