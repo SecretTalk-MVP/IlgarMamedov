@@ -53,27 +53,42 @@ class Chats {
                 '💬 Активные чаты\n\n';
 
 
-            result.rows.forEach((chat, index) => {
+            const keyboard =
+                result.rows.map((chat) => {
 
-                const startedAt =
-                    new Date(
-                        chat.started_at
-                    ).toLocaleString('ru-RU');
+                    const startedAt =
+                        new Date(
+                            chat.started_at
+                        ).toLocaleString('ru-RU');
 
-                text +=
-`${index + 1}. 👤 ${chat.user1} ↔️ ${chat.user2}
+                    text +=
+`${chat.user1} ↔️ ${chat.user2}
 🕐 Начат: ${startedAt}
 💬 Сообщений: ${chat.message_count}
 
 `;
 
-            });
+                    return [
+                        {
+                            text:
+                                `💬 ${chat.user1} ↔️ ${chat.user2} — ${chat.message_count} сообщ.`,
+                            callback_data:
+                                `admin_chat_${chat.id}`
+                        }
+                    ];
+                });
 
 
             await bot.sendMessage(
                 msg.chat.id,
-                text
+                text,
+                {
+                    reply_markup: {
+                        inline_keyboard: keyboard
+                    }
+                }
             );
+
 
             return true;
 
