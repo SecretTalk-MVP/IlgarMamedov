@@ -157,12 +157,12 @@ class Router {
 
             case "active_chats":
 
-    await chats.showActive(
-        bot,
-        msg
-    );
+                await chats.showActive(
+                    bot,
+                    msg
+                );
 
-    return;
+                return;
 
 
             case "users":
@@ -279,10 +279,6 @@ class Router {
      * =========================================================
      * CHARACTER MENU
      * =========================================================
-     *
-     * AiDa здесь намеренно отсутствует.
-     *
-     * AiDa остаётся на главном пользовательском меню.
      */
 
     async showCharactersMenu(
@@ -328,6 +324,114 @@ class Router {
 
         const text =
             msg.text || "";
+
+
+        /*
+         * =====================================================
+         * CALLBACK QUERY
+         * =====================================================
+         *
+         * Используется для inline-кнопок Admin Panel.
+         */
+
+        if (msg.callback_query) {
+
+            const data =
+                msg.callback_query.data || "";
+
+
+            /*
+             * Проверка доступа к Admin callbacks
+             */
+
+            if (
+                data.startsWith("admin_") &&
+                !permissions.isAdmin(userId)
+            ) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    "⛔ У вас нет доступа."
+                );
+
+                return true;
+            }
+
+
+            /*
+             * Вернуться к списку активных чатов
+             */
+
+            if (
+                data === "admin_active_chats"
+            ) {
+
+                return await chats.showActive(
+                    bot,
+                    msg
+                );
+            }
+
+
+            /*
+             * Открыть конкретный диалог
+             *
+             * Формат:
+             * admin_chat_123
+             */
+
+            if (
+                data.startsWith("admin_chat_")
+            ) {
+
+                if (
+                    !permissions.canViewChatContent(
+                        userId
+                    )
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."
+                    );
+
+                    return true;
+                }
+
+
+                const dialogId =
+                    Number(
+                        data.replace(
+                            "admin_chat_",
+                            ""
+                        )
+                    );
+
+
+                if (
+                    !Number.isInteger(dialogId) ||
+                    dialogId <= 0
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "❌ Некорректный ID диалога."
+                    );
+
+                    return true;
+                }
+
+
+                return await chat.show(
+                    bot,
+                    msg,
+                    dialogId
+                );
+            }
+
+
+            return false;
+        }
 
 
         /*
@@ -628,13 +732,6 @@ class Router {
             text === "Ника"
         ) {
 
-            /*
-             * Для обычных пользователей
-             * здесь позже будет запуск verification.
-             *
-             * Администратор имеет временный bypass.
-             */
-
             const verification =
                 require("./modules/verification");
 
@@ -658,14 +755,6 @@ class Router {
             }
 
 
-            /*
-             * Входим в режим Nika.
-             *
-             * ВАЖНО:
-             * слово "Ника" является выбором персонажа,
-             * а НЕ сообщением для AI.
-             */
-
             this.push(
                 userId,
                 "nika"
@@ -684,9 +773,6 @@ class Router {
          * =====================================================
          * AIDA ENTRY
          * =====================================================
-         *
-         * AiDa остаётся отдельным пунктом
-         * главного меню.
          */
 
         if (
@@ -769,9 +855,6 @@ class Router {
          * =====================================================
          * AIDA ACTIVE MODE
          * =====================================================
-         *
-         * AiDa никогда не получает сообщение
-         * раньше системных маршрутов.
          */
 
         if (
