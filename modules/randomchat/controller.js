@@ -4,6 +4,7 @@ const session = require('./session');
 const matcher = require('./matcher');
 const relay = require('./relay');
 const keyboard = require('./keyboard');
+const history = require('./history');
 
 function clearTimer(userId) {
     const timer = state.timers.get(userId);
@@ -18,7 +19,14 @@ async function findRandom(bot, msg) {
     const userId = msg.chat.id;
 
     if (session.isInDialog(userId)) {
-        const partnerId = session.disconnect(userId);
+        const partnerId = session.getPartner(userId);
+        const dialogId = session.getDialogId(userId);
+
+        if (dialogId) {
+            await history.endDialog(dialogId);
+        }
+
+        session.disconnect(userId);
 
         if (partnerId) {
             await bot.sendMessage(
@@ -35,6 +43,21 @@ async function findRandom(bot, msg) {
 
     if (partnerId) {
         clearTimer(partnerId);
+
+        const dialogId = await history.startDialog(
+            userId,
+            partnerId
+        );
+
+        session.setDialogId(
+            userId,
+            dialogId
+        );
+
+        session.setDialogId(
+            partnerId,
+            dialogId
+        );
 
         await bot.sendMessage(
             userId,
@@ -79,7 +102,14 @@ async function handle(bot, msg) {
     const userId = msg.chat.id;
 
     if (msg.text === '❌ Завершить диалог') {
-        const partnerId = session.disconnect(userId);
+        const partnerId = session.getPartner(userId);
+        const dialogId = session.getDialogId(userId);
+
+        if (dialogId) {
+            await history.endDialog(dialogId);
+        }
+
+        session.disconnect(userId);
 
         clearTimer(userId);
         queue.remove(userId);
@@ -117,7 +147,19 @@ async function handle(bot, msg) {
 }
 
 function leave(userId) {
-    const partnerId = session.disconnect(userId);
+    const partnerId = session.getPartner(userId);
+    const dialogId = session.getDialogId(userId);
+
+    if (dialogId) {
+        history.endDialog(dialogId).catch((error) => {
+            console.error(
+                'Random Chat history error:',
+                error
+            );
+        });
+    }
+
+    session.disconnect(userId);
 
     queue.remove(userId);
     clearTimer(userId);
