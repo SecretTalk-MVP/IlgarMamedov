@@ -1570,6 +1570,31 @@ class Nika {
                     effectiveState.interactionMode
             }
         );
+                /*
+         * =====================================================
+         * PERSIST FULL NIKA HISTORY
+         * =====================================================
+         *
+         * The complete conversation is stored in PostgreSQL.
+         * Runtime context remains limited to recent messages.
+         */
+
+        const persistentDialogId =
+            dialogId ||
+            await NikaHistory.startDialog(
+                userId
+            );
+
+        await NikaHistory.saveUserMessage(
+            persistentDialogId,
+            userId,
+            message
+        );
+
+        await NikaHistory.saveAssistantMessage(
+            persistentDialogId,
+            answer
+        );
 
 
         /*
