@@ -373,6 +373,61 @@ class NikaConversation {
 
     return true;
   }
+      setMemorySnapshot(userId, memory) {
+
+        const normalizedMemory = {
+            facts: [],
+            preferences: [],
+            interactionPreferences: [],
+            relationshipNotes: [],
+            importantEvents: []
+        };
+
+        if (
+            memory &&
+            typeof memory === "object"
+        ) {
+
+            for (
+                const category
+                of Object.keys(normalizedMemory)
+            ) {
+
+                if (
+                    Array.isArray(memory[category])
+                ) {
+
+                    normalizedMemory[category] =
+                        memory[category].map(
+                            entry => {
+
+                                if (
+                                    entry &&
+                                    typeof entry === "object" &&
+                                    entry.value !== undefined
+                                ) {
+
+                                    return {
+                                        ...entry
+                                    };
+                                }
+
+                                return {
+                                    value: String(entry)
+                                };
+                            }
+                        );
+                }
+            }
+        }
+
+        this.memories.set(
+            userId,
+            normalizedMemory
+        );
+
+        return normalizedMemory;
+      }
 
   /**
    * Return a safe snapshot of long-term memory.
