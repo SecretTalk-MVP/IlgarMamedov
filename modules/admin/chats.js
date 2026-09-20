@@ -24,17 +24,22 @@ class Chats {
                     d.user1,
                     d.user2,
                     d.started_at,
+                    d.ended_at,
+                    d.active,
                     COUNT(m.id) AS message_count
                 FROM dialogs d
                 LEFT JOIN messages m
                     ON m.dialog_id = d.id
-                WHERE d.active = TRUE
                 GROUP BY
                     d.id,
                     d.user1,
                     d.user2,
-                    d.started_at
-                ORDER BY d.started_at DESC
+                    d.started_at,
+                    d.ended_at,
+                    d.active
+                ORDER BY
+                    d.active DESC,
+                    d.started_at DESC
             `);
 
 
@@ -42,7 +47,7 @@ class Chats {
 
                 await bot.sendMessage(
                     msg.chat.id,
-                    '💬 Активные чаты\n\nСейчас активных чатов нет.'
+                    '💬 Чаты\n\nЧатов пока нет.'
                 );
 
                 return true;
@@ -50,7 +55,7 @@ class Chats {
 
 
             let text =
-                '💬 Активные чаты\n\n';
+                '💬 Чаты\n\n';
 
 
             const keyboard =
@@ -61,12 +66,36 @@ class Chats {
                             chat.started_at
                         ).toLocaleString('ru-RU');
 
+
+                    const status =
+                        chat.active
+                            ? '🟢 АКТИВЕН'
+                            : '🔴 ЗАВЕРШЁН';
+
+
                     text +=
-`${chat.user1} ↔️ ${chat.user2}
+`${status}
+${chat.user1} ↔️ ${chat.user2}
 🕐 Начат: ${startedAt}
 💬 Сообщений: ${chat.message_count}
-
 `;
+
+
+                    if (chat.ended_at) {
+
+                        const endedAt =
+                            new Date(
+                                chat.ended_at
+                            ).toLocaleString('ru-RU');
+
+                        text +=
+`🔚 Завершён: ${endedAt}
+`;
+                    }
+
+
+                    text += '\n';
+
 
                     return [
                         {
@@ -101,7 +130,7 @@ class Chats {
 
             await bot.sendMessage(
                 msg.chat.id,
-                '❌ Не удалось получить активные чаты.'
+                '❌ Не удалось получить чаты.'
             );
 
             return true;
