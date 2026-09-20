@@ -45,6 +45,7 @@ const path = require("path");
 const nikaAI = require("./nika.ai");
 const NikaConversation = require("./nika.conversation");
 const NikaPersistence = require("./persistence");
+const NikaHistory = require("./nika.history");
 
 
 class Nika {
@@ -341,6 +342,56 @@ class Nika {
 
         return state;
     }
+        async loadPersistentConversation(userId) {
+
+        const dialogId =
+            await NikaHistory.getActiveDialog(
+                userId
+            );
+
+        if (!dialogId) {
+            return null;
+        }
+
+        const messages =
+            await NikaHistory.getRecentMessages(
+                dialogId,
+                20
+            );
+
+        this.conversation.clearConversation(
+            userId
+        );
+
+        for (const item of messages) {
+
+            if (
+                Number(item.sender) ===
+                Number(userId)
+            ) {
+
+                this.conversation.addUserMessage(
+                    userId,
+                    item.content
+                );
+
+                continue;
+            }
+
+            if (
+                Number(item.sender) ===
+                NikaHistory.NIKA_SENDER_ID
+            ) {
+
+                this.conversation.addAssistantMessage(
+                    userId,
+                    item.content
+                );
+            }
+        }
+
+        return dialogId;
+        }
 
 
     /*
