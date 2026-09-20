@@ -1365,9 +1365,14 @@ class Nika {
          * from PostgreSQL before processing the message.
          */
 
-        await this.loadPersistentRuntimeState(
+                await this.loadPersistentRuntimeState(
             userId
         );
+
+        const dialogId =
+            await this.loadPersistentConversation(
+                userId
+            );
 
 
         /*
