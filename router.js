@@ -1000,6 +1000,28 @@ if (!hasProfile) {
 
         const stack =
             this.getStack(userId);
+        /*
+ * =====================================================
+ * PROFILE GENDER ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    stack[stack.length - 1] === "profile_gender"
+) {
+
+    const handled =
+        await profileController.handleGenderSelection(
+            bot,
+            msg
+        );
+
+    if (handled) {
+        stack.pop();
+    }
+
+    return true;
+}
 
 
         /*
