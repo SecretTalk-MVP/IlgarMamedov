@@ -32,7 +32,7 @@ async function handleGenderSelection(bot, msg) {
 
     if (!gender) {
         await showGenderSelection(bot, msg);
-        return true;
+        return false;
     }
 
     await profile.setGender(
