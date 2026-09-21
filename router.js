@@ -7,6 +7,7 @@ const statistics = require("./modules/admin/statistics");
 const users = require("./modules/admin/users");
 const chats = require("./modules/admin/chats");
 const chat = require("./modules/admin/chat");
+const { saveUser } = require("./controllers/user.controller");
 
 const randomchat = require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
@@ -442,17 +443,18 @@ class Router {
     ) {
 
         if (
-            !msg ||
-            !msg.from ||
-            !msg.chat
-        ) {
+    !msg ||
+    !msg.from ||
+    !msg.chat
+) {
 
-            return false;
-        }
+    return false;
+}
 
+await saveUser(msg);
 
-        const userId =
-            msg.from.id;
+const userId =
+    msg.from.id;
 
 
         const text =
