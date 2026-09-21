@@ -8,6 +8,8 @@ const users = require("./modules/admin/users");
 const chats = require("./modules/admin/chats");
 const chat = require("./modules/admin/chat");
 const { saveUser } = require("./controllers/user.controller");
+const profile = require("./modules/profile/profile");
+const profileController = require("./modules/profile/controller");
 
 const randomchat = require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
@@ -894,6 +896,22 @@ if (
         if (
             text === "Ника"
         ) {
+            const hasProfile =
+    await profile.hasRequiredProfile(userId);
+
+if (!hasProfile) {
+    this.push(
+        userId,
+        "profile_gender"
+    );
+
+    await profileController.showGenderSelection(
+        bot,
+        msg
+    );
+
+    return true;
+}
 
             const verification =
                 require("./modules/verification");
