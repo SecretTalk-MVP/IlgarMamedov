@@ -15,6 +15,8 @@
  *      ├── Initiative Engine
  *      ├── Safety Gate
  *      ├── PostgreSQL Runtime Persistence
+ *      ├── PostgreSQL Conversation History
+ *      ├── PostgreSQL Long-Term Memory
  *      └── Conversation / Memory
  *              ↓
  *           Nika AI
@@ -23,6 +25,9 @@
  * - orchestrate Nika runtime;
  * - maintain runtime state;
  * - persist runtime state in PostgreSQL;
+ * - persist full conversation history in PostgreSQL;
+ * - load recent conversation history into runtime context;
+ * - persist and load long-term memory;
  * - control state transitions;
  * - determine conversational initiative;
  * - enforce consent-aware interaction modes;
@@ -46,6 +51,7 @@ const nikaAI = require("./nika.ai");
 const NikaConversation = require("./nika.conversation");
 const NikaPersistence = require("./persistence");
 const NikaHistory = require("./nika.history");
+const NikaMemory = require("./nika.memory");
 
 
 class Nika {
@@ -342,7 +348,20 @@ class Nika {
 
         return state;
     }
-        async loadPersistentConversation(userId) {
+
+
+    /*
+     * =========================================================
+     * POSTGRESQL CONVERSATION HISTORY
+     * =========================================================
+     *
+     * Full conversation history is stored in PostgreSQL.
+     *
+     * Only recent messages are loaded into the runtime
+     * context used by the AI.
+     */
+
+    async loadPersistentConversation(userId) {
 
         const dialogId =
             await NikaHistory.getActiveDialog(
@@ -391,7 +410,33 @@ class Nika {
         }
 
         return dialogId;
-        }
+    }
+
+
+    /*
+     * =========================================================
+     * POSTGRESQL LONG-TERM MEMORY
+     * =========================================================
+     *
+     * Long-term memory is stored separately from
+     * conversation history.
+     *
+     * PostgreSQL is the persistent source.
+     * NikaConversation keeps the active runtime snapshot.
+     */
+
+    async loadPersistentMemory(userId) {
+
+        const memory =
+            await NikaMemory.getMemorySnapshot(
+                userId
+            );
+
+        return this.conversation.setMemorySnapshot(
+            userId,
+            memory
+        );
+    }
 
 
     /*
@@ -1365,14 +1410,38 @@ class Nika {
          * from PostgreSQL before processing the message.
          */
 
-                await this.loadPersistentRuntimeState(
+        await this.loadPersistentRuntimeState(
             userId
         );
+
+
+        /*
+         * =====================================================
+         * LOAD PERSISTENT CONVERSATION
+         * =====================================================
+         *
+         * Full history remains in PostgreSQL.
+         * Only recent messages are restored into RAM.
+         */
 
         const dialogId =
             await this.loadPersistentConversation(
                 userId
             );
+
+
+        /*
+         * =====================================================
+         * LOAD PERSISTENT MEMORY
+         * =====================================================
+         *
+         * Long-term memory is restored from PostgreSQL
+         * before the AI context is built.
+         */
+
+        await this.loadPersistentMemory(
+            userId
+        );
 
 
         /*
@@ -1570,7 +1639,9 @@ class Nika {
                     effectiveState.interactionMode
             }
         );
-                /*
+
+
+        /*
          * =====================================================
          * PERSIST FULL NIKA HISTORY
          * =====================================================
@@ -1585,11 +1656,13 @@ class Nika {
                 userId
             );
 
+
         await NikaHistory.saveUserMessage(
             persistentDialogId,
             userId,
             message
         );
+
 
         await NikaHistory.saveAssistantMessage(
             persistentDialogId,
