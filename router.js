@@ -1,6 +1,14 @@
 const menu = require("./menu");
 const aida = require("./modules/aida/aida");
 const nika = require("./modules/nika/nika");
+const verification =
+    require("./modules/verification");
+
+const verificationController =
+    require("./modules/verification/controller");
+
+const verificationMenu =
+    require("./modules/verification/menu");
 
 const permissions = require("./modules/admin/permissions");
 const statistics = require("./modules/admin/statistics");
