@@ -1080,6 +1080,7 @@ await verificationMenu.showVerificationMenu(
 );
 
 return true;
+    }
 
 
         /*
