@@ -10,6 +10,14 @@ const chat = require("./modules/admin/chat");
 const { saveUser } = require("./controllers/user.controller");
 const profile = require("./modules/profile/profile");
 const profileController = require("./modules/profile/controller");
+const verification =
+    require("./modules/verification");
+
+const verificationController =
+    require("./modules/verification/controller");
+
+const verificationMenu =
+    require("./modules/verification/menu");
 
 const randomchat = require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
@@ -926,17 +934,22 @@ if (!hasProfile) {
 
 
             if (
-                !isAdmin &&
-                !isVerified
-            ) {
+    !isAdmin &&
+    !isVerified
+) {
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "🔐 Для общения с Никой сначала необходимо пройти верификацию."
-                );
+    this.push(
+        userId,
+        "verification"
+    );
 
-                return true;
-            }
+    await verificationMenu.showVerificationMenu(
+        bot,
+        msg
+    );
+
+    return true;
+}
 
 
             this.push(
@@ -1000,6 +1013,26 @@ if (!hasProfile) {
 
         const stack =
             this.getStack(userId);
+        /*
+ * =====================================================
+ * VERIFICATION VIDEO NOTE
+ * =====================================================
+ */
+
+if (
+    msg.video_note
+) {
+
+    const handled =
+        await verificationController.handleVideoNote(
+            bot,
+            msg
+        );
+
+    if (handled) {
+        return true;
+    }
+}
         /*
  * =====================================================
  * PROFILE GENDER ACTIVE MODE
