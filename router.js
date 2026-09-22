@@ -154,9 +154,6 @@ class Router {
          * =====================================================
          * ADMIN PANEL BACK
          * =====================================================
-         *
-         * Если пользователь находится внутри Admin Panel,
-         * используем только adminNavigation.
          */
 
         const adminStack =
@@ -168,10 +165,6 @@ class Router {
             adminStack.length > 0 &&
             adminStack.includes("admin")
         ) {
-
-            /*
-             * Если мы уже на главном экране Admin Panel
-             */
 
             if (
                 adminStack.length === 1 &&
@@ -190,10 +183,6 @@ class Router {
                 return true;
             }
 
-
-            /*
-             * Убираем текущий экран Admin Panel
-             */
 
             adminStack.pop();
 
@@ -456,18 +445,18 @@ class Router {
     ) {
 
         if (
-    !msg ||
-    !msg.from ||
-    !msg.chat
-) {
+            !msg ||
+            !msg.from ||
+            !msg.chat
+        ) {
 
-    return false;
-}
+            return false;
+        }
 
-await saveUser(msg);
+        await saveUser(msg);
 
-const userId =
-    msg.from.id;
+        const userId =
+            msg.from.id;
 
 
         const text =
@@ -486,38 +475,29 @@ const userId =
                 msg.callback_query.data || "";
 
 
+            if (
+                data.startsWith("admin_") &&
+                !permissions.isAdmin(userId)
+            ) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    "⛔ У вас нет доступа."
+                );
+
+                return true;
+            }
+
+
             /*
-             * Проверка доступа к Admin callbacks
+             * =====================================================
+             * Вернуться к списку активных чатов
+             * =====================================================
              */
 
             if (
-    data.startsWith("admin_") &&
-    !permissions.isAdmin(userId)
-) {
-
-    await bot.sendMessage(
-        msg.chat.id,
-        "⛔ У вас нет доступа."
-    );
-
-    return true;
-}
-
-
-/*
- * =====================================================
- * Вернуться к списку активных чатов
- * =====================================================
- */
-
-if (
-    data === "admin_active_chats"
-) {
-
-                /*
-                 * Возвращаем Admin Panel
-                 * на экран активных чатов.
-                 */
+                data === "admin_active_chats"
+            ) {
 
                 this.resetAdmin(userId);
 
@@ -665,10 +645,6 @@ if (
             }
 
 
-            /*
-             * Полностью очищаем старую навигацию.
-             */
-
             this.reset(userId);
 
             this.resetAdmin(userId);
@@ -718,12 +694,6 @@ if (
             const adminStack =
                 this.getAdminStack(userId);
 
-
-            /*
-             * Экран Admin Panel доступен
-             * только если пользователь действительно
-             * вошёл через Admin Panel.
-             */
 
             if (
                 !adminStack.includes("admin")
@@ -897,22 +867,24 @@ if (
             return true;
         }
 
-/*
- * =====================================================
- * VERIFICATION ENTRY
- * =====================================================
- */
 
-if (
-    text === "🔐 Пройти верификацию"
-) {
+        /*
+         * =====================================================
+         * VERIFICATION ENTRY
+         * =====================================================
+         */
 
-    return await verificationController.startVerification(
-        bot,
-        msg
-    );
-}
-        
+        if (
+            text === "🔐 Пройти верификацию"
+        ) {
+
+            return await verificationController.startVerification(
+                bot,
+                msg
+            );
+        }
+
+
         /*
          * =====================================================
          * NIKA ENTRY
@@ -922,25 +894,24 @@ if (
         if (
             text === "Ника"
         ) {
+
             const hasProfile =
-    await profile.hasRequiredProfile(userId);
+                await profile.hasRequiredProfile(userId);
 
-if (!hasProfile) {
-    this.push(
-        userId,
-        "profile_gender"
-    );
+            if (!hasProfile) {
 
-    await profileController.showGenderSelection(
-        bot,
-        msg
-    );
+                this.push(
+                    userId,
+                    "profile_gender"
+                );
 
-    return true;
-}
+                await profileController.showGenderSelection(
+                    bot,
+                    msg
+                );
 
-            const verification =
-                require("./modules/verification");
+                return true;
+            }
 
 
             const isAdmin =
@@ -952,22 +923,22 @@ if (!hasProfile) {
 
 
             if (
-    !isAdmin &&
-    !isVerified
-) {
+                !isAdmin &&
+                !isVerified
+            ) {
 
-    this.push(
-        userId,
-        "verification"
-    );
+                this.push(
+                    userId,
+                    "verification"
+                );
 
-    await verificationMenu.showVerificationMenu(
-        bot,
-        msg
-    );
+                await verificationMenu.showVerificationMenu(
+                    bot,
+                    msg
+                );
 
-    return true;
-}
+                return true;
+            }
 
 
             this.push(
@@ -1031,56 +1002,64 @@ if (!hasProfile) {
 
         const stack =
             this.getStack(userId);
+
+
         /*
- * =====================================================
- * VERIFICATION VIDEO NOTE
- * =====================================================
- */
+         * =====================================================
+         * VERIFICATION VIDEO NOTE
+         * =====================================================
+         */
 
-if (
-    msg.video_note
-) {
+        if (
+            msg.video_note
+        ) {
 
-    const handled =
-        await verificationController.handleVideoNote(
-            bot,
-            msg
-        );
+            const handled =
+                await verificationController.handleVideoNote(
+                    bot,
+                    msg
+                );
 
-    if (handled) {
-        return true;
-    }
-}
+            if (handled) {
+
+                return true;
+            }
+        }
+
+
         /*
- * =====================================================
- * PROFILE GENDER ACTIVE MODE
- * =====================================================
- */
+         * =====================================================
+         * PROFILE GENDER ACTIVE MODE
+         * =====================================================
+         */
 
-if (
-    stack[stack.length - 1] === "profile_gender"
-) {
+        if (
+            stack[stack.length - 1] === "profile_gender"
+        ) {
 
-    const handled =
-        await profileController.handleGenderSelection(
-            bot,
-            msg
-        );
+            const handled =
+                await profileController.handleGenderSelection(
+                    bot,
+                    msg
+                );
 
-    if (handled) {
-        stack.pop();
-        this.push(
-    userId,
-    "verification"
-);
+            if (handled) {
 
-await verificationMenu.showVerificationMenu(
-    bot,
-    msg
-);
+                stack.pop();
 
-return true;
-    }
+                this.push(
+                    userId,
+                    "verification"
+                );
+
+                await verificationMenu.showVerificationMenu(
+                    bot,
+                    msg
+                );
+
+                return true;
+            }
+        }
 
 
         /*
