@@ -41,11 +41,16 @@ async function handleGenderSelection(bot, msg) {
     );
 
     await bot.sendMessage(
-        msg.chat.id,
-        "✅ Профиль сохранён."
-    );
+    msg.chat.id,
+    "✅ Профиль сохранён.",
+    {
+        reply_markup: {
+            remove_keyboard: true
+        }
+    }
+);
 
-    return true;
+return true;
 }
 
 module.exports = {
