@@ -1069,10 +1069,17 @@ if (
 
     if (handled) {
         stack.pop();
-    }
+        this.push(
+    userId,
+    "verification"
+);
 
-    return true;
-}
+await verificationMenu.showVerificationMenu(
+    bot,
+    msg
+);
+
+return true;
 
 
         /*
