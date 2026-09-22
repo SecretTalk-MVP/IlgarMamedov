@@ -1,6 +1,7 @@
 const menu = require("./menu");
 const aida = require("./modules/aida/aida");
 const nika = require("./modules/nika/nika");
+
 const verification =
     require("./modules/verification");
 
@@ -17,17 +18,11 @@ const chats = require("./modules/admin/chats");
 const chat = require("./modules/admin/chat");
 const { saveUser } = require("./controllers/user.controller");
 const profile = require("./modules/profile/profile");
-const profileController = require("./modules/profile/controller");
-const verification =
-    require("./modules/verification");
+const profileController =
+    require("./modules/profile/controller");
 
-const verificationController =
-    require("./modules/verification/controller");
-
-const verificationMenu =
-    require("./modules/verification/menu");
-
-const randomchat = require("./modules/randomchat/controller");
+const randomchat =
+    require("./modules/randomchat/controller");
 const searchFilter = require("./modules/searchfilter/controller");
 
 
