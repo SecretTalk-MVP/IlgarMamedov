@@ -28,10 +28,7 @@ function randomItem(items) {
 }
 
 function generateChallengePhrase() {
-    const number =
-        crypto.randomInt(10, 100);
-
-    return `${randomItem(COLORS)} ${randomItem(NOUNS)} ${number}`;
+    return `${randomItem(COLORS)} ${randomItem(NOUNS)}`;
 }
 
 async function createSession(userId) {
