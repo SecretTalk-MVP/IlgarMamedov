@@ -16,8 +16,8 @@ async function startVerification(bot, msg) {
     await bot.sendMessage(
         msg.chat.id,
         `🔐 Верификация\n\n` +
-        `Вам нужно записать короткое видеосообщение (Video Circle) ` +
-        `и произнести фразу:\n\n` +
+        `Запишите Video Circle так, чтобы ваше лицо было полностью видно в кадре, ` +
+`и произнесите предложенную фразу:\n\n` +
         `«${verificationSession.challenge_phrase}»\n\n` +
         `⏱ Фраза действительна ${session.SESSION_TTL_MINUTES} минут.\n\n` +
         `Отправьте именно круглое видеосообщение Telegram.`
