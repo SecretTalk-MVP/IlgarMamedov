@@ -1082,34 +1082,118 @@ class Router {
          * =====================================================
          */
 
-        if (
-            text === "Ника"
-        ) {
+if (
+    text === "Ника"
+) {
 
-            const hasProfile =
-                await profile.hasRequiredProfile(
-                    userId
-                );
-
-
-            if (
-                !hasProfile
-            ) {
-
-                this.push(
-                    userId,
-                    "profile_gender"
-                );
+    const isBlocked =
+        await profile.isBlocked(
+            userId
+        );
 
 
-                await profileController.showGenderSelection(
-                    bot,
-                    msg
-                );
+    if (
+        isBlocked
+    ) {
 
-                return true;
-            }
+        await bot.sendMessage(
+            msg.chat.id,
+            "Извините, Ника не желает общаться с вами."
+        );
 
+        return true;
+    }
+
+
+    const hasProfile =
+        await profile.hasRequiredProfile(
+            userId
+        );
+
+
+    if (
+        !hasProfile
+    ) {
+
+        this.push(
+            userId,
+            "profile_gender"
+        );
+
+
+        await profileController.showGenderSelection(
+            bot,
+            msg
+        );
+
+        return true;
+    }
+
+
+    const gender =
+        await profile.getGender(
+            userId
+        );
+
+
+    if (
+        gender !== "woman"
+    ) {
+
+        await bot.sendMessage(
+            msg.chat.id,
+            "Извините, Ника не желает общаться с вами."
+        );
+
+        return true;
+    }
+
+
+    const isAdmin =
+        permissions.isAdmin(
+            userId
+        );
+
+
+    const isVerified =
+        await verification.isVerified(
+            userId
+        );
+
+
+    if (
+        !isAdmin &&
+        !isVerified
+    ) {
+
+        this.push(
+            userId,
+            "verification"
+        );
+
+
+        await verificationMenu.showVerificationMenu(
+            bot,
+            msg
+        );
+
+        return true;
+    }
+
+
+    this.push(
+        userId,
+        "nika"
+    );
+
+
+    await bot.sendMessage(
+        msg.chat.id,
+        "Привет. Я Ника. Теперь можем поговорить."
+    );
+
+    return true;
+}
 
             const isAdmin =
                 permissions.isAdmin(
