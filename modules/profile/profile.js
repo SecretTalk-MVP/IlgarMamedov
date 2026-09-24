@@ -20,7 +20,8 @@ async function getProfile(userId) {
             age,
             city,
             goal,
-            verified
+            verified,
+            blocked
         FROM users
         WHERE telegram_id = $1
         LIMIT 1
@@ -76,10 +77,25 @@ async function hasRequiredProfile(userId) {
     return Boolean(profile.gender);
 }
 
+async function isBlocked(userId) {
+    const result = await db.query(
+        `
+        SELECT blocked
+        FROM users
+        WHERE telegram_id = $1
+        LIMIT 1
+        `,
+        [userId]
+    );
+
+    return result.rows[0]?.blocked === true;
+}
+
 module.exports = {
     GENDERS,
     getProfile,
     getGender,
     setGender,
-    hasRequiredProfile
+    hasRequiredProfile,
+    isBlocked
 };
