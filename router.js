@@ -11,19 +11,35 @@ const verificationController =
 const verificationMenu =
     require("./modules/verification/menu");
 
-const permissions = require("./modules/admin/permissions");
-const statistics = require("./modules/admin/statistics");
-const users = require("./modules/admin/users");
-const chats = require("./modules/admin/chats");
-const chat = require("./modules/admin/chat");
-const { saveUser } = require("./controllers/user.controller");
-const profile = require("./modules/profile/profile");
+const permissions =
+    require("./modules/admin/permissions");
+
+const statistics =
+    require("./modules/admin/statistics");
+
+const users =
+    require("./modules/admin/users");
+
+const chats =
+    require("./modules/admin/chats");
+
+const chat =
+    require("./modules/admin/chat");
+
+const { saveUser } =
+    require("./controllers/user.controller");
+
+const profile =
+    require("./modules/profile/profile");
+
 const profileController =
     require("./modules/profile/controller");
 
 const randomchat =
     require("./modules/randomchat/controller");
-const searchFilter = require("./modules/searchfilter/controller");
+
+const searchFilter =
+    require("./modules/searchfilter/controller");
 
 
 class Router {
@@ -32,23 +48,22 @@ class Router {
 
         /*
          * =========================================================
-         * ОБЩАЯ НАВИГАЦИЯ
+         * ОБЩАЯ NAVIGATION
          * =========================================================
          */
 
-        this.navigation = new Map();
+        this.navigation =
+            new Map();
 
 
         /*
          * =========================================================
-         * ОТДЕЛЬНАЯ НАВИГАЦИЯ ADMIN PANEL
+         * ADMIN NAVIGATION
          * =========================================================
-         *
-         * Admin Panel больше не смешивается
-         * с общей навигацией SecretTalk.
          */
 
-        this.adminNavigation = new Map();
+        this.adminNavigation =
+            new Map();
     }
 
 
@@ -60,7 +75,9 @@ class Router {
 
     getStack(userId) {
 
-        if (!this.navigation.has(userId)) {
+        if (
+            !this.navigation.has(userId)
+        ) {
 
             this.navigation.set(
                 userId,
@@ -103,7 +120,9 @@ class Router {
 
     getAdminStack(userId) {
 
-        if (!this.adminNavigation.has(userId)) {
+        if (
+            !this.adminNavigation.has(userId)
+        ) {
 
             this.adminNavigation.set(
                 userId,
@@ -157,7 +176,9 @@ class Router {
          */
 
         const adminStack =
-            this.adminNavigation.get(userId);
+            this.adminNavigation.get(
+                userId
+            );
 
 
         if (
@@ -171,9 +192,13 @@ class Router {
                 adminStack[0] === "admin"
             ) {
 
-                this.adminNavigation.delete(userId);
+                this.adminNavigation.delete(
+                    userId
+                );
 
-                this.reset(userId);
+                this.reset(
+                    userId
+                );
 
                 await menu.showMainMenu(
                     bot,
@@ -188,7 +213,9 @@ class Router {
 
 
             const previousAdminScreen =
-                adminStack[adminStack.length - 1];
+                adminStack[
+                    adminStack.length - 1
+                ];
 
 
             await this.showScreen(
@@ -203,7 +230,7 @@ class Router {
 
         /*
          * =====================================================
-         * ОБЫЧНАЯ НАВИГАЦИЯ
+         * ОБЫЧНАЯ NAVIGATION
          * =====================================================
          */
 
@@ -228,7 +255,9 @@ class Router {
 
 
         const previousScreen =
-            stack[stack.length - 1];
+            stack[
+                stack.length - 1
+            ];
 
 
         await this.showScreen(
@@ -453,7 +482,9 @@ class Router {
             return false;
         }
 
+
         await saveUser(msg);
+
 
         const userId =
             msg.from.id;
@@ -469,7 +500,9 @@ class Router {
          * =====================================================
          */
 
-        if (msg.callback_query) {
+        if (
+            msg.callback_query
+        ) {
 
             const data =
                 msg.callback_query.data || "";
@@ -490,21 +523,156 @@ class Router {
 
 
             /*
-             * =====================================================
-             * Вернуться к списку активных чатов
-             * =====================================================
+             * =================================================
+             * USER CHAT LIST
+             *
+             * admin_user_chats_123
+             * =================================================
              */
 
             if (
-                data === "admin_active_chats"
+                data.startsWith(
+                    "admin_user_chats_"
+                )
             ) {
 
-                this.resetAdmin(userId);
+                if (
+                    !permissions.canViewChatContent(
+                        userId
+                    )
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."
+                    );
+
+                    return true;
+                }
+
+
+                const telegramId =
+                    Number(
+                        data.replace(
+                            "admin_user_chats_",
+                            ""
+                        )
+                    );
+
+
+                if (
+                    !Number.isSafeInteger(
+                        telegramId
+                    ) ||
+                    telegramId <= 0
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "❌ Некорректный ID пользователя."
+                    );
+
+                    return true;
+                }
+
+
+                this.pushAdmin(
+                    userId,
+                    "user_chats"
+                );
+
+
+                return await users.showUserChats(
+                    bot,
+                    msg,
+                    telegramId
+                );
+            }
+
+
+            /*
+             * =================================================
+             * RETURN TO USER
+             *
+             * admin_user_123
+             * =================================================
+             */
+
+            if (
+                data.startsWith(
+                    "admin_user_"
+                )
+            ) {
+
+                if (
+                    !permissions.canViewUsers(
+                        userId
+                    )
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "⛔ У вас нет доступа."
+                    );
+
+                    return true;
+                }
+
+
+                const telegramId =
+                    Number(
+                        data.replace(
+                            "admin_user_",
+                            ""
+                        )
+                    );
+
+
+                if (
+                    !Number.isSafeInteger(
+                        telegramId
+                    ) ||
+                    telegramId <= 0
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "❌ Некорректный ID пользователя."
+                    );
+
+                    return true;
+                }
+
+
+                return await users.showUser(
+                    bot,
+                    msg,
+                    telegramId
+                );
+            }
+
+
+            /*
+             * =================================================
+             * RETURN TO ACTIVE CHATS
+             * =================================================
+             */
+
+            if (
+                data ===
+                "admin_active_chats"
+            ) {
+
+                this.resetAdmin(
+                    userId
+                );
+
 
                 this.pushAdmin(
                     userId,
                     "active_chats"
                 );
+
 
                 return await chats.showActive(
                     bot,
@@ -514,14 +682,17 @@ class Router {
 
 
             /*
-             * Открыть конкретный диалог
+             * =================================================
+             * OPEN SPECIFIC CHAT
              *
-             * Формат:
              * admin_chat_123
+             * =================================================
              */
 
             if (
-                data.startsWith("admin_chat_")
+                data.startsWith(
+                    "admin_chat_"
+                )
             ) {
 
                 if (
@@ -549,7 +720,9 @@ class Router {
 
 
                 if (
-                    !Number.isInteger(dialogId) ||
+                    !Number.isInteger(
+                        dialogId
+                    ) ||
                     dialogId <= 0
                 ) {
 
@@ -584,11 +757,14 @@ class Router {
             text === "/start"
         ) {
 
-            this.reset(userId);
+            this.reset(
+                userId
+            );
 
             this.adminNavigation.delete(
                 userId
             );
+
 
             await menu.showMainMenu(
                 bot,
@@ -645,9 +821,13 @@ class Router {
             }
 
 
-            this.reset(userId);
+            this.reset(
+                userId
+            );
 
-            this.resetAdmin(userId);
+            this.resetAdmin(
+                userId
+            );
 
 
             await menu.showAdminMenu(
@@ -692,11 +872,15 @@ class Router {
         ) {
 
             const adminStack =
-                this.getAdminStack(userId);
+                this.getAdminStack(
+                    userId
+                );
 
 
             if (
-                !adminStack.includes("admin")
+                !adminStack.includes(
+                    "admin"
+                )
             ) {
 
                 return false;
@@ -710,7 +894,7 @@ class Router {
             ) {
 
                 await bot.sendMessage(
-                    bot,
+                    msg.chat.id,
                     "⛔ У вас нет доступа."
                 );
 
@@ -745,12 +929,16 @@ class Router {
          */
 
         const adminStackForUsers =
-            this.adminNavigation.get(userId);
+            this.adminNavigation.get(
+                userId
+            );
 
 
         if (
             adminStackForUsers &&
-            adminStackForUsers.includes("admin") &&
+            adminStackForUsers.includes(
+                "admin"
+            ) &&
             adminStackForUsers[
                 adminStackForUsers.length - 1
             ] === "users"
@@ -794,6 +982,7 @@ class Router {
                 "search_filter"
             );
 
+
             return await searchFilter.show(
                 bot,
                 msg
@@ -833,7 +1022,8 @@ class Router {
          */
 
         if (
-            text === "🎲 Случайного собеседника"
+            text ===
+            "🎲 Случайного собеседника"
         ) {
 
             return await randomchat.findRandom(
@@ -850,7 +1040,8 @@ class Router {
          */
 
         if (
-            text === "🤖 Выбрать персонажа"
+            text ===
+            "🤖 Выбрать персонажа"
         ) {
 
             this.push(
@@ -871,11 +1062,11 @@ class Router {
         /*
          * =====================================================
          * VERIFICATION ENTRY
-         * =====================================================
-         */
+         * ===================================================== */
 
         if (
-            text === "🔐 Пройти верификацию"
+            text ===
+            "🔐 Пройти верификацию"
         ) {
 
             return await verificationController.startVerification(
@@ -896,14 +1087,20 @@ class Router {
         ) {
 
             const hasProfile =
-                await profile.hasRequiredProfile(userId);
+                await profile.hasRequiredProfile(
+                    userId
+                );
 
-            if (!hasProfile) {
+
+            if (
+                !hasProfile
+            ) {
 
                 this.push(
                     userId,
                     "profile_gender"
                 );
+
 
                 await profileController.showGenderSelection(
                     bot,
@@ -915,11 +1112,15 @@ class Router {
 
 
             const isAdmin =
-                permissions.isAdmin(userId);
+                permissions.isAdmin(
+                    userId
+                );
 
 
             const isVerified =
-                await verification.isVerified(userId);
+                await verification.isVerified(
+                    userId
+                );
 
 
             if (
@@ -931,6 +1132,7 @@ class Router {
                     userId,
                     "verification"
                 );
+
 
                 await verificationMenu.showVerificationMenu(
                     bot,
@@ -963,7 +1165,8 @@ class Router {
          */
 
         if (
-            text === "🤖 Поговорить с ИИ"
+            text ===
+            "🤖 Поговорить с ИИ"
         ) {
 
             const partnerId =
@@ -972,7 +1175,9 @@ class Router {
                 );
 
 
-            if (partnerId) {
+            if (
+                partnerId
+            ) {
 
                 await bot.sendMessage(
                     partnerId,
@@ -1001,7 +1206,9 @@ class Router {
          */
 
         const stack =
-            this.getStack(userId);
+            this.getStack(
+                userId
+            );
 
 
         /*
@@ -1020,7 +1227,10 @@ class Router {
                     msg
                 );
 
-            if (handled) {
+
+            if (
+                handled
+            ) {
 
                 return true;
             }
@@ -1034,7 +1244,9 @@ class Router {
          */
 
         if (
-            stack[stack.length - 1] === "profile_gender"
+            stack[
+                stack.length - 1
+            ] === "profile_gender"
         ) {
 
             const handled =
@@ -1043,14 +1255,19 @@ class Router {
                     msg
                 );
 
-            if (handled) {
+
+            if (
+                handled
+            ) {
 
                 stack.pop();
+
 
                 this.push(
                     userId,
                     "verification"
                 );
+
 
                 await verificationMenu.showVerificationMenu(
                     bot,
@@ -1086,7 +1303,9 @@ class Router {
          */
 
         if (
-            stack[stack.length - 1] === "nika"
+            stack[
+                stack.length - 1
+            ] === "nika"
         ) {
 
             return await nika.handle(
@@ -1103,7 +1322,9 @@ class Router {
          */
 
         if (
-            stack[stack.length - 1] === "aida"
+            stack[
+                stack.length - 1
+            ] === "aida"
         ) {
 
             return await aida.handle(
@@ -1120,7 +1341,9 @@ class Router {
          */
 
         if (
-            stack[stack.length - 1] === "search_filter"
+            stack[
+                stack.length - 1
+            ] === "search_filter"
         ) {
 
             return await searchFilter.handle(
