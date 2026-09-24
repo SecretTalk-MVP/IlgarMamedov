@@ -1195,52 +1195,6 @@ if (
     return true;
 }
 
-            const isAdmin =
-                permissions.isAdmin(
-                    userId
-                );
-
-
-            const isVerified =
-                await verification.isVerified(
-                    userId
-                );
-
-
-            if (
-                !isAdmin &&
-                !isVerified
-            ) {
-
-                this.push(
-                    userId,
-                    "verification"
-                );
-
-
-                await verificationMenu.showVerificationMenu(
-                    bot,
-                    msg
-                );
-
-                return true;
-            }
-
-
-            this.push(
-                userId,
-                "nika"
-            );
-
-
-            await bot.sendMessage(
-                msg.chat.id,
-                "Привет. Я Ника. Теперь можем поговорить."
-            );
-
-            return true;
-        }
-
 
         /*
          * =====================================================
