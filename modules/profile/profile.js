@@ -36,6 +36,34 @@ async function getProfile(userId) {
     return result.rows[0];
 }
 
+async function getMatchingProfile(userId) {
+    if (!userId) {
+        throw new Error('Profile requires userId');
+    }
+
+    const result = await db.query(
+        `
+        SELECT
+            telegram_id,
+            gender,
+            age,
+            city,
+            goal,
+            blocked
+        FROM users
+        WHERE telegram_id = $1
+        LIMIT 1
+        `,
+        [userId]
+    );
+
+    if (result.rows.length === 0) {
+        return null;
+    }
+
+    return result.rows[0];
+}
+
 async function getGender(userId) {
     const profile = await getProfile(userId);
 
@@ -94,6 +122,7 @@ async function isBlocked(userId) {
 module.exports = {
     GENDERS,
     getProfile,
+    getMatchingProfile,
     getGender,
     setGender,
     hasRequiredProfile,
