@@ -39,8 +39,7 @@ async function findRandom(bot, msg) {
     queue.remove(userId);
     clearTimer(userId);
 
-    const partnerId = matcher.match(userId);
-
+    const partnerId = await matcher.match(userId);
     if (partnerId) {
         clearTimer(partnerId);
 
