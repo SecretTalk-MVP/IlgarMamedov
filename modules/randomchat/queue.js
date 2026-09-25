@@ -12,13 +12,18 @@ function has(userId) {
     return state.waiting.has(userId);
 }
 
-function takeNext(excludeUserId) {
+async function takeNext(excludeUserId, predicate) {
     for (const userId of state.waiting) {
         if (userId === excludeUserId) {
             continue;
         }
 
+        if (predicate && !(await predicate(userId))) {
+            continue;
+        }
+
         state.waiting.delete(userId);
+
         return userId;
     }
 
