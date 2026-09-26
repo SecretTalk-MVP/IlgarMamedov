@@ -65,31 +65,72 @@ function matchesFilter(candidate, filter) {
 }
 
 async function match(userId) {
+    console.log('=== RANDOM MATCH START ===');
+    console.log('RANDOM MATCH USER ID:', userId);
+
     const userProfile =
         await profile.getMatchingProfile(userId);
 
-    if (!userProfile || userProfile.blocked === true) {
+    console.log(
+        'RANDOM MATCH USER PROFILE:',
+        userProfile
+    );
+
+    if (!userProfile) {
+        console.log(
+            'RANDOM MATCH STOP: USER PROFILE NOT FOUND'
+        );
+        return null;
+    }
+
+    if (userProfile.blocked === true) {
+        console.log(
+            'RANDOM MATCH STOP: USER IS BLOCKED'
+        );
         return null;
     }
 
     const userFilter =
         searchFilter.get(userId);
 
+    console.log(
+        'RANDOM MATCH USER FILTER:',
+        userFilter
+    );
+
     const partnerId =
         await queue.takeNext(
             userId,
             async (candidateId) => {
+                console.log(
+                    'RANDOM MATCH CANDIDATE:',
+                    candidateId
+                );
+
                 const candidateProfile =
                     await profile.getMatchingProfile(
                         candidateId
                     );
 
+                console.log(
+                    'RANDOM MATCH CANDIDATE PROFILE:',
+                    candidateProfile
+                );
+
                 if (!candidateProfile) {
+                    console.log(
+                        'RANDOM MATCH REJECT: CANDIDATE PROFILE NOT FOUND'
+                    );
                     return false;
                 }
 
                 const candidateFilter =
                     searchFilter.get(candidateId);
+
+                console.log(
+                    'RANDOM MATCH CANDIDATE FILTER:',
+                    candidateFilter
+                );
 
                 const userAcceptedCandidate =
                     matchesFilter(
@@ -103,6 +144,14 @@ async function match(userId) {
                         candidateFilter
                     );
 
+                console.log(
+                    'RANDOM MATCH FILTER RESULT:',
+                    {
+                        userAcceptedCandidate,
+                        candidateAcceptedUser
+                    }
+                );
+
                 return (
                     userAcceptedCandidate &&
                     candidateAcceptedUser
@@ -110,13 +159,29 @@ async function match(userId) {
             }
         );
 
+    console.log(
+        'RANDOM MATCH RESULT:',
+        partnerId
+    );
+
     if (!partnerId) {
+        console.log(
+            'RANDOM MATCH: NO PARTNER'
+        );
         return null;
     }
 
     session.connect(
         userId,
         partnerId
+    );
+
+    console.log(
+        'RANDOM MATCH CONNECTED:',
+        {
+            userId,
+            partnerId
+        }
     );
 
     return partnerId;
