@@ -1022,14 +1022,41 @@ class Router {
          */
 
         if (
-            text ===
-            "🎲 Случайного собеседника"
-        ) {
+    text ===
+    "🎲 Случайного собеседника"
+) {
 
-            return await randomchat.findRandom(
-                bot,
-                msg
-            );
+    const userProfile =
+        await profile.getProfile(
+            userId
+        );
+
+    const hasCompleteProfile =
+        userProfile &&
+        userProfile.gender &&
+        userProfile.age &&
+        userProfile.city &&
+        userProfile.goal;
+
+    if (!hasCompleteProfile) {
+
+        this.push(
+            userId,
+            "random_profile_gender"
+        );
+
+        await profileController.showGenderSelection(
+            bot,
+            msg
+        );
+
+        return true;
+    }
+
+    return await randomchat.findRandom(
+        bot,
+        msg
+    );
         }
 
 
@@ -1310,6 +1337,7 @@ if (
 }
 
 
+        
         /*
          * =====================================================
          * RANDOM CHAT ACTIVE MODE
