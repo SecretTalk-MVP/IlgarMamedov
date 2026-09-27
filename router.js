@@ -1297,10 +1297,10 @@ if (
 
         this.push(
             userId,
-            "profile_age"
+            "verification"
         );
 
-        await profileController.showAgeSelection(
+        await verificationMenu.showVerificationMenu(
             bot,
             msg
         );
