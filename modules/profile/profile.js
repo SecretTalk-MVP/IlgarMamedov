@@ -5,6 +5,12 @@ const GENDERS = Object.freeze([
     'woman'
 ]);
 
+const GOALS = Object.freeze([
+    'chat',
+    'dating',
+    'friendship'
+]);
+
 async function getProfile(userId) {
     if (!userId) {
         throw new Error('Profile requires userId');
@@ -95,6 +101,80 @@ async function setGender(userId, gender) {
     return gender;
 }
 
+async function setAge(userId, age) {
+    if (!userId) {
+        throw new Error('Profile requires userId');
+    }
+
+    const normalizedAge = Number(age);
+
+    if (
+        !Number.isInteger(normalizedAge) ||
+        normalizedAge < 18 ||
+        normalizedAge > 100
+    ) {
+        throw new Error('Invalid profile age');
+    }
+
+    await db.query(
+        `
+        UPDATE users
+        SET age = $2
+        WHERE telegram_id = $1
+        `,
+        [userId, normalizedAge]
+    );
+
+    return normalizedAge;
+}
+
+async function setCity(userId, city) {
+    if (!userId) {
+        throw new Error('Profile requires userId');
+    }
+
+    const normalizedCity =
+        typeof city === 'string'
+            ? city.trim()
+            : '';
+
+    if (!normalizedCity) {
+        throw new Error('Invalid profile city');
+    }
+
+    await db.query(
+        `
+        UPDATE users
+        SET city = $2
+        WHERE telegram_id = $1
+        `,
+        [userId, normalizedCity]
+    );
+
+    return normalizedCity;
+}
+
+async function setGoal(userId, goal) {
+    if (!userId) {
+        throw new Error('Profile requires userId');
+    }
+
+    if (!GOALS.includes(goal)) {
+        throw new Error(`Invalid profile goal: ${goal}`);
+    }
+
+    await db.query(
+        `
+        UPDATE users
+        SET goal = $2
+        WHERE telegram_id = $1
+        `,
+        [userId, goal]
+    );
+
+    return goal;
+}
+
 async function hasRequiredProfile(userId) {
     const profile = await getProfile(userId);
 
@@ -121,10 +201,14 @@ async function isBlocked(userId) {
 
 module.exports = {
     GENDERS,
+    GOALS,
     getProfile,
     getMatchingProfile,
     getGender,
     setGender,
+    setAge,
+    setCity,
+    setGoal,
     hasRequiredProfile,
     isBlocked
 };
