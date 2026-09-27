@@ -1282,37 +1282,32 @@ if (
          */
 
         if (
-            stack[
-                stack.length - 1
-            ] === "profile_gender"
-        ) {
+    stack[
+        stack.length - 1
+    ] === "profile_gender"
+) {
+    const handled =
+        await profileController.handleGenderSelection(
+            bot,
+            msg
+        );
 
-            const handled =
-                await profileController.handleGenderSelection(
-                    bot,
-                    msg
-                );
+    if (handled) {
+        stack.pop();
 
+        this.push(
+            userId,
+            "profile_age"
+        );
 
-            if (
-                handled
-            ) {
+        await profileController.showAgeSelection(
+            bot,
+            msg
+        );
+    }
 
-                stack.pop();
-
-
-                this.push(
-                    userId,
-                    "verification"
-                );
-
-
-                await verificationMenu.showVerificationMenu(
-                    bot,
-                    msg
-                );
-
-                return true;
+    return true;
+}
             }
         }
 
