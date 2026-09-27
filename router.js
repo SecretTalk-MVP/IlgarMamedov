@@ -1337,7 +1337,147 @@ if (
 }
 
 
-        
+        /*
+ * =====================================================
+ * RANDOM PROFILE GENDER ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    stack[
+        stack.length - 1
+    ] === "random_profile_gender"
+) {
+
+    const handled =
+        await profileController.handleGenderSelection(
+            bot,
+            msg
+        );
+
+    if (handled) {
+
+        stack.pop();
+
+        this.push(
+            userId,
+            "random_profile_age"
+        );
+
+        await profileController.showAgeSelection(
+            bot,
+            msg
+        );
+    }
+
+    return true;
+}
+
+
+/*
+ * =====================================================
+ * RANDOM PROFILE AGE ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    stack[
+        stack.length - 1
+    ] === "random_profile_age"
+) {
+
+    const handled =
+        await profileController.handleAgeSelection(
+            bot,
+            msg
+        );
+
+    if (handled) {
+
+        stack.pop();
+
+        this.push(
+            userId,
+            "random_profile_city"
+        );
+
+        await profileController.showCitySelection(
+            bot,
+            msg
+        );
+    }
+
+    return true;
+}
+
+
+/*
+ * =====================================================
+ * RANDOM PROFILE CITY ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    stack[
+        stack.length - 1
+    ] === "random_profile_city"
+) {
+
+    const handled =
+        await profileController.handleCitySelection(
+            bot,
+            msg
+        );
+
+    if (handled) {
+
+        stack.pop();
+
+        this.push(
+            userId,
+            "random_profile_goal"
+        );
+
+        await profileController.showGoalSelection(
+            bot,
+            msg
+        );
+    }
+
+    return true;
+}
+
+
+/*
+ * =====================================================
+ * RANDOM PROFILE GOAL ACTIVE MODE
+ * =====================================================
+ */
+
+if (
+    stack[
+        stack.length - 1
+    ] === "random_profile_goal"
+) {
+
+    const handled =
+        await profileController.handleGoalSelection(
+            bot,
+            msg
+        );
+
+    if (handled) {
+
+        stack.pop();
+
+        return await randomchat.findRandom(
+            bot,
+            msg
+        );
+    }
+
+    return true;
+}
         /*
          * =====================================================
          * RANDOM CHAT ACTIVE MODE
