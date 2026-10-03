@@ -378,7 +378,7 @@ class Nika {
         const messages =
             await NikaHistory.getRecentMessages(
                 dialogId,
-                20
+                8
             );
 
         this.conversation.clearConversation(
