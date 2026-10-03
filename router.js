@@ -1207,6 +1207,22 @@ if (
         return true;
     }
 
+    /*
+     * =====================================================
+     * START NEW NIKA DIALOG
+     * =====================================================
+     *
+     * Every explicit entry into Nika starts
+     * a new persistent dialog session.
+     *
+     * Long-term memory and relationship state
+     * remain untouched.
+     */
+
+    await nika.startNewConversation(
+        userId
+    );
+
 
     this.push(
         userId,
