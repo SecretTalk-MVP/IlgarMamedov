@@ -1759,7 +1759,7 @@ class Nika {
 
             return true;
 
-        } catch (error) {
+               } catch (error) {
 
             console.error(
                 "❌ Nika runtime error:",
@@ -1781,4 +1781,40 @@ class Nika {
 
 
             return false;
-       
+        }
+    }
+
+
+    /*
+     * =========================================================
+     * DIAGNOSTICS
+     * =========================================================
+     */
+
+    getDiagnostics(
+        userId
+    ) {
+
+        return {
+
+            name:
+                this.name,
+
+            runtime:
+                this.normalizeRuntimeState(
+
+                    this.getRuntimeState(
+                        userId
+                    )
+                ),
+
+            conversation:
+                this.conversation.getStats(
+                    userId
+                )
+        };
+    }
+}
+
+
+module.exports = new Nika();
