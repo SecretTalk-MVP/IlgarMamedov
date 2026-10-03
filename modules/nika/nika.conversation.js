@@ -20,7 +20,7 @@
  * Those responsibilities belong to other layers.
  */
 
-const DEFAULT_CONTEXT_LIMIT = 20;
+const DEFAULT_CONTEXT_LIMIT = 8;
 const DEFAULT_MEMORY_LIMIT = 100;
 
 class NikaConversation {
