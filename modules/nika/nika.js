@@ -875,7 +875,7 @@ class Nika {
      * =========================================================
      */
 
-    determineInitiative(
+        determineInitiative(
         userId,
         userMessage,
         state
@@ -888,7 +888,8 @@ class Nika {
 
 
         /*
-         * Safety / de-escalation has priority.
+         * Safety / explicit stop
+         * always has priority.
          */
 
         if (
@@ -916,8 +917,8 @@ class Nika {
 
 
         /*
-         * Declined/revoked consent means
-         * no escalation.
+         * Declined or revoked consent
+         * prevents escalation.
          */
 
         if (
@@ -932,47 +933,16 @@ class Nika {
         }
 
 
-        const text =
-            String(userMessage)
-                .trim();
-
-
         /*
-         * A direct question normally deserves
-         * a direct answer.
-         */
-
-        if (
-            text.endsWith("?") ||
-            text.endsWith("？")
-        ) {
-
-            return this.INITIATIVE_ACTIONS.ANSWER;
-        }
-
-
-        /*
-         * Short messages receive a natural reaction.
-         */
-
-        if (
-            text.length < 20
-        ) {
-
-            return this.INITIATIVE_ACTIONS.REACT;
-        }
-
-
-        /*
-         * Longer clear messages favor
-         * conversational continuation.
+         * Nika's default behavior:
+         * she leads the conversation.
          *
-         * Nika does not automatically return
-         * control to the user with a question.
+         * A user question does NOT return
+         * control to the user.
          */
 
-        return this.INITIATIVE_ACTIONS.CONTINUE;
-    }
+        return this.INITIATIVE_ACTIONS.LEAD;
+        }
 
 
     /*
