@@ -159,36 +159,39 @@ class Nika {
 
         this.INITIATIVE_ACTIONS = Object.freeze({
 
-            ANSWER:
-                "ANSWER",
+    ANSWER:
+        "ANSWER",
 
-            CONTINUE:
-                "CONTINUE",
+    CONTINUE:
+        "CONTINUE",
 
-            REACT:
-                "REACT",
+    LEAD:
+        "LEAD",
 
-            TEASE:
-                "TEASE",
+    REACT:
+        "REACT",
 
-            FLIRT:
-                "FLIRT",
+    TEASE:
+        "TEASE",
 
-            SUGGEST:
-                "SUGGEST",
+    FLIRT:
+        "FLIRT",
 
-            ASK:
-                "ASK",
+    SUGGEST:
+        "SUGGEST",
 
-            CHANGE_TOPIC:
-                "CHANGE_TOPIC",
+    ASK:
+        "ASK",
 
-            DEESCALATE:
-                "DEESCALATE",
+    CHANGE_TOPIC:
+        "CHANGE_TOPIC",
 
-            STOP:
-                "STOP"
-        });
+    DEESCALATE:
+        "DEESCALATE",
+
+    STOP:
+        "STOP"
+});
 
 
         /*
