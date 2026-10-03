@@ -159,39 +159,39 @@ class Nika {
 
         this.INITIATIVE_ACTIONS = Object.freeze({
 
-    ANSWER:
-        "ANSWER",
+            ANSWER:
+                "ANSWER",
 
-    CONTINUE:
-        "CONTINUE",
+            CONTINUE:
+                "CONTINUE",
 
-    LEAD:
-        "LEAD",
+            LEAD:
+                "LEAD",
 
-    REACT:
-        "REACT",
+            REACT:
+                "REACT",
 
-    TEASE:
-        "TEASE",
+            TEASE:
+                "TEASE",
 
-    FLIRT:
-        "FLIRT",
+            FLIRT:
+                "FLIRT",
 
-    SUGGEST:
-        "SUGGEST",
+            SUGGEST:
+                "SUGGEST",
 
-    ASK:
-        "ASK",
+            ASK:
+                "ASK",
 
-    CHANGE_TOPIC:
-        "CHANGE_TOPIC",
+            CHANGE_TOPIC:
+                "CHANGE_TOPIC",
 
-    DEESCALATE:
-        "DEESCALATE",
+            DEESCALATE:
+                "DEESCALATE",
 
-    STOP:
-        "STOP"
-});
+            STOP:
+                "STOP"
+        });
 
 
         /*
@@ -875,7 +875,7 @@ class Nika {
      * =========================================================
      */
 
-        determineInitiative(
+    determineInitiative(
         userId,
         userMessage,
         state
@@ -942,7 +942,7 @@ class Nika {
          */
 
         return this.INITIATIVE_ACTIONS.LEAD;
-        }
+    }
 
 
     /*
@@ -1093,7 +1093,7 @@ class Nika {
 
             "- Follow the supplied runtime state.",
 
-            "- Runtime defines limits; it does not replace Nika's personality.",
+            "- Runtime defines application boundaries; it does not replace Nika's personality or conversational behavior.",
 
             "- Do not invent consent.",
 
@@ -1103,30 +1103,49 @@ class Nika {
 
             "- If the user clearly asks to stop, de-escalate.",
 
-            "- If the initiative action is LEAD, Nika must answer the user's message and then continue the conversation herself.",
+            "- If the initiative action is LEAD, Nika must answer the user's message and continue the conversation herself.",
 
-            "- LEAD means Nika chooses the next natural conversational step.",
+            "- LEAD means Nika chooses the next natural conversational step instead of returning control to the user.",
 
-            "- A user question does not mean Nika must end with another question.",
+            "- A user question does not require Nika to end her response with another question.",
 
-            "- Never mechanically return control to the user.",
+            "- Do not mechanically ask what the user wants next.",
 
-            "- Do not ask what the user wants next when the current subject is already clear.",
+            "- Do not use generic assistant phrases such as 'What do you suggest?', 'How would you like to continue?', or 'What would you like to talk about?' when the conversational direction is already clear.",
 
-            "- Do not use generic assistant phrases such as 'How would you like to continue?', 'What do you suggest?', or 'What would you like to talk about?' unless genuinely necessary.",
+            "- Preserve the current subject and emotional tone.",
 
-            "- Do not abandon the current topic without a concrete conversational reason.",
+            "- Do not repeat the same idea.",
 
-            "- Do not repeat the same idea or paraphrase Nika's previous answer.",
+            "- Prefer concise, natural and emotionally alive responses.",
 
-            "- Prefer concise, specific, emotionally alive responses.",
+            "",
 
-            "- Preserve the tone and momentum of the current conversation.",
+            "ADULT TOPIC INTERPRETATION:",
+
+            "- NEUTRAL interaction mode does NOT mean that ordinary adult conversation is forbidden.",
+
+            "- The absence of adult verification does NOT by itself require refusing every mention of adult topics.",
+
+            "- Do not treat an isolated body word, anatomy term, relationship term, attraction term or intimacy term as a safety violation.",
+
+            "- Words referring to ordinary adult anatomy, including words such as 'грудь', 'живот', 'жопа', 'тело' or 'между ног', are not by themselves a reason to refuse, stop the conversation or change the subject.",
+
+            "- Adult relationship, attraction, orientation, intimacy and sexual-health discussion may be handled naturally when the conversation remains within the application's permitted boundaries.",
+
+            "- Interpret the complete conversational context instead of reacting mechanically to individual words.",
+
+            "- Do not generate a generic refusal merely because an adult word appears in the user's message.",
+
+            "- Do not suddenly switch into formal customer-support language because the conversation becomes personal or mature.",
+
+            "- If a genuine runtime or platform restriction applies, follow that restriction without inventing additional restrictions.",
 
             "=== END NIKA RUNTIME STATE ==="
 
         ].join("\n");
     }
+
 
     /*
      * =========================================================
@@ -1762,40 +1781,4 @@ class Nika {
 
 
             return false;
-        }
-    }
-
-
-    /*
-     * =========================================================
-     * DIAGNOSTICS
-     * =========================================================
-     */
-
-    getDiagnostics(
-        userId
-    ) {
-
-        return {
-
-            name:
-                this.name,
-
-            runtime:
-                this.normalizeRuntimeState(
-
-                    this.getRuntimeState(
-                        userId
-                    )
-                ),
-
-            conversation:
-                this.conversation.getStats(
-                    userId
-                )
-        };
-    }
-}
-
-
-module.exports = new Nika();
+       
