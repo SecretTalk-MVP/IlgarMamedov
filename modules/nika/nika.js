@@ -331,6 +331,70 @@ class Nika {
 
     /*
      * =========================================================
+     * NIKA ENTRY — NEW CONVERSATION
+     * =========================================================
+     *
+     * Each explicit entry into Nika starts a new dialog session.
+     *
+     * Long-term memory and relationship state are NOT reset.
+     *
+     * Only the current conversation session is restarted.
+     */
+
+    async startNewConversation(userId) {
+
+        /*
+         * Close the previous active Nika dialog.
+         */
+
+        const activeDialogId =
+            await NikaHistory.getActiveDialog(
+                userId
+            );
+
+
+        if (
+            activeDialogId
+        ) {
+
+            await NikaHistory.endDialog(
+                activeDialogId
+            );
+        }
+
+
+        /*
+         * Clear short-term conversation context.
+         *
+         * Persistent long-term memory remains untouched.
+         */
+
+        this.conversation.clearConversation(
+            userId
+        );
+
+
+        /*
+         * Create a completely new persistent dialog.
+         */
+
+        const newDialogId =
+            await NikaHistory.startDialog(
+                userId
+            );
+
+
+        console.log(
+            `💬 Nika: new conversation started for user ${userId}, dialog ${newDialogId}`
+        );
+
+
+        return newDialogId;
+    }
+
+
+    /*
+     * =========================================================
      * POSTGRESQL STATE SAVING
      * =========================================================
      */
@@ -1759,7 +1823,7 @@ class Nika {
 
             return true;
 
-               } catch (error) {
+        } catch (error) {
 
             console.error(
                 "❌ Nika runtime error:",
