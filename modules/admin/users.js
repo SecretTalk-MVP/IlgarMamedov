@@ -411,16 +411,6 @@ ${randomStatus}
 
             const keyboard = [];
 
-keyboard.push([
-    {
-        text:
-            '👤 Открыть профиль в Telegram',
-        url:
-            `tg://user?id=${user.telegram_id}`
-    }
-]);
-
-
 if (
     permissions.canViewChatContent(
         msg.from.id
