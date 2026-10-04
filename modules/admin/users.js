@@ -7,12 +7,246 @@ class Users {
 
     async showSearch(bot, msg) {
 
+        try {
+
+            if (
+                !permissions.canViewUsers(
+                    msg.from.id
+                )
+            ) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    '⛔ У вас нет доступа.'
+                );
+
+                return true;
+            }
+
+
+            const result = await db.query(
+                `
+                SELECT
+                    telegram_id,
+                    username,
+                    first_name,
+                    last_seen
+                FROM users
+                ORDER BY last_seen DESC NULLS LAST
+                LIMIT 20
+                `
+            );
+
+
+            let text =
+`👥 Пользователи
+
+Выберите пользователя или выполните поиск:`;
+
+
+            const keyboard = [
+                [
+                    {
+                        text: '🔎 Найти пользователя',
+                        callback_data: 'admin_users_search'
+                    }
+                ]
+            ];
+
+
+            for (
+                const user of result.rows
+            ) {
+
+                const displayName =
+                    user.username
+                        ? '@' + user.username
+                        : user.first_name || 'Без username';
+
+                const lastSeen =
+                    user.last_seen
+                        ? new Date(
+                            user.last_seen
+                        ).toLocaleDateString(
+                            'ru-RU'
+                        )
+                        : '—';
+
+                keyboard.push([
+                    {
+                        text:
+                            `👤 ${displayName} · ${lastSeen}`,
+                        callback_data:
+                            `admin_user_${user.telegram_id}`
+                    }
+                ]);
+            }
+
+
+            if (
+                result.rows.length === 0
+            ) {
+
+                text +=
+                    '\n\nПользователей пока нет.';
+            }
+
+
+            await bot.sendMessage(
+                msg.chat.id,
+                text,
+                {
+                    reply_markup: {
+                        inline_keyboard:
+                            keyboard
+                    }
+                }
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                'Admin Users List error:',
+                error
+            );
+
+            await bot.sendMessage(
+                msg.chat.id,
+                '❌ Не удалось получить список пользователей.'
+            );
+
+            return true;
+        }
+    }
+
+
+    async showSearchPrompt(bot, msg) {
+
         await bot.sendMessage(
             msg.chat.id,
-            '👥 Пользователи\n\nВведите Telegram ID пользователя:'
+            '🔎 Поиск пользователя\n\nВведите username или имя пользователя:'
         );
 
         return true;
+    }
+
+
+    async search(bot, msg, query) {
+
+        try {
+
+            const value =
+                String(query || '').trim();
+
+            if (!value) {
+
+                await bot.sendMessage(
+                    msg.chat.id,
+                    '❌ Введите username или имя пользователя.'
+                );
+
+                return true;
+            }
+
+
+            const searchValue =
+                value.startsWith('@')
+                    ? value.slice(1)
+                    : value;
+
+
+            const result = await db.query(
+                `
+                SELECT
+                    telegram_id,
+                    username,
+                    first_name,
+                    last_seen
+                FROM users
+                WHERE
+                    username ILIKE $1
+                    OR first_name ILIKE $1
+                ORDER BY last_seen DESC NULLS LAST
+                LIMIT 20
+                `,
+                [`%${searchValue}%`]
+            );
+
+
+            const keyboard = [];
+
+
+            for (
+                const user of result.rows
+            ) {
+
+                const displayName =
+                    user.username
+                        ? '@' + user.username
+                        : user.first_name || 'Без username';
+
+                keyboard.push([
+                    {
+                        text:
+                            `👤 ${displayName}`,
+                        callback_data:
+                            `admin_user_${user.telegram_id}`
+                    }
+                ]);
+            }
+
+
+            keyboard.push([
+                {
+                    text: '🔎 Новый поиск',
+                    callback_data: 'admin_users_search'
+                }
+            ]);
+
+
+            keyboard.push([
+                {
+                    text: '⬅️ К пользователям',
+                    callback_data: 'admin_users_list'
+                }
+            ]);
+
+
+            const text =
+                result.rows.length
+                    ? `🔎 Результаты поиска: ${value}`
+                    : `🔎 Результаты поиска: ${value}\n\n❌ Пользователь не найден.`;
+
+
+            await bot.sendMessage(
+                msg.chat.id,
+                text,
+                {
+                    reply_markup: {
+                        inline_keyboard:
+                            keyboard
+                    }
+                }
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                'Admin Users Search error:',
+                error
+            );
+
+            await bot.sendMessage(
+                msg.chat.id,
+                '❌ Не удалось выполнить поиск пользователя.'
+            );
+
+            return true;
+        }
     }
 
 
