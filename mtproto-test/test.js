@@ -1,6 +1,8 @@
 const { TelegramClient } = require('teleproto');
 const { StringSession } = require('teleproto/sessions');
 const { createInterface } = require('node:readline/promises');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const apiId = 34979728;
 const apiHash = process.env.TELEGRAM_API_HASH;
@@ -16,7 +18,23 @@ const rl = createInterface({
     output: process.stdout
 });
 
-const session = new StringSession('');
+const sessionFile = path.join(
+    __dirname,
+    '.session'
+);
+
+const savedSession =
+    fs.existsSync(sessionFile)
+        ? fs.readFileSync(
+            sessionFile,
+            'utf8'
+        ).trim()
+        : '';
+
+const session =
+    new StringSession(
+        savedSession
+    );
 
 const client = new TelegramClient(
     session,
@@ -78,13 +96,21 @@ async function main() {
         me.firstName || 'none'
     );
 
-    console.log(
-        '\nSession string:'
-    );
+    const sessionString =
+    client.session.save();
 
-    console.log(
-        client.session.save()
-    );
+fs.writeFileSync(
+    sessionFile,
+    sessionString,
+    {
+        encoding: 'utf8',
+        mode: 0o600
+    }
+);
+
+console.log(
+    '\nMTProto session saved locally.'
+);
 
     await client.disconnect();
     rl.close();
