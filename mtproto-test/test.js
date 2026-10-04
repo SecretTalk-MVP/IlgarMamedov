@@ -96,21 +96,21 @@ async function main() {
         me.firstName || 'none'
     );
 
-    const sessionString =
-    client.session.save();
+        const sessionString =
+        client.session.save();
 
-fs.writeFileSync(
-    sessionFile,
-    sessionString,
-    {
-        encoding: 'utf8',
-        mode: 0o600
-    }
-);
+    fs.writeFileSync(
+        sessionFile,
+        sessionString,
+        {
+            encoding: 'utf8',
+            mode: 0o600
+        }
+    );
 
-console.log(
-    '\nMTProto session saved locally.'
-);
+    console.log(
+        '\nMTProto session saved locally.'
+    );
 
     await client.disconnect();
     rl.close();
