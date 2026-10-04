@@ -1,0 +1,9 @@
+{
+  "name": "secrettalk-mtproto-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated MTProto experiment for SecretTalk",
+  "dependencies": {
+    "teleproto": "^1.229.1"
+  }
+}
