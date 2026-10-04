@@ -520,6 +520,74 @@ class Router {
 
                 return true;
             }
+                        /*
+             * =================================================
+             * USERS LIST
+             *
+             * admin_users_list
+             * =================================================
+             */
+
+            if (
+                data ===
+                "admin_users_list"
+            ) {
+
+                if (
+                    !permissions.canViewUsers(
+                        userId
+                    )
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "⛔ У вас нет доступа."
+                    );
+
+                    return true;
+                }
+
+
+                return await users.showSearch(
+                    bot,
+                    msg
+                );
+            }
+
+
+            /*
+             * =================================================
+             * USERS SEARCH
+             *
+             * admin_users_search
+             * =================================================
+             */
+
+            if (
+                data ===
+                "admin_users_search"
+            ) {
+
+                if (
+                    !permissions.canViewUsers(
+                        userId
+                    )
+                ) {
+
+                    await bot.sendMessage(
+                        msg.chat.id,
+                        "⛔ У вас нет доступа."
+                    );
+
+                    return true;
+                }
+
+
+                return await users.showSearchPrompt(
+                    bot,
+                    msg
+                );
+            }
 
 
             /*
@@ -921,13 +989,6 @@ class Router {
             return true;
         }
 
-
-        /*
-         * =====================================================
-         * ADMIN USER SEARCH
-         * =====================================================
-         */
-
         const adminStackForUsers =
             this.adminNavigation.get(
                 userId
@@ -959,11 +1020,11 @@ class Router {
             }
 
 
-            return await users.showUser(
-                bot,
-                msg,
-                text
-            );
+            return await users.search(
+    bot,
+    msg,
+    text
+);
         }
 
 
