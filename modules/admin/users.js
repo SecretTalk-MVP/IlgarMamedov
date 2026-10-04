@@ -412,6 +412,21 @@ ${randomStatus}
             const keyboard = [];
 
 if (
+    user.username
+) {
+
+    keyboard.push([
+        {
+            text:
+                '👤 Открыть профиль в Telegram',
+            url:
+                `https://t.me/${user.username}?profile`
+        }
+    ]);
+}
+
+
+if (
     permissions.canViewChatContent(
         msg.from.id
     )
