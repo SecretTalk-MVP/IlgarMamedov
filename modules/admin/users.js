@@ -411,21 +411,31 @@ ${randomStatus}
 
             const keyboard = [];
 
-            if (
-                permissions.canViewChatContent(
-                    msg.from.id
-                )
-            ) {
+keyboard.push([
+    {
+        text:
+            '👤 Открыть профиль в Telegram',
+        url:
+            `tg://user?id=${user.telegram_id}`
+    }
+]);
 
-                keyboard.push([
-                    {
-                        text:
-                            `💬 Чаты пользователя (${user.chat_count})`,
-                        callback_data:
-                            `admin_user_chats_${user.telegram_id}`
-                    }
-                ]);
-            }
+
+if (
+    permissions.canViewChatContent(
+        msg.from.id
+    )
+) {
+
+    keyboard.push([
+        {
+            text:
+                `💬 Чаты пользователя (${user.chat_count})`,
+            callback_data:
+                `admin_user_chats_${user.telegram_id}`
+        }
+    ]);
+}
 
 
             await bot.sendMessage(
