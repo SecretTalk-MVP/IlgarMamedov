@@ -1237,37 +1237,6 @@ if (
 }  
 
 
-const isAdmin =  
-    permissions.isAdmin(  
-        userId  
-    );  
-
-
-const isVerified =  
-    await verification.isVerified(  
-        userId  
-    );  
-
-
-if (  
-    !isAdmin &&  
-    !isVerified  
-) {  
-
-    this.push(  
-        userId,  
-        "verification"  
-    );  
-
-
-    await verificationMenu.showVerificationMenu(  
-        bot,  
-        msg  
-    );  
-
-    return true;  
-}  
-
 /*  
  * =====================================================  
  * START NEW NIKA DIALOG  
