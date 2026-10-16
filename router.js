@@ -3,1550 +3,1659 @@ const aida = require("./modules/aida/aida");
 const nika = require("./modules/nika/nika");
 
 const verification =
-    require("./modules/verification");
+require("./modules/verification");
 
 const verificationController =
-    require("./modules/verification/controller");
+require("./modules/verification/controller");
 
 const verificationMenu =
-    require("./modules/verification/menu");
+require("./modules/verification/menu");
 
 const permissions =
-    require("./modules/admin/permissions");
+require("./modules/admin/permissions");
 
 const statistics =
-    require("./modules/admin/statistics");
+require("./modules/admin/statistics");
 
 const users =
-    require("./modules/admin/users");
+require("./modules/admin/users");
 
 const chats =
-    require("./modules/admin/chats");
+require("./modules/admin/chats");
 
 const chat =
-    require("./modules/admin/chat");
+require("./modules/admin/chat");
 
 const { saveUser } =
-    require("./controllers/user.controller");
+require("./controllers/user.controller");
 
 const profile =
-    require("./modules/profile/profile");
+require("./modules/profile/profile");
 
 const profileController =
-    require("./modules/profile/controller");
+require("./modules/profile/controller");
 
 const randomchat =
-    require("./modules/randomchat/controller");
+require("./modules/randomchat/controller");
 
 const searchFilter =
-    require("./modules/searchfilter/controller");
-
+require("./modules/searchfilter/controller");
 
 class Router {
 
-    constructor() {
+constructor() {  
 
-        /*
-         * =========================================================
-         * ОБЩАЯ NAVIGATION
-         * =========================================================
-         */
+    /*  
+     * =========================================================  
+     * ОБЩАЯ NAVIGATION  
+     * =========================================================  
+     */  
 
-        this.navigation =
-            new Map();
+    this.navigation =  
+        new Map();  
 
 
-        /*
-         * =========================================================
-         * ADMIN NAVIGATION
-         * =========================================================
-         */
+    /*  
+     * =========================================================  
+     * ADMIN NAVIGATION  
+     * =========================================================  
+     */  
 
-        this.adminNavigation =
-            new Map();
-    }
+    this.adminNavigation =  
+        new Map();  
+}  
 
 
-    /*
-     * =========================================================
-     * ОБЩАЯ NAVIGATION STACK
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * ОБЩАЯ NAVIGATION STACK  
+ * =========================================================  
+ */  
 
-    getStack(userId) {
+getStack(userId) {  
 
-        if (
-            !this.navigation.has(userId)
-        ) {
+    if (  
+        !this.navigation.has(userId)  
+    ) {  
 
-            this.navigation.set(
-                userId,
-                ["main"]
-            );
-        }
+        this.navigation.set(  
+            userId,  
+            ["main"]  
+        );  
+    }  
 
-        return this.navigation.get(userId);
-    }
+    return this.navigation.get(userId);  
+}  
 
 
-    reset(userId) {
+reset(userId) {  
 
-        this.navigation.set(
-            userId,
-            ["main"]
-        );
-    }
+    this.navigation.set(  
+        userId,  
+        ["main"]  
+    );  
+}  
 
 
-    push(userId, screen) {
+push(userId, screen) {  
 
-        const stack =
-            this.getStack(userId);
+    const stack =  
+        this.getStack(userId);  
 
-        if (
-            stack[stack.length - 1] !== screen
-        ) {
+    if (  
+        stack[stack.length - 1] !== screen  
+    ) {  
 
-            stack.push(screen);
-        }
-    }
+        stack.push(screen);  
+    }  
+}  
 
 
-    /*
-     * =========================================================
-     * ADMIN NAVIGATION STACK
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * ADMIN NAVIGATION STACK  
+ * =========================================================  
+ */  
 
-    getAdminStack(userId) {
+getAdminStack(userId) {  
 
-        if (
-            !this.adminNavigation.has(userId)
-        ) {
+    if (  
+        !this.adminNavigation.has(userId)  
+    ) {  
 
-            this.adminNavigation.set(
-                userId,
-                ["admin"]
-            );
-        }
+        this.adminNavigation.set(  
+            userId,  
+            ["admin"]  
+        );  
+    }  
 
-        return this.adminNavigation.get(userId);
-    }
+    return this.adminNavigation.get(userId);  
+}  
 
 
-    resetAdmin(userId) {
+resetAdmin(userId) {  
 
-        this.adminNavigation.set(
-            userId,
-            ["admin"]
-        );
-    }
+    this.adminNavigation.set(  
+        userId,  
+        ["admin"]  
+    );  
+}  
 
 
-    pushAdmin(userId, screen) {
+pushAdmin(userId, screen) {  
 
-        const stack =
-            this.getAdminStack(userId);
+    const stack =  
+        this.getAdminStack(userId);  
 
-        if (
-            stack[stack.length - 1] !== screen
-        ) {
+    if (  
+        stack[stack.length - 1] !== screen  
+    ) {  
 
-            stack.push(screen);
-        }
-    }
+        stack.push(screen);  
+    }  
+}  
 
 
-    /*
-     * =========================================================
-     * GLOBAL BACK
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * GLOBAL BACK  
+ * =========================================================  
+ */  
 
-    async back(bot, msg) {
+async back(bot, msg) {  
 
-        const userId =
-            msg.from.id;
+    const userId =  
+        msg.from.id;  
 
 
-        /*
-         * =====================================================
-         * ADMIN PANEL BACK
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * ADMIN PANEL BACK  
+     * =====================================================  
+     */  
 
-        const adminStack =
-            this.adminNavigation.get(
-                userId
-            );
+    const adminStack =  
+        this.adminNavigation.get(  
+            userId  
+        );  
 
 
-        if (
-            adminStack &&
-            adminStack.length > 0 &&
-            adminStack.includes("admin")
-        ) {
+    if (  
+        adminStack &&  
+        adminStack.length > 0 &&  
+        adminStack.includes("admin")  
+    ) {  
 
-            if (
-                adminStack.length === 1 &&
-                adminStack[0] === "admin"
-            ) {
+        if (  
+            adminStack.length === 1 &&  
+            adminStack[0] === "admin"  
+        ) {  
 
-                this.adminNavigation.delete(
-                    userId
-                );
+            this.adminNavigation.delete(  
+                userId  
+            );  
 
-                this.reset(
-                    userId
-                );
+            this.reset(  
+                userId  
+            );  
 
-                await menu.showMainMenu(
-                    bot,
-                    msg.chat.id
-                );
+            await menu.showMainMenu(  
+                bot,  
+                msg.chat.id  
+            );  
 
-                return true;
-            }
+            return true;  
+        }  
 
 
-            adminStack.pop();
+        adminStack.pop();  
 
 
-            const previousAdminScreen =
-                adminStack[
-                    adminStack.length - 1
-                ];
+        const previousAdminScreen =  
+            adminStack[  
+                adminStack.length - 1  
+            ];  
 
 
-            await this.showScreen(
-                bot,
-                msg,
-                previousAdminScreen
-            );
+        await this.showScreen(  
+            bot,  
+            msg,  
+            previousAdminScreen  
+        );  
 
-            return true;
-        }
+        return true;  
+    }  
 
 
-        /*
-         * =====================================================
-         * ОБЫЧНАЯ NAVIGATION
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * ОБЫЧНАЯ NAVIGATION  
+     * =====================================================  
+     */  
 
-        const stack =
-            this.getStack(userId);
+    const stack =  
+        this.getStack(userId);  
 
 
-        if (
-            stack.length <= 1
-        ) {
+    if (  
+        stack.length <= 1  
+    ) {  
 
-            await menu.showMainMenu(
-                bot,
-                msg.chat.id
-            );
+        await menu.showMainMenu(  
+            bot,  
+            msg.chat.id  
+        );  
 
-            return true;
-        }
+        return true;  
+    }  
 
 
-        stack.pop();
+    stack.pop();  
 
 
-        const previousScreen =
-            stack[
-                stack.length - 1
-            ];
+    const previousScreen =  
+        stack[  
+            stack.length - 1  
+        ];  
 
 
-        await this.showScreen(
-            bot,
-            msg,
-            previousScreen
-        );
+    await this.showScreen(  
+        bot,  
+        msg,  
+        previousScreen  
+    );  
 
-        return true;
-    }
+    return true;  
+}  
 
 
-    /*
-     * =========================================================
-     * SCREEN RENDERER
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * SCREEN RENDERER  
+ * =========================================================  
+ */  
 
-    async showScreen(
-        bot,
-        msg,
-        screen
-    ) {
+async showScreen(  
+    bot,  
+    msg,  
+    screen  
+) {  
 
-        switch (screen) {
+    switch (screen) {  
 
-            case "main":
+        case "main":  
 
-                await menu.showMainMenu(
-                    bot,
-                    msg.chat.id
-                );
+            await menu.showMainMenu(  
+                bot,  
+                msg.chat.id  
+            );  
 
-                return;
+            return;  
 
 
-            case "admin":
+        case "admin":  
 
-                await menu.showAdminMenu(
-                    bot,
-                    msg.chat.id
-                );
+            await menu.showAdminMenu(  
+                bot,  
+                msg.chat.id  
+            );  
 
-                return;
+            return;  
 
 
-            case "statistics":
+        case "statistics":  
 
-                await statistics.show(
-                    bot,
-                    msg
-                );
+            await statistics.show(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            case "active_chats":
+        case "active_chats":  
 
-                await chats.showActive(
-                    bot,
-                    msg
-                );
+            await chats.showActive(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            case "users":
+        case "users":  
 
-                await users.showSearch(
-                    bot,
-                    msg
-                );
+            await users.showSearch(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            case "broadcast":
+        case "broadcast":  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "📢 Рассылка\n\n🚧 Эта функция администратора пока находится в разработке."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "📢 Рассылка\n\n🚧 Эта функция администратора пока находится в разработке."  
+            );  
 
-                return;
+            return;  
 
 
-            case "ban":
+        case "ban":  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "🚫 Бан / Разбан\n\n🚧 Эта функция администратора пока находится в разработке."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "🚫 Бан / Разбан\n\n🚧 Эта функция администратора пока находится в разработке."  
+            );  
 
-                return;
+            return;  
 
 
-            case "settings":
+        case "settings":  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⚙️ Настройки\n\n🚧 Эта функция администратора пока находится в разработке."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "⚙️ Настройки\n\n🚧 Эта функция администратора пока находится в разработке."  
+            );  
 
-                return;
+            return;  
 
 
-            case "find_partner":
+        case "find_partner":  
 
-                await this.showFindPartnerMenu(
-                    bot,
-                    msg
-                );
+            await this.showFindPartnerMenu(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            case "characters":
+        case "characters":  
 
-                await this.showCharactersMenu(
-                    bot,
-                    msg
-                );
+            await this.showCharactersMenu(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            case "search_filter":
+        case "search_filter":  
 
-                await searchFilter.show(
-                    bot,
-                    msg
-                );
+            await searchFilter.show(  
+                bot,  
+                msg  
+            );  
 
-                return;
+            return;  
 
 
-            default:
+        default:  
 
-                await menu.showMainMenu(
-                    bot,
-                    msg.chat.id
-                );
+            await menu.showMainMenu(  
+                bot,  
+                msg.chat.id  
+            );  
 
-                return;
-        }
-    }
+            return;  
+    }  
+}  
 
 
-    /*
-     * =========================================================
-     * FIND PARTNER MENU
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * FIND PARTNER MENU  
+ * =========================================================  
+ */  
 
-    async showFindPartnerMenu(
-        bot,
-        msg
-    ) {
+async showFindPartnerMenu(  
+    bot,  
+    msg  
+) {  
 
-        await bot.sendMessage(
-            msg.chat.id,
-            "Кого вы хотите найти?",
-            {
-                reply_markup: {
-                    keyboard: [
-                        ["🎲 Случайного собеседника"],
-                        ["🤖 Выбрать персонажа"],
-                        ["⬅️ Назад"]
-                    ],
-                    resize_keyboard: true
-                }
-            }
-        );
-    }
+    await bot.sendMessage(  
+        msg.chat.id,  
+        "Кого вы хотите найти?",  
+        {  
+            reply_markup: {  
+                keyboard: [  
+                    ["🎲 Случайного собеседника"],  
+                    ["🤖 Выбрать персонажа"],  
+                    ["⬅️ Назад"]  
+                ],  
+                resize_keyboard: true  
+            }  
+        }  
+    );  
+}  
 
 
-    /*
-     * =========================================================
-     * CHARACTER MENU
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * CHARACTER MENU  
+ * =========================================================  
+ */  
 
-    async showCharactersMenu(
-        bot,
-        msg
-    ) {
+async showCharactersMenu(  
+    bot,  
+    msg  
+) {  
 
-        await bot.sendMessage(
-            msg.chat.id,
-            "Выберите персонажа",
-            {
-                reply_markup: {
-                    keyboard: [
-                        ["Ника"],
-                        ["⬅️ Назад"]
-                    ],
-                    resize_keyboard: true
-                }
-            }
-        );
-    }
+    await bot.sendMessage(  
+        msg.chat.id,  
+        "Выберите персонажа",  
+        {  
+            reply_markup: {  
+                keyboard: [  
+                    ["Ника"],  
+                    ["⬅️ Назад"]  
+                ],  
+                resize_keyboard: true  
+            }  
+        }  
+    );  
+}  
 
 
-    /*
-     * =========================================================
-     * MAIN ROUTER
-     * =========================================================
-     */
+/*  
+ * =========================================================  
+ * MAIN ROUTER  
+ * =========================================================  
+ */  
 
-    async handle(
-        bot,
-        msg,
-        aiUsers
-    ) {
+async handle(  
+    bot,  
+    msg,  
+    aiUsers  
+) {  
 
-        if (
-            !msg ||
-            !msg.from ||
-            !msg.chat
-        ) {
+    if (  
+        !msg ||  
+        !msg.from ||  
+        !msg.chat  
+    ) {  
 
-            return false;
-        }
+        return false;  
+    }  
 
 
-        await saveUser(msg);
+    await saveUser(msg);  
 
 
-        const userId =
-            msg.from.id;
+    const userId =  
+        msg.from.id;  
 
 
-        const text =
-            msg.text || "";
+    const text =  
+        msg.text || "";  
 
 
-        /*
-         * =====================================================
-         * CALLBACK QUERY
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * CALLBACK QUERY  
+     * =====================================================  
+     */  
 
-        if (
-            msg.callback_query
-        ) {
+    if (  
+        msg.callback_query  
+    ) {  
 
-            const data =
-                msg.callback_query.data || "";
+        const data =  
+            msg.callback_query.data || "";  
 
 
-            if (
-                data.startsWith("admin_") &&
-                !permissions.isAdmin(userId)
-            ) {
+        if (  
+            data.startsWith("admin_") &&  
+            !permissions.isAdmin(userId)  
+        ) {  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "⛔ У вас нет доступа."  
+            );  
 
-                return true;
-            }
-                        /*
-             * =================================================
-             * USERS LIST
-             *
-             * admin_users_list
-             * =================================================
-             */
+            return true;  
+        }  
+                    /*  
+         * =================================================  
+         * USERS LIST  
+         *  
+         * admin_users_list  
+         * =================================================  
+         */  
 
-            if (
-                data ===
-                "admin_users_list"
-            ) {
+        if (  
+            data ===  
+            "admin_users_list"  
+        ) {  
 
-                if (
-                    !permissions.canViewUsers(
-                        userId
-                    )
-                ) {
+            if (  
+                !permissions.canViewUsers(  
+                    userId  
+                )  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "⛔ У вас нет доступа."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "⛔ У вас нет доступа."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                return await users.showSearch(
-                    bot,
-                    msg
-                );
-            }
+            return await users.showSearch(  
+                bot,  
+                msg  
+            );  
+        }  
 
 
-            /*
-             * =================================================
-             * USERS SEARCH
-             *
-             * admin_users_search
-             * =================================================
-             */
+        /*  
+         * =================================================  
+         * USERS SEARCH  
+         *  
+         * admin_users_search  
+         * =================================================  
+         */  
 
-            if (
-                data ===
-                "admin_users_search"
-            ) {
+        if (  
+            data ===  
+            "admin_users_search"  
+        ) {  
 
-                if (
-                    !permissions.canViewUsers(
-                        userId
-                    )
-                ) {
+            if (  
+                !permissions.canViewUsers(  
+                    userId  
+                )  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "⛔ У вас нет доступа."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "⛔ У вас нет доступа."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                return await users.showSearchPrompt(
-                    bot,
-                    msg
-                );
-            }
+            return await users.showSearchPrompt(  
+                bot,  
+                msg  
+            );  
+        }  
 
 
-            /*
-             * =================================================
-             * USER CHAT LIST
-             *
-             * admin_user_chats_123
-             * =================================================
-             */
+        /*  
+         * =================================================  
+         * USER CHAT LIST  
+         *  
+         * admin_user_chats_123  
+         * =================================================  
+         */  
 
-            if (
-                data.startsWith(
-                    "admin_user_chats_"
-                )
-            ) {
+        if (  
+            data.startsWith(  
+                "admin_user_chats_"  
+            )  
+        ) {  
 
-                if (
-                    !permissions.canViewChatContent(
-                        userId
-                    )
-                ) {
+            if (  
+                !permissions.canViewChatContent(  
+                    userId  
+                )  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                const telegramId =
-                    Number(
-                        data.replace(
-                            "admin_user_chats_",
-                            ""
-                        )
-                    );
+            const telegramId =  
+                Number(  
+                    data.replace(  
+                        "admin_user_chats_",  
+                        ""  
+                    )  
+                );  
 
 
-                if (
-                    !Number.isSafeInteger(
-                        telegramId
-                    ) ||
-                    telegramId <= 0
-                ) {
+            if (  
+                !Number.isSafeInteger(  
+                    telegramId  
+                ) ||  
+                telegramId <= 0  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "❌ Некорректный ID пользователя."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "❌ Некорректный ID пользователя."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                this.pushAdmin(
-                    userId,
-                    "user_chats"
-                );
+            this.pushAdmin(  
+                userId,  
+                "user_chats"  
+            );  
 
 
-                return await users.showUserChats(
-                    bot,
-                    msg,
-                    telegramId
-                );
-            }
+            return await users.showUserChats(  
+                bot,  
+                msg,  
+                telegramId  
+            );  
+        }  
 
 
-            /*
-             * =================================================
-             * RETURN TO USER
-             *
-             * admin_user_123
-             * =================================================
-             */
+        /*  
+         * =================================================  
+         * RETURN TO USER  
+         *  
+         * admin_user_123  
+         * =================================================  
+         */  
 
-            if (
-                data.startsWith(
-                    "admin_user_"
-                )
-            ) {
+        if (  
+            data.startsWith(  
+                "admin_user_"  
+            )  
+        ) {  
 
-                if (
-                    !permissions.canViewUsers(
-                        userId
-                    )
-                ) {
+            if (  
+                !permissions.canViewUsers(  
+                    userId  
+                )  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "⛔ У вас нет доступа."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "⛔ У вас нет доступа."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                const telegramId =
-                    Number(
-                        data.replace(
-                            "admin_user_",
-                            ""
-                        )
-                    );
+            const telegramId =  
+                Number(  
+                    data.replace(  
+                        "admin_user_",  
+                        ""  
+                    )  
+                );  
 
 
-                if (
-                    !Number.isSafeInteger(
-                        telegramId
-                    ) ||
-                    telegramId <= 0
-                ) {
+            if (  
+                !Number.isSafeInteger(  
+                    telegramId  
+                ) ||  
+                telegramId <= 0  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "❌ Некорректный ID пользователя."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "❌ Некорректный ID пользователя."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                return await users.showUser(
-                    bot,
-                    msg,
-                    telegramId
-                );
-            }
+            return await users.showUser(  
+                bot,  
+                msg,  
+                telegramId  
+            );  
+        }  
 
 
-            /*
-             * =================================================
-             * RETURN TO ACTIVE CHATS
-             * =================================================
-             */
+        /*  
+         * =================================================  
+         * RETURN TO ACTIVE CHATS  
+         * =================================================  
+         */  
 
-            if (
-                data ===
-                "admin_active_chats"
-            ) {
+        if (  
+            data ===  
+            "admin_active_chats"  
+        ) {  
 
-                this.resetAdmin(
-                    userId
-                );
+            this.resetAdmin(  
+                userId  
+            );  
 
 
-                this.pushAdmin(
-                    userId,
-                    "active_chats"
-                );
+            this.pushAdmin(  
+                userId,  
+                "active_chats"  
+            );  
 
 
-                return await chats.showActive(
-                    bot,
-                    msg
-                );
-            }
+            return await chats.showActive(  
+                bot,  
+                msg  
+            );  
+        }  
 
 
-            /*
-             * =================================================
-             * OPEN SPECIFIC CHAT
-             *
-             * admin_chat_123
-             * =================================================
-             */
+        /*  
+         * =================================================  
+         * OPEN SPECIFIC CHAT  
+         *  
+         * admin_chat_123  
+         * =================================================  
+         */  
 
-            if (
-                data.startsWith(
-                    "admin_chat_"
-                )
-            ) {
+        if (  
+            data.startsWith(  
+                "admin_chat_"  
+            )  
+        ) {  
 
-                if (
-                    !permissions.canViewChatContent(
-                        userId
-                    )
-                ) {
+            if (  
+                !permissions.canViewChatContent(  
+                    userId  
+                )  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "⛔ Просмотр содержимого чатов доступен только SUPER_ADMIN."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                const dialogId =
-                    Number(
-                        data.replace(
-                            "admin_chat_",
-                            ""
-                        )
-                    );
+            const dialogId =  
+                Number(  
+                    data.replace(  
+                        "admin_chat_",  
+                        ""  
+                    )  
+                );  
 
 
-                if (
-                    !Number.isInteger(
-                        dialogId
-                    ) ||
-                    dialogId <= 0
-                ) {
+            if (  
+                !Number.isInteger(  
+                    dialogId  
+                ) ||  
+                dialogId <= 0  
+            ) {  
 
-                    await bot.sendMessage(
-                        msg.chat.id,
-                        "❌ Некорректный ID диалога."
-                    );
+                await bot.sendMessage(  
+                    msg.chat.id,  
+                    "❌ Некорректный ID диалога."  
+                );  
 
-                    return true;
-                }
+                return true;  
+            }  
 
 
-                return await chat.show(
-                    bot,
-                    msg,
-                    dialogId
-                );
-            }
+            return await chat.show(  
+                bot,  
+                msg,  
+                dialogId  
+            );  
+        }  
 
 
-            return false;
-        }
+        return false;  
+    }  
 
 
-        /*
-         * =====================================================
-         * GLOBAL /start
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * GLOBAL /start  
+     * =====================================================  
+     */  
 
-        if (
-            text === "/start"
-        ) {
+    if (  
+        text === "/start"  
+    ) {  
 
-            this.reset(
-                userId
-            );
+        this.reset(  
+            userId  
+        );  
 
-            this.adminNavigation.delete(
-                userId
-            );
+        this.adminNavigation.delete(  
+            userId  
+        );  
 
 
-            await menu.showMainMenu(
-                bot,
-                msg.chat.id
-            );
+        await menu.showMainMenu(  
+            bot,  
+            msg.chat.id  
+        );  
 
-            return true;
-        }
+        return true;  
+    }  
 
 
-        /*
-         * =====================================================
-         * GLOBAL BACK
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * GLOBAL BACK  
+     * =====================================================  
+     */  
 
-        if (
-            text === "⬅️ Назад"
-        ) {
+    if (  
+        text === "⬅️ Назад"  
+    ) {  
 
-            return await this.back(
-                bot,
-                msg
-            );
-        }
+        return await this.back(  
+            bot,  
+            msg  
+        );  
+    }  
 
 
-        /*
-         * =====================================================
-         * ADMIN ENTRY
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * ADMIN ENTRY  
+     * =====================================================  
+     */  
 
-        if (
-            text === "/admin" ||
-            text === "Админ" ||
-            text === "Admin" ||
-            text === "👑 Админ" ||
-            text === "👑 Admin"
-        ) {
+    if (  
+        text === "/admin" ||  
+        text === "Админ" ||  
+        text === "Admin" ||  
+        text === "👑 Админ" ||  
+        text === "👑 Admin"  
+    ) {  
 
-            if (
-                !permissions.isAdmin(
-                    userId
-                )
-            ) {
+        if (  
+            !permissions.isAdmin(  
+                userId  
+            )  
+        ) {  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "⛔ У вас нет доступа."  
+            );  
 
-                return true;
-            }
+            return true;  
+        }  
 
 
-            this.reset(
-                userId
-            );
+        this.reset(  
+            userId  
+        );  
 
-            this.resetAdmin(
-                userId
-            );
+        this.resetAdmin(  
+            userId  
+        );  
 
 
-            await menu.showAdminMenu(
-                bot,
-                msg.chat.id
-            );
+        await menu.showAdminMenu(  
+            bot,  
+            msg.chat.id  
+        );  
 
-            return true;
-        }
+        return true;  
+    }  
 
 
-        /*
-         * =====================================================
-         * ADMIN SCREENS
-         * =====================================================
-         */
+    /*  
+     * =====================================================  
+     * ADMIN SCREENS  
+     * =====================================================  
+     */  
 
-        const adminScreens = {
+    const adminScreens = {  
 
-            "📊 Статистика":
-                "statistics",
+        "📊 Статистика":  
+            "statistics",  
 
-            "👥 Пользователи":
-                "users",
+        "👥 Пользователи":  
+            "users",  
 
-            "💬 Активные чаты":
-                "active_chats",
+        "💬 Активные чаты":  
+            "active_chats",  
 
-            "📢 Рассылка":
-                "broadcast",
+        "📢 Рассылка":  
+            "broadcast",  
 
-            "🚫 Бан / Разбан":
-                "ban",
+        "🚫 Бан / Разбан":  
+            "ban",  
 
-            "⚙️ Настройки":
-                "settings"
-        };
+        "⚙️ Настройки":  
+            "settings"  
+    };  
 
 
-        if (
-            adminScreens[text]
-        ) {
+    if (  
+        adminScreens[text]  
+    ) {  
 
-            const adminStack =
-                this.getAdminStack(
-                    userId
-                );
+        const adminStack =  
+            this.getAdminStack(  
+                userId  
+            );  
 
 
-            if (
-                !adminStack.includes(
-                    "admin"
-                )
-            ) {
+        if (  
+            !adminStack.includes(  
+                "admin"  
+            )  
+        ) {  
 
-                return false;
-            }
+            return false;  
+        }  
 
 
-            if (
-                !permissions.isAdmin(
-                    userId
-                )
-            ) {
+        if (  
+            !permissions.isAdmin(  
+                userId  
+            )  
+        ) {  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "⛔ У вас нет доступа."  
+            );  
 
-                return true;
-            }
+            return true;  
+        }  
 
 
-            const screen =
-                adminScreens[text];
+        const screen =  
+            adminScreens[text];  
 
 
-            this.pushAdmin(
-                userId,
-                screen
-            );
+        this.pushAdmin(  
+            userId,  
+            screen  
+        );  
 
 
-            await this.showScreen(
-                bot,
-                msg,
-                screen
-            );
+        await this.showScreen(  
+            bot,  
+            msg,  
+            screen  
+        );  
 
-            return true;
-        }
+        return true;  
+    }  
 
-        const adminStackForUsers =
-            this.adminNavigation.get(
-                userId
-            );
+    const adminStackForUsers =  
+        this.adminNavigation.get(  
+            userId  
+        );  
 
 
-        if (
-            adminStackForUsers &&
-            adminStackForUsers.includes(
-                "admin"
-            ) &&
-            adminStackForUsers[
-                adminStackForUsers.length - 1
-            ] === "users"
-        ) {
+    if (  
+        adminStackForUsers &&  
+        adminStackForUsers.includes(  
+            "admin"  
+        ) &&  
+        adminStackForUsers[  
+            adminStackForUsers.length - 1  
+        ] === "users"  
+    ) {  
 
-            if (
-                !permissions.canViewUsers(
-                    userId
-                )
-            ) {
+        if (  
+            !permissions.canViewUsers(  
+                userId  
+            )  
+        ) {  
 
-                await bot.sendMessage(
-                    msg.chat.id,
-                    "⛔ У вас нет доступа."
-                );
+            await bot.sendMessage(  
+                msg.chat.id,  
+                "⛔ У вас нет доступа."  
+            );  
 
-                return true;
-            }
+            return true;  
+        }  
 
 
-            return await users.search(
-    bot,
-    msg,
-    text
+        return await users.search(  
+bot,  
+msg,  
+text
+
 );
-        }
+}
+
+/*  
+     * =====================================================  
+     * SEARCH FILTER ENTRY  
+     * =====================================================  
+     */  
+
+    if (  
+        text === "⚙️ Фильтр поиска"  
+    ) {  
+
+        this.push(  
+            userId,  
+            "search_filter"  
+        );  
 
 
-        /*
-         * =====================================================
-         * SEARCH FILTER ENTRY
-         * =====================================================
-         */
-
-        if (
-            text === "⚙️ Фильтр поиска"
-        ) {
-
-            this.push(
-                userId,
-                "search_filter"
-            );
+        return await searchFilter.show(  
+            bot,  
+            msg  
+        );  
+    }  
 
 
-            return await searchFilter.show(
-                bot,
-                msg
-            );
-        }
+    /*  
+     * =====================================================  
+     * FIND PARTNER  
+     * =====================================================  
+     */  
+
+    if (  
+        text === "👥 Найти собеседника"  
+    ) {  
+
+        this.push(  
+            userId,  
+            "find_partner"  
+        );  
 
 
-        /*
-         * =====================================================
-         * FIND PARTNER
-         * =====================================================
-         */
+        await this.showFindPartnerMenu(  
+            bot,  
+            msg  
+        );  
 
-        if (
-            text === "👥 Найти собеседника"
-        ) {
-
-            this.push(
-                userId,
-                "find_partner"
-            );
+        return true;  
+    }  
 
 
-            await this.showFindPartnerMenu(
-                bot,
-                msg
-            );
+    /*  
+     * =====================================================  
+     * RANDOM PARTNER  
+     * =====================================================  
+     */  
 
-            return true;
-        }
+    if (  
+text ===  
+"🎲 Случайного собеседника"
 
-
-        /*
-         * =====================================================
-         * RANDOM PARTNER
-         * =====================================================
-         */
-
-        if (
-    text ===
-    "🎲 Случайного собеседника"
 ) {
 
-    const userProfile =
-        await profile.getProfile(
-            userId
-        );
+const userProfile =  
+    await profile.getProfile(  
+        userId  
+    );  
 
-    const hasCompleteProfile =
-        userProfile &&
-        userProfile.gender &&
-        userProfile.age &&
-        userProfile.city &&
-        userProfile.goal;
+const hasCompleteProfile =  
+    userProfile &&  
+    userProfile.gender &&  
+    userProfile.age &&  
+    userProfile.city &&  
+    userProfile.goal;  
 
-    if (!hasCompleteProfile) {
+if (!hasCompleteProfile) {  
 
-        this.push(
-            userId,
-            "random_profile_gender"
-        );
+    this.push(  
+        userId,  
+        "random_profile_gender"  
+    );  
 
-        await profileController.showGenderSelection(
-            bot,
-            msg
-        );
+    await profileController.showGenderSelection(  
+        bot,  
+        msg  
+    );  
 
-        return true;
-    }
+    return true;  
+}  
 
-    return await randomchat.findRandom(
-        bot,
-        msg
-    );
-        }
-
-
-        /*
-         * =====================================================
-         * CHARACTER SELECTION
-         * =====================================================
-         */
-
-        if (
-            text ===
-            "🤖 Выбрать персонажа"
-        ) {
-
-            this.push(
-                userId,
-                "characters"
-            );
+return await randomchat.findRandom(  
+    bot,  
+    msg  
+);  
+    }  
 
 
-            await this.showCharactersMenu(
-                bot,
-         
+    /*  
+     * =====================================================  
+     * CHARACTER SELECTION  
+     * =====================================================  
+     */  
 
-        return true;
-    }
+    if (  
+        text ===  
+        "🤖 Выбрать персонажа"  
+    ) {  
 
-
-    const isAdmin =
-        permissions.isAdmin(
-            userId
-        );
-
-
-    const isVerified =
-        await verification.isVerified(
-            userId
-        );
+        this.push(  
+            userId,  
+            "characters"  
+        );  
 
 
-    if (
-        !isAdmin &&
-        !isVerified
-    ) {
+        await this.showCharactersMenu(  
+            bot,  
+            msg  
+        );  
 
-        this.push(
-            userId,
-            "verification"
-        );
+        return true;  
+    }  
 
 
-        await verificationMenu.showVerificationMenu(
-            bot,
-            msg
-        );
+    /*  
+     * =====================================================  
+     * VERIFICATION ENTRY  
+     * ===================================================== */  
 
-        return true;
-    }
+    if (  
+        text ===  
+        "🔐 Пройти верификацию"  
+    ) {  
 
-    /*
-     * =====================================================
-     * START NEW NIKA DIALOG
-     * =====================================================
-     *
-     * Every explicit entry into Nika starts
-     * a new persistent dialog session.
-     *
-     * Long-term memory and relationship state
-     * remain untouched.
+        return await verificationController.startVerification(  
+            bot,  
+            msg  
+        );  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * NIKA ENTRY  
+     * =====================================================  
      */
 
-    await nika.startNewConversation(
-        userId
-    );
-
-
-    this.push(
-        userId,
-        "nika"
-    );
-
-
-    await bot.sendMessage(
-        msg.chat.id,
-        "Привет. Я Ника. Теперь можем поговорить."
-    );
-
-    return true;
-}
-
-
-        /*
-         * =====================================================
-         * AIDA ENTRY
-         * =====================================================
-         */
-
-        if (
-            text ===
-            "🤖 Поговорить с ИИ"
-        ) {
-
-            const partnerId =
-                randomchat.leave(
-                    msg.chat.id
-                );
-
-
-            if (
-                partnerId
-            ) {
-
-                await bot.sendMessage(
-                    partnerId,
-                    "❌ Собеседник перешёл в режим ИИ."
-                );
-            }
-
-
-            this.push(
-                userId,
-                "aida"
-            );
-
-
-            return await aida.handle(
-                bot,
-                msg
-            );
-        }
-
-
-        /*
-         * =====================================================
-         * ACTIVE ROUTING
-         * =====================================================
-         */
-
-        const stack =
-            this.getStack(
-                userId
-            );
-
-
-        /*
-         * =====================================================
-         * VERIFICATION VIDEO NOTE
-         * =====================================================
-         */
-
-        if (
-            msg.video_note
-        ) {
-
-            const handled =
-                await verificationController.handleVideoNote(
-                    bot,
-                    msg
-                );
-
-
-            if (
-                handled
-            ) {
-
-                return true;
-            }
-        }
-
-
-        /*
-         * =====================================================
-         * PROFILE GENDER ACTIVE MODE
-         * =====================================================
-         */
-
-        if (
-    stack[
-        stack.length - 1
-    ] === "profile_gender"
-) {
-    const handled =
-        await profileController.handleGenderSelection(
-            bot,
-            msg
-        );
-
-    if (handled) {
-        stack.pop();
-
-        this.push(
-            userId,
-            "verification"
-        );
-
-        await verificationMenu.showVerificationMenu(
-            bot,
-            msg
-        );
-    }
-
-    return true;
-}
-
-
-        /*
- * =====================================================
- * RANDOM PROFILE GENDER ACTIVE MODE
- * =====================================================
- */
-
 if (
-    stack[
-        stack.length - 1
-    ] === "random_profile_gender"
+text === "Ника"
 ) {
 
-    const handled =
-        await profileController.handleGenderSelection(
-            bot,
-            msg
-        );
+const isBlocked =  
+    await profile.isBlocked(  
+        userId  
+    );  
 
-    if (handled) {
 
-        stack.pop();
+if (  
+    isBlocked  
+) {  
 
-        this.push(
-            userId,
-            "random_profile_age"
-        );
+    await bot.sendMessage(  
+        msg.chat.id,  
+        "Извините, Ника не желает общаться с вами."  
+    );  
 
-        await profileController.showAgeSelection(
-            bot,
-            msg
-        );
-    }
+    return true;  
+}  
 
-    return true;
+
+const hasProfile =  
+    await profile.hasRequiredProfile(  
+        userId  
+    );  
+
+
+if (  
+    !hasProfile  
+) {  
+
+    this.push(  
+        userId,  
+        "profile_gender"  
+    );  
+
+
+    await profileController.showGenderSelection(  
+        bot,  
+        msg  
+    );  
+
+    return true;  
+}  
+
+
+const gender =  
+    await profile.getGender(  
+        userId  
+    );  
+
+
+if (  
+    gender !== "woman"  
+) {  
+
+    await bot.sendMessage(  
+        msg.chat.id,  
+        "Извините, Ника не желает общаться с вами."  
+    );  
+
+    return true;  
+}  
+
+
+const isAdmin =  
+    permissions.isAdmin(  
+        userId  
+    );  
+
+
+const isVerified =  
+    await verification.isVerified(  
+        userId  
+    );  
+
+
+if (  
+    !isAdmin &&  
+    !isVerified  
+) {  
+
+    this.push(  
+        userId,  
+        "verification"  
+    );  
+
+
+    await verificationMenu.showVerificationMenu(  
+        bot,  
+        msg  
+    );  
+
+    return true;  
+}  
+
+/*  
+ * =====================================================  
+ * START NEW NIKA DIALOG  
+ * =====================================================  
+ *  
+ * Every explicit entry into Nika starts  
+ * a new persistent dialog session.  
+ *  
+ * Long-term memory and relationship state  
+ * remain untouched.  
+ */  
+
+await nika.startNewConversation(  
+    userId  
+);  
+
+
+this.push(  
+    userId,  
+    "nika"  
+);  
+
+
+await bot.sendMessage(  
+    msg.chat.id,  
+    "Привет. Я Ника. Теперь можем поговорить."  
+);  
+
+return true;
+
 }
 
+/*  
+     * =====================================================  
+     * AIDA ENTRY  
+     * =====================================================  
+     */  
+
+    if (  
+        text ===  
+        "🤖 Поговорить с ИИ"  
+    ) {  
+
+        const partnerId =  
+            randomchat.leave(  
+                msg.chat.id  
+            );  
+
+
+        if (  
+            partnerId  
+        ) {  
+
+            await bot.sendMessage(  
+                partnerId,  
+                "❌ Собеседник перешёл в режим ИИ."  
+            );  
+        }  
+
+
+        this.push(  
+            userId,  
+            "aida"  
+        );  
+
+
+        return await aida.handle(  
+            bot,  
+            msg  
+        );  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * ACTIVE ROUTING  
+     * =====================================================  
+     */  
+
+    const stack =  
+        this.getStack(  
+            userId  
+        );  
+
+
+    /*  
+     * =====================================================  
+     * VERIFICATION VIDEO NOTE  
+     * =====================================================  
+     */  
+
+    if (  
+        msg.video_note  
+    ) {  
+
+        const handled =  
+            await verificationController.handleVideoNote(  
+                bot,  
+                msg  
+            );  
+
+
+        if (  
+            handled  
+        ) {  
+
+            return true;  
+        }  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * PROFILE GENDER ACTIVE MODE  
+     * =====================================================  
+     */  
+
+    if (  
+stack[  
+    stack.length - 1  
+] === "profile_gender"
+
+) {
+const handled =
+await profileController.handleGenderSelection(
+bot,
+msg
+);
+
+if (handled) {  
+    stack.pop();  
+
+    this.push(  
+        userId,  
+        "verification"  
+    );  
+
+    await verificationMenu.showVerificationMenu(  
+        bot,  
+        msg  
+    );  
+}  
+
+return true;
+
+}
 
 /*
- * =====================================================
- * RANDOM PROFILE AGE ACTIVE MODE
- * =====================================================
- */
+
+=====================================================
+
+RANDOM PROFILE GENDER ACTIVE MODE
+
+=====================================================
+*/
+
 
 if (
-    stack[
-        stack.length - 1
-    ] === "random_profile_age"
+stack[
+stack.length - 1
+] === "random_profile_gender"
 ) {
 
-    const handled =
-        await profileController.handleAgeSelection(
-            bot,
-            msg
-        );
+const handled =  
+    await profileController.handleGenderSelection(  
+        bot,  
+        msg  
+    );  
 
-    if (handled) {
+if (handled) {  
 
-        stack.pop();
+    stack.pop();  
 
-        this.push(
-            userId,
-            "random_profile_city"
-        );
+    this.push(  
+        userId,  
+        "random_profile_age"  
+    );  
 
-        await profileController.showCitySelection(
-            bot,
-            msg
-        );
-    }
+    await profileController.showAgeSelection(  
+        bot,  
+        msg  
+    );  
+}  
 
-    return true;
+return true;
+
 }
-
 
 /*
- * =====================================================
- * RANDOM PROFILE CITY ACTIVE MODE
- * =====================================================
- */
+
+=====================================================
+
+RANDOM PROFILE AGE ACTIVE MODE
+
+=====================================================
+*/
+
 
 if (
-    stack[
-        stack.length - 1
-    ] === "random_profile_city"
+stack[
+stack.length - 1
+] === "random_profile_age"
 ) {
 
-    const handled =
-        await profileController.handleCitySelection(
-            bot,
-            msg
-        );
+const handled =  
+    await profileController.handleAgeSelection(  
+        bot,  
+        msg  
+    );  
 
-    if (handled) {
+if (handled) {  
 
-        stack.pop();
+    stack.pop();  
 
-        this.push(
-            userId,
-            "random_profile_goal"
-        );
+    this.push(  
+        userId,  
+        "random_profile_city"  
+    );  
 
-        await profileController.showGoalSelection(
-            bot,
-            msg
-        );
-    }
+    await profileController.showCitySelection(  
+        bot,  
+        msg  
+    );  
+}  
 
-    return true;
+return true;
+
 }
-
 
 /*
- * =====================================================
- * RANDOM PROFILE GOAL ACTIVE MODE
- * =====================================================
- */
+
+=====================================================
+
+RANDOM PROFILE CITY ACTIVE MODE
+
+=====================================================
+*/
+
 
 if (
-    stack[
-        stack.length - 1
-    ] === "random_profile_goal"
+stack[
+stack.length - 1
+] === "random_profile_city"
 ) {
 
-    const handled =
-        await profileController.handleGoalSelection(
-            bot,
-            msg
-        );
+const handled =  
+    await profileController.handleCitySelection(  
+        bot,  
+        msg  
+    );  
 
-    if (handled) {
+if (handled) {  
 
-        stack.pop();
+    stack.pop();  
 
-        return await randomchat.findRandom(
-            bot,
-            msg
-        );
-    }
+    this.push(  
+        userId,  
+        "random_profile_goal"  
+    );  
 
-    return true;
-}
-        /*
-         * =====================================================
-         * RANDOM CHAT ACTIVE MODE
-         * =====================================================
-         */
+    await profileController.showGoalSelection(  
+        bot,  
+        msg  
+    );  
+}  
 
-        if (
-            await randomchat.handle(
-                bot,
-                msg
-            )
-        ) {
+return true;
 
-            return true;
-        }
-
-
-        /*
-         * =====================================================
-         * NIKA ACTIVE MODE
-         * =====================================================
-         */
-
-        if (
-            stack[
-                stack.length - 1
-            ] === "nika"
-        ) {
-
-            return await nika.handle(
-                bot,
-                msg
-            );
-        }
-
-
-        /*
-         * =====================================================
-         * AIDA ACTIVE MODE
-         * =====================================================
-         */
-
-        if (
-            stack[
-                stack.length - 1
-            ] === "aida"
-        ) {
-
-            return await aida.handle(
-                bot,
-                msg
-            );
-        }
-
-
-        /*
-         * =====================================================
-         * SEARCH FILTER ACTIVE MODE
-         * =====================================================
-         */
-
-        if (
-            stack[
-                stack.length - 1
-            ] === "search_filter"
-        ) {
-
-            return await searchFilter.handle(
-                bot,
-                msg
-            );
-        }
-
-
-        /*
-         * =====================================================
-         * NOTHING FOUND
-         * =====================================================
-         */
-
-        return false;
-    }
 }
 
+/*
+
+=====================================================
+
+RANDOM PROFILE GOAL ACTIVE MODE
+
+=====================================================
+*/
+
+
+if (
+stack[
+stack.length - 1
+] === "random_profile_goal"
+) {
+
+const handled =  
+    await profileController.handleGoalSelection(  
+        bot,  
+        msg  
+    );  
+
+if (handled) {  
+
+    stack.pop();  
+
+    return await randomchat.findRandom(  
+        bot,  
+        msg  
+    );  
+}  
+
+return true;
+
+}
+/*
+* =====================================================
+* RANDOM CHAT ACTIVE MODE
+* =====================================================
+*/
+
+if (  
+        await randomchat.handle(  
+            bot,  
+            msg  
+        )  
+    ) {  
+
+        return true;  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * NIKA ACTIVE MODE  
+     * =====================================================  
+     */  
+
+    if (  
+        stack[  
+            stack.length - 1  
+        ] === "nika"  
+    ) {  
+
+        return await nika.handle(  
+            bot,  
+            msg  
+        );  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * AIDA ACTIVE MODE  
+     * =====================================================  
+     */  
+
+    if (  
+        stack[  
+            stack.length - 1  
+        ] === "aida"  
+    ) {  
+
+        return await aida.handle(  
+            bot,  
+            msg  
+        );  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * SEARCH FILTER ACTIVE MODE  
+     * =====================================================  
+     */  
+
+    if (  
+        stack[  
+            stack.length - 1  
+        ] === "search_filter"  
+    ) {  
+
+        return await searchFilter.handle(  
+            bot,  
+            msg  
+        );  
+    }  
+
+
+    /*  
+     * =====================================================  
+     * NOTHING FOUND  
+     * =====================================================  
+     */  
+
+    return false;  
+}
+
+}
 
 module.exports = new Router();
